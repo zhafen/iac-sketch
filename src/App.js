@@ -4,16 +4,17 @@ import React, { useEffect, useRef } from "react";
 const workflow = await d3.json("/workflow.json");
 const resources = await d3.json("/resources.json");
 
-const taskNodes = [];
-const flowLinks = [];
+// Parse the workflow to get the nodes and links
+const nodes = [];
+const links = [];
 for (const key of Object.keys(workflow)) {
   for (const item of workflow[key]) {
     if (item.type === "task") {
-      taskNodes.push({
+      nodes.push({
         id: key,
       });
     } else if (item.type === "flow") {
-      flowLinks.push({
+      links.push({
         source: item.source,
         target: item.target,
         value: 1,
@@ -21,12 +22,12 @@ for (const key of Object.keys(workflow)) {
     }
   }
   if (workflow[key].type === "task") {
-    taskNodes.push({
+    nodes.push({
       id: key,
       group: 1,
     });
   } else if (workflow[key].type === "flow") {
-    flowLinks.push({
+    links.push({
       source: workflow[key].source,
       target: workflow[key].target,
       value: 1,
@@ -34,22 +35,17 @@ for (const key of Object.keys(workflow)) {
   }
 }
 
-const data = {
-  nodes: [
-    { id: "node1", group: 1 },
-    { id: "node2", group: 1 },
-    { id: "node3", group: 1 },
-  ],
-  links: [
-    { source: "node1", target: "node2", value: 1 },
-    { source: "node1", target: "node3", value: 10 },
-  ],
-}
-
-// The force simulation mutates links and nodes, so create a copy
-// so that re-evaluating this cell produces the same result.
-const links = flowLinks.map(d => ({...d}));
-const nodes = taskNodes.map(d => ({...d}));
+// const data = {
+  // nodes: [
+    // { id: "node1", group: 1 },
+    // { id: "node2", group: 1 },
+    // { id: "node3", group: 1 },
+  // ],
+  // links: [
+    // { source: "node1", target: "node2", value: 1 },
+    // { source: "node1", target: "node3", value: 10 },
+  // ],
+// }
 
 export default function ForceDirectedGraph({ width=640, height=400 }) {
   const svgRef = useRef();
