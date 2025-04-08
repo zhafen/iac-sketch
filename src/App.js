@@ -16,9 +16,10 @@ for (const key of Object.keys(workflow)) {
         id: key,
       });
     } else if (item.type === "flow") {
+      const [source, target] = item.edges.split(" --> ");
       links.push({
-        source: item.source,
-        target: item.target,
+        source: source,
+        target: target,
         value: 1,
       });
     }

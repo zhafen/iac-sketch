@@ -4,5 +4,4 @@ create_story:
   - type: task
 workflow:
   - type: flow
-    source: receive_request
-    target: create_story
+    edges: receive_request --> create_story
