@@ -12,12 +12,12 @@ const links = [];
 for (const key of Object.keys(workflow)) {
   for (const item of workflow[key]) {
     // Add task resources as nodes
-    if (item.resource === "task") {
+    if (item.r === "task") {
       nodes.push({
         id: key,
       });
     // Parse flow resources
-    } else if (item.resource === "flow") {
+    } else if (item.r === "flow") {
       for (const edge of item.edges.split("\n")) {
         if (edge.trim() === "") continue; // Skip empty lines
         const [source, target] = edge.split(" --> ");

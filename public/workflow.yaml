@@ -1,11 +1,11 @@
 receive_request:
-  - resource: task
-create_story:
-  - resource: task
-create_branch:
-  - resource: task
+  - r: task
+create_azdo_resources:
+  - r: task
+refine_request:
+  - r: task
 workflow:
-  - resource: flow
+  - r: flow
     edges: |
-      receive_request --> create_story
-      create_story --> create_branch
+      receive_request --> create_azdo_resources
+      create_azdo_resources --> refine_request
