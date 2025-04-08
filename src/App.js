@@ -4,6 +4,36 @@ import React, { useEffect, useRef } from "react";
 const workflow = await d3.json("/workflow.json");
 const resources = await d3.json("/resources.json");
 
+const taskNodes = [];
+const flowLinks = [];
+for (const key of Object.keys(workflow)) {
+  for (const item of workflow[key]) {
+    if (item.type === "task") {
+      taskNodes.push({
+        id: key,
+      });
+    } else if (item.type === "flow") {
+      flowLinks.push({
+        source: item.source,
+        target: item.target,
+        value: 1,
+      });
+    }
+  }
+  if (workflow[key].type === "task") {
+    taskNodes.push({
+      id: key,
+      group: 1,
+    });
+  } else if (workflow[key].type === "flow") {
+    flowLinks.push({
+      source: workflow[key].source,
+      target: workflow[key].target,
+      value: 1,
+    });
+  }
+}
+
 const data = {
   nodes: [
     { id: "node1", group: 1 },
@@ -18,8 +48,8 @@ const data = {
 
 // The force simulation mutates links and nodes, so create a copy
 // so that re-evaluating this cell produces the same result.
-const links = data.links.map(d => ({...d}));
-const nodes = data.nodes.map(d => ({...d}));
+const links = flowLinks.map(d => ({...d}));
+const nodes = taskNodes.map(d => ({...d}));
 
 export default function ForceDirectedGraph({ width=640, height=400 }) {
   const svgRef = useRef();
