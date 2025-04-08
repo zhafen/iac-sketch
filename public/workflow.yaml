@@ -1,9 +1,21 @@
+# Requirements
 receive_request:
+  - r: requirement
   - r: task
+retrieve_requested_data_from_cloud:
+  - r: requirement
+  - r: task
+export_request_data_product:
+  - r: requirement
+  - r: task
+
+# Tasks
 create_azdo_resources:
   - r: task
 refine_request:
   - r: task
+
+# Workflow
 workflow:
   - r: flow
     edges: |
