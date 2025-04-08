@@ -21,7 +21,7 @@ const data = {
 const links = data.links.map(d => ({...d}));
 const nodes = data.nodes.map(d => ({...d}));
 
-function ForceDirectedGraph({ width, height }) {
+export default function ForceDirectedGraph({ width=640, height=400 }) {
   const svgRef = useRef();
 
   useEffect(() => {
@@ -92,17 +92,4 @@ function ForceDirectedGraph({ width, height }) {
   }, [width, height]);
 
   return <svg ref={svgRef} width={width} height={height}></svg>;
-}
-
-export default function LinePlot({
-  width = 640,
-  height = 400,
-  marginTop = 20,
-  marginRight = 20,
-  marginBottom = 20,
-  marginLeft = 20
-}) {
-  return (
-    <ForceDirectedGraph width={width} height={height} />
-  );
 }
