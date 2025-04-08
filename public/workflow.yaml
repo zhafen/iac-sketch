@@ -1,11 +1,11 @@
 receive_request:
-  - type: task
+  - resource: task
 create_story:
-  - type: task
+  - resource: task
 create_branch:
-  - type: task
+  - resource: task
 workflow:
-  - type: flow
+  - resource: flow
     edges: |
       receive_request --> create_story
       create_story --> create_branch
