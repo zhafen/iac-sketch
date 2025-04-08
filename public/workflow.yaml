@@ -2,6 +2,10 @@ receive_request:
   - type: task
 create_story:
   - type: task
+create_branch:
+  - type: task
 workflow:
   - type: flow
-    edges: receive_request --> create_story
+    edges: |
+      receive_request --> create_story
+      create_story --> create_branch

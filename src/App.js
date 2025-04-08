@@ -11,34 +11,39 @@ const nodes = [];
 const links = [];
 for (const key of Object.keys(workflow)) {
   for (const item of workflow[key]) {
+    // Add task resources as nodes
     if (item.type === "task") {
       nodes.push({
         id: key,
       });
+    // Parse flow resources
     } else if (item.type === "flow") {
-      const [source, target] = item.edges.split(" --> ");
-      links.push({
-        source: source,
-        target: target,
-        value: 1,
-      });
+      for (const edge of item.edges.split("\n")) {
+        if (edge.trim() === "") continue; // Skip empty lines
+        const [source, target] = edge.split(" --> ");
+        links.push({
+          source: source,
+          target: target,
+          value: 1,
+        });
+      }
     }
   }
 }
 
 // const data = {
-  // nodes: [
-    // { id: "node1", group: 1 },
-    // { id: "node2", group: 1 },
-    // { id: "node3", group: 1 },
-  // ],
-  // links: [
-    // { source: "node1", target: "node2", value: 1 },
-    // { source: "node1", target: "node3", value: 10 },
-  // ],
+// nodes: [
+// { id: "node1", group: 1 },
+// { id: "node2", group: 1 },
+// { id: "node3", group: 1 },
+// ],
+// links: [
+// { source: "node1", target: "node2", value: 1 },
+// { source: "node1", target: "node3", value: 10 },
+// ],
 // }
 
-export default function ForceDirectedGraph({ width=640, height=400 }) {
+export default function ForceDirectedGraph({ width = 640, height = 400 }) {
   const svgRef = useRef();
 
   useEffect(() => {
