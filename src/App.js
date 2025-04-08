@@ -21,18 +21,6 @@ for (const key of Object.keys(workflow)) {
       });
     }
   }
-  if (workflow[key].type === "task") {
-    nodes.push({
-      id: key,
-      group: 1,
-    });
-  } else if (workflow[key].type === "flow") {
-    links.push({
-      source: workflow[key].source,
-      target: workflow[key].target,
-      value: 1,
-    });
-  }
 }
 
 // const data = {
