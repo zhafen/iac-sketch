@@ -1,8 +1,10 @@
 import * as d3 from "d3";
 import React, { useEffect, useRef } from "react";
+import yaml from "yaml";
 
-const workflow = await d3.json("/workflow.json");
+// const workflow = await d3.json("/workflow.json");
 const resources = await d3.json("/resources.json");
+const workflow = await d3.text("/workflow.yaml").then(data => yaml.parse(data));
 
 // Parse the workflow to get the nodes and links
 const nodes = [];
