@@ -69,7 +69,18 @@ for (const entity of Object.keys(workflow)) {
 // ],
 // }
 
-export default function ForceDirectedGraph({ width = 640, height = 400 }) {
+export default function ForceDirectedGraph() {
+
+  const width = window.innerWidth * 0.8;
+  const height = window.innerHeight * 0.8;
+
+  const containerStyle = {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+  };
+
   const svgRef = useRef();
 
   useEffect(() => {
@@ -139,5 +150,9 @@ export default function ForceDirectedGraph({ width = 640, height = 400 }) {
     }
   }, [width, height]);
 
-  return <svg ref={svgRef} width={width} height={height}></svg>;
+  return (
+    <div style={containerStyle}>
+      <svg ref={svgRef} width={width} height={height}></svg>
+    </div>
+  );
 }
