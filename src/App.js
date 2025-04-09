@@ -9,17 +9,43 @@ const workflow = await d3.text("/workflow.yaml").then(data => yaml.parse(data));
 // Parse the workflow to get the nodes and links
 const nodes = [];
 const links = [];
-for (const key of Object.keys(workflow)) {
-  for (const item of workflow[key]) {
+// Loop over entities
+for (const entity of Object.keys(workflow)) {
+  // Loop over components per entity
+  for (const comp of workflow[entity]) {
+    // Parse
+    // If the component is just a string, that string is the type of the component
+    if (typeof comp === "string") {
+      var formatted_comp = { type: comp };
+    // If the component is an object, it should have a single key,
+    // which is the type of the component.
+    // If the value is an object, then value is the component.
+    } else if (typeof comp === "object" && Object.keys(comp).length === 1) {
+      const comp_value = Object.values(comp)[0];
+      const comp_key = Object.keys(comp)[0];
+      if (typeof comp_value === "object") {
+        var formatted_comp = { ...comp_value, type: comp_key };
+      } else {
+      // If the value is not an object, then the component consists of just the type
+      // and a single field with the type as the key and the value as the value.
+        var formatted_comp = { type: comp_key, comp_key: comp_value};
+      }
+    } else {
+      throw new Error(`Unexpected component format in workflow. Entity: ${entity}, Component: ${JSON.stringify(comp)}`);
+    }
+
     // Add task resources as nodes
-    if (item.r === "task") {
+    if (formatted_comp.type === "task") {
       nodes.push({
-        id: key,
+        id: entity,
       });
-    // Parse flow resources
-    } else if (item.r === "flow") {
-      for (const edge of item.edges.split("\n")) {
-        if (edge.trim() === "") continue; // Skip empty lines
+      // Parse flow resources
+    } else if (formatted_comp.type === "flow") {
+      for (const edge of formatted_comp.edges.split("\n")) {
+        // Skip empty lines
+        if (edge.trim() === "") continue;
+
+        // Get the source and target nodes
         const [source, target] = edge.split(" --> ");
         links.push({
           source: source,
