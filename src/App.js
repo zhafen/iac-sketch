@@ -92,13 +92,27 @@ export default function ForceDirectedGraph() {
       .force("charge", d3.forceManyBody().strength(-300))
       .force("center", d3.forceCenter(width / 2, height / 2));
 
+    const marker = svg.append("defs").append("marker")
+      .attr('id', 'arrow')
+      .attr("fill-opacity", 0.6)
+      .attr('viewBox', '0 0 30 10')
+      .attr('refX', 30)
+      .attr('refY', 5)
+      .attr('markerWidth', 30)
+      .attr('markerHeight', 10)
+      .attr('markerUnits', 'userSpaceOnUse')
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M 0 0 L 30 5 L 0 10 Z');
+
     const link = svg.append("g")
       .attr("stroke", "#999")
       .attr("stroke-opacity", 0.6)
       .selectAll("line")
       .data(links)
       .join("line")
-      .attr("stroke-width", d => Math.sqrt(d.value));
+      .attr("stroke-width", 5)
+      .attr("marker-end", "url(#arrow)");
 
     const node = svg.append("g")
       .attr("stroke", "#fff")
