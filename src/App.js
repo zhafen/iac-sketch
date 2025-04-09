@@ -71,8 +71,8 @@ for (const entity of Object.keys(workflow)) {
 
 export default function ForceDirectedGraph() {
 
-  const width = window.innerWidth * 0.8;
-  const height = window.innerHeight * 0.8;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
   const containerStyle = {
     display: "flex",
