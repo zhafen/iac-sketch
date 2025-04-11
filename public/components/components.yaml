@@ -1,7 +1,8 @@
+# Fundamental components
 component:
 - component
-- description: |
-  If an entity has a "component" component, then it can be a component itself.
+- description: >
+    If an entity has a "component" component, then it can be a component itself.
 
 description:
 - component
@@ -10,17 +11,62 @@ description:
 
 fields:
 - component
-- description: Special component used to define attributes.
+- description: >
+    Special component used to define attributes, each of which is a required component.
+      field_name [type of component]: description
 
 value:
 - component
-- description: |
-  If an entity/component has a "value" then this component describes
-  the type for that value.
+- description: >
+    If an entity/component has a "value" then this component describes
+    the type for that value. In the data this is represented as a field with the same
+    name as the entity.
 - value: str
+
+# Relationship components
+
+source:
+  - component
+  - description: A source entity.
+  - value: entity
+
+target:
+  - component
+  - description: A target entity.
+  - value: entity
+
+link:
+- component
+- description: >
+    A component that describes a link between two entities. Contains the same data
+    as a sole source component + a sole target component.
+- fields:
+    source [source]: "The source entity."
+    target [target]: "The target entity."
+
+links:
+- component
+- description: >
+    A description of multiple links, using the syntax:
+      source --> target
+      second_source --> second_target
+- fields:
+    links [str]: The string description.
+    type [component]: >
+      The type of the links. Must be a component that has either a source and target
+      component or a link component.
+
+# Descriptive components
 
 task:
 - component
+
+dependency:
+- component
+- description: A relationship where the target entity depends on the source entity.
+- fields:
+    source [source]: "The source entity."
+    target [target]: "The entity that depends on the source entity."
 
 requirement:
 - component

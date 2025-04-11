@@ -1,23 +1,23 @@
 # Requirements
-receive_request:
+accept_request:
+  - description: >
+      We should be able to receive a request, initiating the process.
   - requirement
   - task
-retrieve_requested_data_from_cloud:
+build_product:
+  - description: >
+      The actual work on the product itself.
+  - task
+deliver_product:
+  - description: >
+      After completing the request, viewers should be able to request the product
+      at their preferred time.
   - requirement
-  - task
-export_product:
-  - requirement
-  - task
-
-# Tasks
-create_azdo_resources:
-  - task
-refine_request:
   - task
 
 # Workflow
-workflow:
-  - flow:
-      edges: |
-        receive_request --> create_azdo_resources
-        create_azdo_resources --> refine_request
+global_workflow:
+  - workflow
+  - links: >
+      accept_request --> build_product
+      build_product --> deliver_product

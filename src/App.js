@@ -124,33 +124,6 @@ export default function ForceDirectedGraph() {
       .attr("fill", d => d3.schemeCategory10[d.group % 10])
       .call(drag(simulation));
 
-    const labels = svg.append("g")
-      .selectAll("text")
-      .data(nodes)
-      .join("text")
-      .attr("x", d => d.x)
-      .attr("y", d => d.y)
-      .attr("dy", "0.35em")
-      .attr("text-anchor", "middle")
-      .attr("font-size", "10px")
-      .text(d => d.id);
-
-    simulation.on("tick", () => {
-      link
-      .attr("x1", d => d.source.x)
-      .attr("y1", d => d.source.y)
-      .attr("x2", d => d.target.x)
-      .attr("y2", d => d.target.y);
-
-      node
-      .attr("cx", d => d.x)
-      .attr("cy", d => d.y);
-
-      labels
-      .attr("x", d => d.x)
-      .attr("y", d => d.y);
-    });
-
     simulation.on("tick", () => {
       link
         .attr("x1", d => d.source.x)
