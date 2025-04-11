@@ -1,0 +1,31 @@
+component:
+- component
+- description: |
+  If an entity has a "component" component, then it can be a component itself.
+
+description:
+- component
+- description: Widely-used component that describes the entity in question.
+- value: str
+
+fields:
+- component
+- description: Special component used to define attributes.
+
+value:
+- component
+- description: |
+  If an entity/component has a "value" then this component describes
+  the type for that value.
+- value: str
+
+task:
+- component
+
+requirement:
+- component
+
+state:
+- component
+- description: "Progress state of the entity."
+- value: str
