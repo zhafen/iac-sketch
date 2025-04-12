@@ -1,3 +1,7 @@
+# There is no "true" most-general way to define data. There are advantages and
+# disadvantages to each formulation. Instead what we want are a few workable
+# components. When helpful, one can convert between them or define new formulations.
+
 # Fundamental components
 component:
 - component
@@ -32,60 +36,38 @@ value:
 - I want to provide alternate ways to describe relationships
 - If I require each link to have a type, how are the type components defined?
 - If I have links component, how do I map it to the link component?
-
-
-link:
-- component
-- description: >
-    A component that describes a generic link between two entities.
-    Link formulation A.
-- fields:
-    source [entity]: The source entity.
-    target [entity]: The target entity.
+- Why do we *need* a link component in the first place?
+- >
 
 link:
 - component
 - description: >
-    A component that describes a generic link between two entities.
-    Link formulation B.
+    A component that describes a directed edge between two entities. This formulation
+    of a link is the formulation expected by D3.
 - fields:
     source [entity]: The source entity.
     target [entity]: The target entity.
     link_type [entity]: The link type entity.
 
-link_type:
+relationship:
 - component
 - description: >
-    If a component has this component, then it describes a relationship.
+    Component that indicates the containing component can be converted to a link.
+
+function:
+- component
+- description:
+- fields:
+    input [[entity]]: Input entities.
+    output [[entity]]: Output entities.
 
 dependency:
 - component
-- description: Indicates a dependency. Dependency formulation A.
-- value: link
-
-dependency:
-- component
-- description: Indicates a dependency. Dependency formulation A.
+- relationship
+- description: Indicates that the target depends on the source.
 - fields:
     source [entity]: Source entity.
     target [entity]: Target entity.
-
-dependency:
-- component
-- link_type
-- description: Indicates a dependency. Dependency formulation C.
-
-three_way_link:
-- component
-- fields:
-    first_entity [entity]: The first entity.
-    second_entity [entity]: The second entity.
-    third_entity [entity]: The third entity.
-
-three_way_link:
-- component
-- 
-
 
 links:
 - component
