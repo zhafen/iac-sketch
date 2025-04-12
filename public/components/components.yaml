@@ -3,6 +3,10 @@ component:
 - component
 - description: >
     If an entity has a "component" component, then it can be a component itself.
+    A requirement for components is that if they require another entity
+    for their definition, then that entity must be a component of the component.
+    Alternatively, a would-be component can be part of a parent component alongside
+    the component it depends on.
 
 description:
 - component
@@ -25,24 +29,63 @@ value:
 
 # Relationship components
 
-source:
-  - component
-  - description: A source entity.
-  - value: entity
+- I want to provide alternate ways to describe relationships
+- If I require each link to have a type, how are the type components defined?
+- If I have links component, how do I map it to the link component?
 
-target:
-  - component
-  - description: A target entity.
-  - value: entity
 
 link:
 - component
 - description: >
-    A component that describes a link between two entities. Contains the same data
-    as a sole source component + a sole target component.
+    A component that describes a generic link between two entities.
+    Link formulation A.
 - fields:
-    source [source]: "The source entity."
-    target [target]: "The target entity."
+    source [entity]: The source entity.
+    target [entity]: The target entity.
+
+link:
+- component
+- description: >
+    A component that describes a generic link between two entities.
+    Link formulation B.
+- fields:
+    source [entity]: The source entity.
+    target [entity]: The target entity.
+    link_type [entity]: The link type entity.
+
+link_type:
+- component
+- description: >
+    If a component has this component, then it describes a relationship.
+
+dependency:
+- component
+- description: Indicates a dependency. Dependency formulation A.
+- value: link
+
+dependency:
+- component
+- description: Indicates a dependency. Dependency formulation A.
+- fields:
+    source [entity]: Source entity.
+    target [entity]: Target entity.
+
+dependency:
+- component
+- link_type
+- description: Indicates a dependency. Dependency formulation C.
+
+three_way_link:
+- component
+- fields:
+    first_entity [entity]: The first entity.
+    second_entity [entity]: The second entity.
+    third_entity [entity]: The third entity.
+
+three_way_link:
+- component
+- 
+
 
 links:
 - component
@@ -51,10 +94,45 @@ links:
       source --> target
       second_source --> second_target
 - fields:
-    links [str]: The string description.
-    type [component]: >
+    graph [str]: A graph describing the links.
+    type [link_type]: >
       The type of the links. Must be a component that has either a source and target
       component or a link component.
+- representation: [link]
+
+linked:
+- component
+- description: A list of entities that are fully connected.
+- fields:
+    entities [list[entity]]: The list of connected entities.
+    type [link_type]: >
+      The type of the links. Must be a component that has either a source and target
+      component or a link component.
+- representation: [link]
+- representation: [links]
+
+representation:
+- component
+- description: >
+    If an entity has a representation component that means it can be represented by
+    a combination of the components in the list.
+- value: [entity]
+
+representation_of:
+- component
+- description: This indicates that this is a representation of the entity.
+- value: entity
+
+relationship_representations:
+- component
+- description: A list of all the representations for relationships.
+- links:
+    - graph:
+        - [source, target, link_type]
+        - link
+        - links
+        - linked
+    - type: representation
 
 # Descriptive components
 
@@ -63,10 +141,8 @@ task:
 
 dependency:
 - component
+- link_type
 - description: A relationship where the target entity depends on the source entity.
-- fields:
-    source [source]: "The source entity."
-    target [target]: "The entity that depends on the source entity."
 
 requirement:
 - component

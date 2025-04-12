@@ -18,6 +18,9 @@ deliver_product:
 # Workflow
 global_workflow:
   - workflow
-  - links: >
-      accept_request --> build_product
-      build_product --> deliver_product
+  - links:
+      graph:
+        accept_request --> build_product
+        build_product --> deliver_product
+      type: dependency
+    
