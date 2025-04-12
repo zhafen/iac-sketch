@@ -30,35 +30,10 @@ build_report:
     get_feedback --> work_on_report
     get_feedback --> finalize_report
 
-request:
-- component
-- description: The data submitted via the intake form.
-- fields:
-    requester_net_id [str]: NU Net ID for the requester.
-    description [str]: Description of the request.
-    irb_number [str]: IRB number of the associated study.
-
-report:
-- component
-- description: The metadata associated with a report.
-- fields:
-    report_id [str]: ID for the report.
-    irb_number [str]: IRB number for the study associated with the report.
-    snow_id [str]: SNow ticket number for the original request.
-    azdo_id [str]: Azure DevOps ticket associated with the request.
-- primary_key: report_id
-
-data_product:
-- component
-- description: >
-    Component that indicates the existence of a data product and points to it.
-- fields:
-    uri [str]: Uniform Resource Id (URI) for the data product.
-- primary_key: uri
-
 set_up_report:
 - task
-- implementation: build_report.ReportSystem.set_up_report
+- description: 
+- status: design
 
 report_notebook:
 - description: The notebook containing the code to build the data report.

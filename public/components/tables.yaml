@@ -1,0 +1,29 @@
+request:
+- description: The data submitted via the intake form.
+- data:
+    requester_net_id [str]: NU Net ID for the requester.
+    description [str]: Description of the request.
+    irb_number [str]: IRB number of the associated study.
+
+report:
+- description: The metadata associated with a report.
+- data:
+    irb_number [str]: IRB number for the study associated with the report.
+    snow_id [str]: SNow ticket number for the original request.
+    azdo_id [str]: Azure DevOps ticket associated with the request.
+
+data_product:
+- description: >
+    Component that indicates the existence of a data product and points to it.
+- data:
+    location [str]: >
+      Overall location the data resides in. Examples include "unity table"
+      and "unity volume".
+    path [str]: Path inside the overall location to the data.
+
+code:
+- description: A file of source code.
+- data:
+    repository [str]: AzDO repo the code resides in.
+    branch [str]: Branch inside the repo the code resides in.
+    path [str]: Path inside the repository to the code.

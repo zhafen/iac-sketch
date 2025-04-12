@@ -22,11 +22,11 @@ description:
 - description: Widely-used component that describes the entity in question.
 - value: str
 
-fields:
+data:
 - component
 - description: >
-    Special component used to define attributes, each of which is a required component.
-      field_name [type of component]: description
+    Special component used to define data associated with instances of a component.
+    Any entity that owns a data component is assumed to be a component itself.
 
 value:
 - component
@@ -49,7 +49,7 @@ link:
 - description: >
     A component that describes a directed edge between two entities. This formulation
     of a link is the formulation expected by D3.
-- fields:
+- data:
     source [entity]: The source entity.
     target [entity]: The target entity.
     link_type [entity]: The link type entity.
@@ -62,7 +62,7 @@ relationship:
 function:
 - component
 - description:
-- fields:
+- data:
     input [[entity]]: Input entities.
     output [[entity]]: Output entities.
 
@@ -70,7 +70,7 @@ dependency:
 - component
 - relationship
 - description: Indicates that the target depends on the source.
-- fields:
+- data:
     source [entity]: Source entity.
     target [entity]: Target entity.
 
@@ -80,7 +80,7 @@ links:
     A description of multiple links, using the syntax:
       source --> target
       second_source --> second_target
-- fields:
+- data:
     graph [str]: A graph describing the links.
     type [link_type]: >
       The type of the links. Must be a component that has either a source and target
@@ -90,7 +90,7 @@ links:
 linked:
 - component
 - description: A list of entities that are fully connected.
-- fields:
+- data:
     entities [list[entity]]: The list of connected entities.
     type [link_type]: >
       The type of the links. Must be a component that has either a source and target
