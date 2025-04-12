@@ -1,26 +1,46 @@
 # Requirements
 accept_request:
-  - description: >
-      We should be able to receive a request, initiating the process.
-  - requirement
-  - task
-build_product:
-  - description: >
-      The actual work on the product itself.
-  - task
-deliver_product:
-  - description: >
-      After completing the request, viewers should be able to request the product
-      at their preferred time.
-  - requirement
-  - task
+- description: >
+    We should be able to receive a request, initiating the process.
+- requirement
+- task
 
-# Workflow
-global_workflow:
-  - workflow
-  - links:
-      graph:
-        accept_request --> build_product
-        build_product --> deliver_product
-      type: dependency
+deliver_product:
+- description: >
+    After completing the request, viewers should be able to request the product
+    at their preferred time.
+- requirement
+- task
+
+# Implementation
+request_workflow:
+- workflow: >
+    accept_request --> build_product
+    build_product --> deliver_product
+
+build_product:
+- description: >
+    The actual work on the product itself.
+- task
+- workflow: >
+    define_product --> set_up_report
+    set_up_report --> work_on_product
+    work_on_product --> get_feedback
+    get_feedback --> work_on_product
+    get_feedback --> finalize_product
+
+work_on_product:
+- task
+- workflow: >
+    set_up_report --> 
+
+analysis_workflow:
+- workflow
+- graph: >
     
+
+report_notebook:
+- description: The notebook containing the code to build the data product.
+
+cohort_notebook:
+- description: The notebook containing the code to define the cohort.

@@ -1,6 +1,11 @@
 # There is no "true" most-general way to define data. There are advantages and
 # disadvantages to each formulation. Instead what we want are a few workable
 # components. When helpful, one can convert between them or define new formulations.
+# *Why* is there no unique representation? There is only one physical object, so
+# we should be able to just represent it with the coordinates of each of the atoms.
+# However, this is impractical. First, we don't even know what this is. It's very hard
+# to measure. Second, even if we knew what this was, we would need to perform a
+# calculation to get what we wanted to know about it to accomplish our objective.
 
 # Fundamental components
 component:
