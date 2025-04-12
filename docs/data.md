@@ -52,3 +52,9 @@ What is documentation? It contains
 - necessary information to update the procedure under a change in requirements
 - necessary information to fix something if it breaks
 - a way to find the relevant documentation for something
+
+# What data formulation will we use?
+
+Currently I'm leaning towards an Entity-Component-System-like yaml formulation for defining infrastructure. For storing the data, I was thinking about having it stored as relational data. So we would need a converter from ECS-yaml to relational data. I've looked around for a little bit, but I haven't found anything trhat uses this formulation. The reason I'm leaning towards it is that makes it really easy to describe arbitrary objects. I *think* in this framework that each component instance is a resource.
+
+For uniquely identifying component instances I was going to have the entity they are associated with as well as an index counting which number component they are for that entity. So the ID for a given component is (entity_id,entity_index), and every component table would have that.
