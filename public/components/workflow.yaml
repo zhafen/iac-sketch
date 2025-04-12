@@ -32,11 +32,34 @@ build_report:
 
 set_up_report:
 - task
-- description: 
+- description: Set up the file structure for a report, including a template.
 - status: design
 
-report_notebook:
-- description: The notebook containing the code to build the data report.
+run_report:
+- description: Run the code to generate a report.
+- task
+- workflow: >
+    run_etl --> run_report_notebook
+    run_cohort_notebook --> run_report_notebook
+
+run_report:
+- alternate_definition
+- description: Run the code to generate a report.
+- task
+- algorithm: >
+    sorted_report_code = report_code.sort("execution_priority")
+    for code in sorted_report_code:
+      notebook.run(code)
 
 cohort_notebook:
-- description: The notebook containing the code to define the cohort.
+- description: A notebook containing the code to define the cohort for a report.
+
+report_notebook:
+- description: A notebook containing the code to generate a report table for a report.
+
+report_table:
+- description: >
+    A table containing the selected data elements for a report. There can be multiple.
+
+pbi_report:
+- description: The Power BI dashboard.
