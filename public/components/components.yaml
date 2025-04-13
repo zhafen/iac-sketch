@@ -38,11 +38,15 @@ value:
 
 # Relationship components
 
-- I want to provide alternate ways to describe relationships
-- If I require each link to have a type, how are the type components defined?
-- If I have links component, how do I map it to the link component?
-- Why do we *need* a link component in the first place?
-- >
+source:
+- component
+- description: A source entity used for describing relationships.
+- value: entity
+
+target:
+- component
+- description: A target entity used for describing relationships.
+- value: entity
 
 link:
 - component
@@ -50,29 +54,8 @@ link:
     A component that describes a directed edge between two entities. This formulation
     of a link is the formulation expected by D3.
 - data:
-    source [entity]: The source entity.
-    target [entity]: The target entity.
-    link_type [entity]: The link type entity.
-
-relationship:
-- component
-- description: >
-    Component that indicates the containing component can be converted to a link.
-
-function:
-- component
-- description:
-- data:
-    input [[entity]]: Input entities.
-    output [[entity]]: Output entities.
-
-dependency:
-- component
-- relationship
-- description: Indicates that the target depends on the source.
-- data:
-    source [entity]: Source entity.
-    target [entity]: Target entity.
+    source [source]: The source entity.
+    target [target]: The target entity.
 
 links:
 - component
@@ -85,51 +68,35 @@ links:
     type [link_type]: >
       The type of the links. Must be a component that has either a source and target
       component or a link component.
-- representation: [link]
 
-linked:
-- component
-- description: A list of entities that are fully connected.
-- data:
-    entities [list[entity]]: The list of connected entities.
-    type [link_type]: >
-      The type of the links. Must be a component that has either a source and target
-      component or a link component.
-- representation: [link]
-- representation: [links]
-
-representation:
+alternative_to:
 - component
 - description: >
-    If an entity has a representation component that means it can be represented by
-    a combination of the components in the list.
-- value: [entity]
-
-representation_of:
-- component
-- description: This indicates that this is a representation of the entity.
+    If an entity has this component, then the entity is an alternative to the component
+    stored in the value.
 - value: entity
 
-relationship_representations:
+dependency:
 - component
-- description: A list of all the representations for relationships.
-- links:
-    - graph:
-        - [source, target, link_type]
-        - link
-        - links
-        - linked
-    - type: representation
+- description: Indicates that the target depends on the source.
+- data:
+    source [source]: Source entity.
+    target [target]: Target entity.
+
+data_flow:
+- component
+- description: >
+    Describes a relationship between source and target where source provides data to
+    the target.
+- data:
+    source [source]: Entity outputting data.
+    target [target]: Entity accepting data.
+    data [entity]: The data being passed between entities.
 
 # Descriptive components
 
 task:
 - component
-
-dependency:
-- component
-- link_type
-- description: A relationship where the target entity depends on the source entity.
 
 requirement:
 - component

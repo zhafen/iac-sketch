@@ -42,8 +42,8 @@ run_report:
     run_etl --> run_report_notebook
     run_cohort_notebook --> run_report_notebook
 
-run_report:
-- alternate_definition
+run_report_algorithm_version:
+- alternative_to: run_report
 - description: Run the code to generate a report.
 - task
 - algorithm: >
