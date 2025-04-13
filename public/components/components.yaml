@@ -16,6 +16,7 @@ component:
     for their definition, then that entity must be a component of the component.
     Alternatively, a would-be component can be part of a parent component alongside
     the component it depends on.
+- tag
 
 description:
 - component
@@ -95,13 +96,33 @@ data_flow:
 
 # Descriptive components
 
+- tag:
+- component
+- description: >
+    When a component owns a tag component as part of its definition, then the component
+    describes information on how the owning entity should be treated.
+
 task:
 - component
+- description: If owned, the entity is a task to complete.
+- tag
+
+workflow:
+- component
+- descrition: If owned, the entity describes a series of tasks to run in order.
+
+trigger:
+- component
+- description: If owned, the entity can be triggered by the event described.
+- tag
+- value: str
 
 requirement:
 - component
+- description: If owned, the owner is mandated for the system to function.
+- tag
 
-state:
+status:
 - component
-- description: "Progress state of the entity."
+- description: "Progress status for the entity."
 - value: str
