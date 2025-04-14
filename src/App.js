@@ -126,7 +126,7 @@ export default function ForceDirectedGraph() {
       .selectAll("circle")
       .data(nodes)
       .join("circle")
-      .attr("r", 5)
+      .attr("r", 10)
       .attr("fill", d => d3.schemeCategory10[d.group % 10])
       .call(drag(simulation));
 
