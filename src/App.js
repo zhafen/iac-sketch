@@ -89,6 +89,11 @@ export default function ForceDirectedGraph() {
   const svgRef = useRef();
 
   useEffect(() => {
+
+    const zoom = d3.zoom()
+      .scaleExtent([1, 40])
+      .on("zoom", zoomed);
+
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); // Clear previous content
 
@@ -110,7 +115,9 @@ export default function ForceDirectedGraph() {
       .append('path')
       .attr('d', 'M 0 0 L 30 5 L 0 10 Z');
 
-    const link = svg.append("g")
+    const g = svg.append("g");
+
+    const link = g
       .attr("stroke", "#999")
       .attr("stroke-opacity", 0.6)
       .selectAll("path")
@@ -120,7 +127,7 @@ export default function ForceDirectedGraph() {
       .attr("marker-end", "url(#arrow)")
       .attr("fill", "none");
 
-    const node = svg.append("g")
+    const node = g
       .attr("stroke", "#fff")
       .attr("stroke-width", 1.5)
       .selectAll("circle")
@@ -130,7 +137,7 @@ export default function ForceDirectedGraph() {
       .attr("fill", d => d3.schemeCategory10[d.group % 10])
       .call(drag(simulation));
 
-    const label = svg.append("g")
+    const label = g
       .attr("font-family", "sans-serif")
       .attr("font-size", 20)
       .selectAll("text")
@@ -165,6 +172,8 @@ export default function ForceDirectedGraph() {
         .attr("y", d => d.y);
     });
 
+    svg.call(zoom);
+
     function drag(simulation) {
       function dragstarted(event, d) {
         if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -187,6 +196,10 @@ export default function ForceDirectedGraph() {
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended);
+    }
+
+    function zoomed({transform}) {
+      g.attr("transform", transform);
     }
   }, [width, height]);
 
