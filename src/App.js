@@ -4,43 +4,47 @@ import yaml from "yaml";
 
 // const workflow = await d3.json("/workflow.json");
 const resources = await d3.json("/resources.json");
-const workflow = await d3.text("/workflow.yaml").then(data => yaml.parse(data));
+const workflow = await d3.text("/components/workflow.yaml").then(data => yaml.parse(data));
 
 // Parse the workflow to get the nodes and links
 const nodes = [];
 const links = [];
 // Loop over entities
 for (const entity of Object.keys(workflow)) {
+
   // Loop over components per entity
   for (const comp of workflow[entity]) {
+
     // Parse
     // If the component is just a string, that string is the type of the component
     if (typeof comp === "string") {
       var formatted_comp = { type: comp };
-    // If the component is an object, it should have a single key,
-    // which is the type of the component.
-    // If the value is an object, then value is the component.
+
+      // If the component is an object, it should have a single key,
+      // which is the type of the component.
+      // If the value is an object, then value is the component.
     } else if (typeof comp === "object" && Object.keys(comp).length === 1) {
       const comp_value = Object.values(comp)[0];
       const comp_key = Object.keys(comp)[0];
       if (typeof comp_value === "object") {
         var formatted_comp = { ...comp_value, type: comp_key };
       } else {
-      // If the value is not an object, then the component consists of just the type
-      // and a single field with the type as the key and the value as the value.
-        var formatted_comp = { type: comp_key, comp_key: comp_value};
+
+        // If the value is not an object, then the component consists of just the type
+        // and a single field with the type as the key and the value as the value.
+        var formatted_comp = { type: comp_key, comp_key: comp_value };
       }
     } else {
       throw new Error(`Unexpected component format in workflow. Entity: ${entity}, Component: ${JSON.stringify(comp)}`);
     }
 
-    // Add task resources as nodes
-    if (formatted_comp.type === "task") {
-      nodes.push({
-        id: entity,
-      });
-      // Parse flow resources
-    } else if (formatted_comp.type === "flow") {
+    // Add the entity to the nodes
+    nodes.push({
+      id: entity,
+    });
+
+    // Parse links components
+    if (formatted_comp.type === "links") {
       for (const edge of formatted_comp.edges.split("\n")) {
         // Skip empty lines
         if (edge.trim() === "") continue;
@@ -51,6 +55,7 @@ for (const entity of Object.keys(workflow)) {
           source: source,
           target: target,
           value: 1,
+          type: formatted_comp.link_type,
         });
       }
     }
@@ -124,6 +129,15 @@ export default function ForceDirectedGraph() {
       .attr("fill", d => d3.schemeCategory10[d.group % 10])
       .call(drag(simulation));
 
+    const label = svg.append("g")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 20)
+      .selectAll("text")
+      .data(nodes)
+      .join("text")
+      .text(d => d.id)
+
+
     simulation.on("tick", () => {
       link
         .attr("x1", d => d.source.x)
@@ -134,6 +148,10 @@ export default function ForceDirectedGraph() {
       node
         .attr("cx", d => d.x)
         .attr("cy", d => d.y);
+
+      label
+        .attr("x", d => d.x + 10)
+        .attr("y", d => d.y);
     });
 
     function drag(simulation) {

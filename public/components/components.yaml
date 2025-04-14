@@ -49,15 +49,6 @@ target:
 - description: A target entity used for describing relationships.
 - value: entity
 
-link:
-- component
-- description: >
-    A component that describes a directed edge between two entities. This formulation
-    of a link is the formulation expected by D3.
-- data:
-    source [source]: The source entity.
-    target [target]: The target entity.
-
 links:
 - component
 - description: >
@@ -65,17 +56,18 @@ links:
       source --> target
       second_source --> second_target
 - data:
-    graph [str]: A graph describing the links.
-    type [link_type]: >
+    edges [str]: A string that describes the edges, in the 
+    link_type [entity]: >
       The type of the links. Must be a component that has either a source and target
       component or a link component.
 
-alternative_to:
+link:
 - component
 - description: >
-    If an entity has this component, then the entity is an alternative to the component
-    stored in the value.
-- value: entity
+    A component that describes a generic link between two entities.
+- data:
+    source [source]: The source entity.
+    target [target]: The target entity.
 
 dependency:
 - component
@@ -83,16 +75,19 @@ dependency:
 - data:
     source [source]: Source entity.
     target [target]: Target entity.
+    data [data]: >
+      The types and descriptions for any data being passed between entities.
+      Subtlety: by including data as one of the component fields, all instances of
+      a dependency are themselves a component definition. This is good, because
+      the different instances of the component describe different instances of the
+      dependency in action.
 
-data_flow:
+alternative_to:
 - component
 - description: >
-    Describes a relationship between source and target where source provides data to
-    the target.
-- data:
-    source [source]: Entity outputting data.
-    target [target]: Entity accepting data.
-    data [entity]: The data being passed between entities.
+    If an entity has this component, then the entity is an alternative to the component
+    stored in the value.
+- value: entity
 
 # Descriptive components
 

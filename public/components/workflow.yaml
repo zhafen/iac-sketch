@@ -14,33 +14,70 @@ deliver_report:
 
 # Implementation
 request_workflow:
-- workflow: >
-    accept_request --> build_report
-    build_report --> deliver_report
+- description: The overall workflow.
+- links:
+    edges: |
+      accept_request --> build_report
+      build_report --> deliver_report
+    link_type: dependency
 
 build_report:
 - description: >
     The actual work on the report itself.
 - task
-- workflow: >
-    define_report --> set_up_environment
-    set_up_environment --> set_up_report
-    set_up_report --> work_on_report
-    work_on_report --> get_feedback
-    get_feedback --> work_on_report
-    get_feedback --> finalize_report
+- links:
+    edges: |
+      define_report --> set_up_environment
+      set_up_environment --> set_up_report
+      set_up_report --> work_on_report
+      work_on_report --> get_feedback_on_report
+      get_feedback_on_report --> work_on_report
+      get_feedback_on_report --> finalize_report
+    link_type: dependency
+
+define_report:
+- task
+- description: Define the report products to be delivered, etc.
+
+set_up_environment:
+- task
+- description: Set up the environment used to create the report.
 
 set_up_report:
 - task
 - description: Set up the file structure for a report, including a template.
 - status: design
 
-run_report:
-- description: Run the code to generate a report.
+work_on_report:
 - task
-- workflow: >
-    run_etl --> run_report_notebook
-    run_cohort_notebook --> run_report_notebook
+- description: Make progress on producing the report products defined in define_report.
+
+get_feedback_on_report:
+- task
+- description: Get feedback on the report in progress.
+
+finalize_report:
+- task
+- description: Close out the PR for the report.
+
+run_report:
+- description: The steps to run the code to generate a report.
+- task
+- links:
+    edges: |
+      run_etl --> run_cohort_notebook
+      run_cohort_notebook --> run_report_notebook
+    link_type: dependency
+
+run_etl:
+- description: Run any ETL needed for the report.
+- task
+
+run_cohort_notebook:
+- description: Run the notebook that selects the cohort.
+
+run_report_notebook:
+- description: Run the notebook that produces the report tables.
 
 run_report_algorithm_version:
 - alternative_to: run_report
