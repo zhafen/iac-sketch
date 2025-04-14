@@ -113,11 +113,12 @@ export default function ForceDirectedGraph() {
     const link = svg.append("g")
       .attr("stroke", "#999")
       .attr("stroke-opacity", 0.6)
-      .selectAll("line")
+      .selectAll("path")
       .data(links)
-      .join("line")
+      .join("path")
       .attr("stroke-width", 5)
-      .attr("marker-end", "url(#arrow)");
+      .attr("marker-end", "url(#arrow)")
+      .attr("fill", "none");
 
     const node = svg.append("g")
       .attr("stroke", "#fff")
@@ -140,6 +141,12 @@ export default function ForceDirectedGraph() {
 
     simulation.on("tick", () => {
       link
+        .attr("d", d => {
+          const dx = d.target.x - d.source.x;
+          const dy = d.target.y - d.source.y;
+          const dr = Math.sqrt(dx * dx + dy * dy); // Arc radius
+          return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+        })
         .attr("x1", d => d.source.x)
         .attr("y1", d => d.source.y)
         .attr("x2", d => d.target.x)
