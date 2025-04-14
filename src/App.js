@@ -137,6 +137,10 @@ export default function ForceDirectedGraph() {
       .data(nodes)
       .join("text")
       .text(d => d.id)
+      .attr("stroke", "white") // Add white outline
+      .attr("stroke-width", 3) // Set outline thickness
+      .attr("paint-order", "stroke") // Ensure stroke is rendered below fill
+      .attr("fill", "black"); // Set text fill color
 
 
     simulation.on("tick", () => {
