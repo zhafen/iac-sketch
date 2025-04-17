@@ -87,30 +87,6 @@ run_report_algorithm_version:
     sorted_report_code = report_code.sort("execution_priority")
     for code in sorted_report_code:
       notebook.run(code)
-
-cohort_notebook:
-- description: A notebook containing the code to define the cohort for a report.
-- product:
-    product_type: cohort_notebook
-
-report_notebook:
-- code:
-    code_type: report_notebook
-    description: A notebook containing the code to generate a report table for a report. 
-    repository: ra_reports
-    branch: report/{report_id}
-    path:
-        irb_rank = 1: reports/{irb_number}/report{optional_label}.py
-        irb_rank > 1: reports/{irb_number}/report_{irb_rank}/report{optional_label}.py
-
-report_table:
-- description: >
-    A table containing the selected data elements for a report. There can be multiple.
-
-pbi_report:
-- description: The Power BI dashboard.
-- str_formatter: 
-
 report_string_formatter:
 - case:
     input: report

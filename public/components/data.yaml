@@ -1,0 +1,96 @@
+report:
+- description: The central fact table.
+- data:
+    report_id [str]: ID for the report.
+    irb_number [str]: IRB number for the study associated with the report.
+    irb_rank [int]: >
+        IRB rank is defined as the number of reports associated with a study at
+        the time of request intake, counting the report itself. As such, IRB rank
+        starts at 1 and increases in steps of 1.
+    snow_id [str]: SNow ticket number for the original request.
+    azdo_id [int]: Azure DevOps ticket associated with the request.
+- primary_key: report_id
+- references: >
+    report.snow_id 1 -- 1 request.snow_id
+    report.azdo_id 0..1 -- 0..* work_item.azdo_id
+- code_location_format:
+    repository: ra_reports
+    branch: reports/{irb_number}
+    parent_path [case]: Path inside the repository to the directory containing the code.
+- product_location_format:
+    location: unity_catalog
+    parent_path: research_dm.reports
+
+request:
+- description: The data submitted via the intake form.
+- data:
+    snow_id [str]: The service now ticket associated with the request.
+    requester_net_id [str]: NU Net ID for the requester.
+    irb_number [str]: IRB number of the associated study.
+    description [str]: Description of the request.
+- primary_key: snow_id
+
+work_item:
+- description: An Azure DevOps work item.
+- data:
+    azdo_id [int]: The ID provided by AzDO.
+    assigned_to [str]: The analyst the ticket is assigned to.
+
+report_notebook:
+- description: A notebook containing the code to create one or more report tables.
+- used_in: report
+- code_location_format:
+    path:
+        irb_rank = 1: report{optional_label}.py
+        irb_rank > 1: report_{irb_rank}/report{optional_label}.py
+
+cohort_notebook:
+- description: A notebook containing the code to define the cohort for a report.
+- used_in: report
+- code_location_format:
+    path:
+        irb_rank = 1: cohort{optional_label}.py
+        irb_rank > 1: report_{irb_rank}_{human_readable_label}/cohort{optional_label}.py
+
+etl_notebook:
+- description: A notebook containing the code to perform an ETL operation.
+- used_in: report
+- code_location_format:
+    path:
+        irb_rank = 1: etl{optional_label}.py
+        irb_rank > 1: report_{irb_rank}_{human_readable_label}/etl{optional_label}.py
+
+report_table:
+- description: >
+    A table containing the selected data elements for a report. There can be multiple.
+- used_in: report
+- product_location_format:
+    path: report_{report_id}_{human_readable_label}{optional_table_label}
+
+pbi_report:
+- description: The Power BI dashboard.
+
+code_location_format:
+- description: >
+    Table for describing metadata about a type of code, including how locations
+    are formatted.
+- data:
+    code_type [str]: What type of code this is for.
+    repository [case]: Formatted AzDO repo the code resides in.
+    branch [case]: Branch inside the repo the code resides in.
+    parent_path [case]: Path inside the repository to the directory containing the code.
+    path [case]: Path inside the parent_dir to the code.
+- primary_key: code_type
+
+product_location_format:
+- description: >
+    Table for describing metadata about a type of data product, including how
+    locations are formatted.
+- data:
+    data_product_type [str]: The type of the product.
+    location [case]: >
+      Overall location the data resides in. Examples include "unity table"
+      and "unity volume".
+    parent_path [case]: Path inside the location to the directory containing the product.
+    path [case]: Path inside parent_dir to the product itself.
+- primary_key: data_product_type
