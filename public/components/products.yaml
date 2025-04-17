@@ -44,8 +44,16 @@ pbi_report:
 - used_in: report
 - product_location_format:
     location: {pbi_workspace}
-    parent_path: ""
+    parent_path:
     path: "{irb_number}/report_{irb_rank}_{human_readable_label}"
+
+report_extract:
+- description: A data product made directly available to the end user, without PBI.
+- used_in: report
+- product_location_format:
+    location: TBD
+    parent_path: TBD
+    path: report_{report_id}_{human_readable_label}{optional_table_label}
 
 code_location_format:
 - description: >
