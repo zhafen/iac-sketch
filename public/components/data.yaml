@@ -6,10 +6,14 @@ report:
     irb_rank [int]: >
         IRB rank is defined as the number of reports associated with a study at
         the time of request intake, counting the report itself. As such, IRB rank
-        starts at 1 and increases in steps of 1.
+        starts at 1 and increases in steps of 1. When doing a partition over irb_number
+        ordered by created_date ascending this is the row number.
     snow_id [str]: SNow ticket number for the original request.
     azdo_id [int]: Azure DevOps ticket associated with the request.
     pbi_workspace [str]: Which Power BI workspace the report lives in.
+    inserted_datetime [timestamp]: >
+        Date when the report was created, i.e. the report_id was created and we started
+        tracking report status.
 - primary_key: report_id
 - references: >
     report.snow_id 1 -- 1 request.snow_id
@@ -33,69 +37,3 @@ work_item:
 - data:
     azdo_id [int]: The ID provided by AzDO.
     assigned_to [str]: The analyst the ticket is assigned to.
-
-report_notebook:
-- description: A notebook containing the code to create one or more report tables.
-- used_in: report
-- code_location_format:
-    path:
-        irb_rank = 1: report{optional_label}.py
-        irb_rank > 1: report_{irb_rank}/report{optional_label}.py
-
-cohort_notebook:
-- description: A notebook containing the code to define the cohort for a report.
-- used_in: report
-- code_location_format:
-    path:
-        irb_rank = 1: cohort{optional_label}.py
-        irb_rank > 1: report_{irb_rank}_{human_readable_label}/cohort{optional_label}.py
-
-etl_notebook:
-- description: A notebook containing the code to perform an ETL operation.
-- used_in: report
-- code_location_format:
-    path:
-        irb_rank = 1: etl{optional_label}.py
-        irb_rank > 1: report_{irb_rank}_{human_readable_label}/etl{optional_label}.py
-
-report_table:
-- description: >
-    A table containing the selected data elements for a report. There can be multiple.
-- used_in: report
-- product_location_format:
-    location: unity_catalog
-    parent_path: research_dm.reports
-    path: report_{report_id}_{human_readable_label}{optional_table_label}
-
-pbi_report:
-- description: The Power BI dashboard.
-- used_in: report
-- product_location_format:
-    location: {pbi_workspace}
-    parent_path: 
-    path: {irb_number}/report_{irb_rank}_{human_readable_label}
-
-code_location_format:
-- description: >
-    Table for describing metadata about a type of code, including how locations
-    are formatted.
-- data:
-    code_type [str]: What type of code this is for.
-    repository [case]: Formatted AzDO repo the code resides in.
-    branch [case]: Branch inside the repo the code resides in.
-    parent_path [case]: Path inside the repository to the directory containing the code.
-    path [case]: Path inside the parent_dir to the code.
-- primary_key: code_type
-
-product_location_format:
-- description: >
-    Table for describing metadata about a type of data product, including how
-    locations are formatted.
-- data:
-    data_product_type [str]: The type of the product.
-    location [case]: >
-      Overall location the data resides in. Examples include "unity table"
-      and "unity volume".
-    parent_path [case]: Path inside the location to the directory containing the product.
-    path [case]: Path inside parent_dir to the product itself.
-- primary_key: data_product_type
