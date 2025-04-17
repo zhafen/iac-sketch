@@ -1,7 +1,7 @@
 report:
 - description: The central fact table.
 - data:
-    report_id [str]: ID for the report.
+    report_id [str]: ID for the report, {irb_number}.{irb_rank:.02d} (e.g. STU001234.01)
     irb_number [str]: IRB number for the study associated with the report.
     irb_rank [int]: >
         IRB rank is defined as the number of reports associated with a study at
@@ -9,6 +9,7 @@ report:
         starts at 1 and increases in steps of 1.
     snow_id [str]: SNow ticket number for the original request.
     azdo_id [int]: Azure DevOps ticket associated with the request.
+    pbi_workspace [str]: Which Power BI workspace the report lives in.
 - primary_key: report_id
 - references: >
     report.snow_id 1 -- 1 request.snow_id
@@ -16,10 +17,7 @@ report:
 - code_location_format:
     repository: ra_reports
     branch: reports/{irb_number}
-    parent_path [case]: Path inside the repository to the directory containing the code.
-- product_location_format:
-    location: unity_catalog
-    parent_path: research_dm.reports
+    parent_path: reports/{irb_number}_{human_readable_label}
 
 request:
 - description: The data submitted via the intake form.
@@ -65,10 +63,17 @@ report_table:
     A table containing the selected data elements for a report. There can be multiple.
 - used_in: report
 - product_location_format:
+    location: unity_catalog
+    parent_path: research_dm.reports
     path: report_{report_id}_{human_readable_label}{optional_table_label}
 
 pbi_report:
 - description: The Power BI dashboard.
+- used_in: report
+- product_location_format:
+    location: {pbi_workspace}
+    parent_path: 
+    path: {irb_number}/report_{irb_rank}_{human_readable_label}
 
 code_location_format:
 - description: >
