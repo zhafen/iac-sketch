@@ -1,0 +1,5 @@
+research_analytics_azdo_project:
+- description: Azure Dev Ops project used for FSM Research Analytics.
+
+power_users_azdo_project:
+- description: Azure Dev Ops project used for Power Users.

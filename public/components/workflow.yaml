@@ -7,8 +7,8 @@ accept_request:
 
 deliver_report:
 - description: >
-    After completing the request, viewers should be able to request the report
-    at their preferred time.
+    After completing the request, viewers should be able to access the report
+    products at their preferred time.
 - requirement
 - task
 

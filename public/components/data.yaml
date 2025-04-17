@@ -1,23 +1,28 @@
 report:
-- description: The central fact table.
+- description: >
+    A report is a set of code, tables, etc. generated in response to a request.
+    Possible names:
+    - report
+    - product
+    - deliverable
+    - report
+    - solution
+    - collection
+    We are already using report widely, though. E.g. ra_reports, research_dm.reports.
 - data:
-    report_id [str]: ID for the report, {irb_number}.{irb_rank:.02d} (e.g. STU001234.01)
+    product_id [str]: ID for the report, {irb_number}.{irb_rank:.02d} (e.g. STU001234.01)
     irb_number [str]: IRB number for the study associated with the report.
     irb_rank [int]: >
         IRB rank is defined as the number of reports associated with a study at
         the time of request intake, counting the report itself. As such, IRB rank
         starts at 1 and increases in steps of 1. When doing a partition over irb_number
         ordered by created_date ascending this is the row number.
-    snow_id [str]: SNow ticket number for the original request.
     azdo_id [int]: Azure DevOps ticket associated with the request.
     pbi_workspace [str]: Which Power BI workspace the report lives in.
     inserted_datetime [timestamp]: >
-        Date when the report was created, i.e. the report_id was created and we started
+        Date when the report was created, i.e. the product_id was created and we started
         tracking report status.
-- primary_key: report_id
-- references: >
-    report.snow_id 1 -- 1 request.snow_id
-    report.azdo_id 0..1 -- 0..* work_item.azdo_id
+- primary_key: product_id
 - code_location_format:
     repository: ra_reports
     branch: reports/{irb_number}
@@ -27,6 +32,7 @@ request:
 - description: The data submitted via the intake form.
 - data:
     snow_id [str]: The service now ticket associated with the request.
+    product_id [str]: The ID of the overall product.
     requester_net_id [str]: NU Net ID for the requester.
     irb_number [str]: IRB number of the associated study.
     description [str]: Description of the request.
@@ -37,3 +43,8 @@ work_item:
 - data:
     azdo_id [int]: The ID provided by AzDO.
     assigned_to [str]: The analyst the ticket is assigned to.
+
+table_references:
+- references: >
+    report.product_id 1 -- 1..* request.product_id
+    report.azdo_id 0..1 -- 0..* work_item.azdo_id

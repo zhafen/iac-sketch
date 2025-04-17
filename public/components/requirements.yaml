@@ -1,0 +1,14 @@
+archive_data_products:
+- description: >
+    We want to be able to archive some of a table's history for data quality purposes.
+- requirement
+
+framework_manifest_data:
+- description:
+    We need the decisions that make up the framework detailed as some form of data.
+- requirement
+
+framework_manifest_documentation:
+- description: We need to convert the manifest data into useable documentation.
+- requirement
+
