@@ -26,7 +26,7 @@ description:
 data:
 - component
 - description: >
-    Special component used to define data associated with instances of a component.
+    Component used to define data associated with instances of a component.
     Any entity that owns a data component is assumed to be a component itself.
 
 value:
@@ -36,6 +36,14 @@ value:
     the type for that value. In the data this is represented as a field with the same
     name as the entity.
 - value: str
+
+case:
+- component
+- description: >
+    Component used to document if/elif/else statements.
+- data:
+    input [str]: Component entity that is the input for the case statement.
+    cases [dict[str, str]]: Case statement. Can be nested.
 
 # Relationship components
 
@@ -88,6 +96,11 @@ alternative_to:
     If an entity has this component, then the entity is an alternative to the component
     stored in the value.
 - value: entity
+
+references:
+- component
+- description: Describes relationships between fields in components
+- value: str
 
 # Descriptive components
 

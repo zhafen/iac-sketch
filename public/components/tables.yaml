@@ -1,29 +1,48 @@
+report:
+- description: The central fact table.
+- data:
+    report_id [str]: ID for the report.
+    irb_number [str]: IRB number for the study associated with the report.
+    irb_rank [int]: >
+        IRB rank is defined as the number of reports associated with a study at
+        the time of request intake, counting the report itself. As such, IRB rank
+        starts at 1 and increases in steps of 1.
+    snow_id [str]: SNow ticket number for the original request.
+    azdo_id [str]: Azure DevOps ticket associated with the request.
+- primary_key: report_id
+- references: >
+    report.snow_id 1 -- 1 request.snow_id
+    report.report_id 1 -- 0..* data_product.project_id
+    report.report_id 1 -- 0..* code.project_id
+
 request:
 - description: The data submitted via the intake form.
 - data:
+    snow_id [str]: The service now ticket associated with the request.
     requester_net_id [str]: NU Net ID for the requester.
-    description [str]: Description of the request.
     irb_number [str]: IRB number of the associated study.
-
-report:
-- description: The metadata associated with a report.
-- data:
-    irb_number [str]: IRB number for the study associated with the report.
-    snow_id [str]: SNow ticket number for the original request.
-    azdo_id [str]: Azure DevOps ticket associated with the request.
+    description [str]: Description of the request.
+- primary_key: snow_id
 
 data_product:
 - description: >
-    Component that indicates the existence of a data product and points to it.
+    Table for describing metadata about a type of data product, including how
+    locations are formatted.
 - data:
-    location [str]: >
+    data_product_type [str]: The type of the product.
+    location [case]: >
       Overall location the data resides in. Examples include "unity table"
       and "unity volume".
-    path [str]: Path inside the overall location to the data.
+    path [case]: Path inside the overall location to the data.
+- primary_key: data_product_type
 
 code:
-- description: A file of source code.
+- description: >
+    Table for describing metadata about a type of code, including how locations
+    are formatted.
 - data:
-    repository [str]: AzDO repo the code resides in.
-    branch [str]: Branch inside the repo the code resides in.
-    path [str]: Path inside the repository to the code.
+    code_type [str]: What type of code this is for.
+    repository [case]: Formatted AzDO repo the code resides in.
+    branch [case]: Branch inside the repo the code resides in.
+    path [case]: Path inside the repository to the code.
+- primary_key: code_type

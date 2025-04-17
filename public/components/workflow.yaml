@@ -90,9 +90,18 @@ run_report_algorithm_version:
 
 cohort_notebook:
 - description: A notebook containing the code to define the cohort for a report.
+- product:
+    product_type: cohort_notebook
 
 report_notebook:
-- description: A notebook containing the code to generate a report table for a report.
+- code:
+    code_type: report_notebook
+    description: A notebook containing the code to generate a report table for a report. 
+    repository: ra_reports
+    branch: report/{report_id}
+    path:
+        irb_rank = 1: reports/{irb_number}/report{optional_label}.py
+        irb_rank > 1: reports/{irb_number}/report_{irb_rank}/report{optional_label}.py
 
 report_table:
 - description: >
@@ -100,3 +109,15 @@ report_table:
 
 pbi_report:
 - description: The Power BI dashboard.
+- str_formatter: 
+
+report_string_formatter:
+- case:
+    input: report
+    cases:
+        report.irb_rank == 1:
+            report.product == cohort_notebook : reports/{irb_number}/cohort{optional_label}.py
+            report.product == report_notebook: reports/{irb_number}/report{optional_label}.py
+            report.product == report_table: reports/{irb_number}/report{optional_label}.py
+        report.irb_rank > 1:
+            file == cohort_notebook: reports/{irb_number}/cohort.py
