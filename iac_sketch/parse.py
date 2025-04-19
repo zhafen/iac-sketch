@@ -14,32 +14,49 @@ class Parser:
         for filename in glob.glob(f"{self.input_dir}/*.yaml"):
             with open(filename, 'r', encoding='utf-8') as file:
                 file_entities = yaml.safe_load(file)
-            self.entities.update(file_entities)
+
+                for entity, comps in file_entities.items():
+
+                    # Check if the entity already exists
+                    if entity in self.entities:
+                        raise KeyError(
+                            f"Entity {entity} is defined in multiple files."
+                        )
+
+                    self.entities[entity] = self.extract_entity(entity, comps)
+
+    def extract_entity(self, entity: str, comps: list):
+
+        extracted_comps = []
+        for i, entry in enumerate(comps):
+            format_error = ValueError(
+                f"Entity component {entity}.{i} is not formatted correctly."
+            )
+
+            # When just given a flag
+            if isinstance(entry, str):
+                comp_entity = entry
+                comp = {}
+            # When given values for a component
+            elif isinstance(entry, dict):
+                # Check formatting
+                if len(entry) != 1:
+                    raise format_error
+                comp_entity, comp = list(entry.items())[0]
+            # We should only have dictionaries or strings
+            else:
+                raise format_error
+
+            extracted_comps.append((comp_entity, comp))
+
+        return extracted_comps
 
     def transform(self):
         self.components = {
             "entity": [],
         }
         for entity, comps in self.entities.items():
-            for i, entry in enumerate(comps):
-
-                forrmat_error = ValueError(
-                    f"Entity component {entity}.{i} is not formatted correctly."
-                )
-
-                # When just given a flag
-                if isinstance(entry, str):
-                    comp_entity = entry
-                    comp = {}
-                # When given values for a component
-                elif isinstance(entry, dict):
-                    # Check formatting
-                    if len(entry) != 1:
-                        raise forrmat_error
-                    comp_entity, comp = list(entry.items())[0]
-                # We should only have dictionaries or strings
-                else:
-                    raise forrmat_error
+            for i, (comp_entity, comp) in enumerate(comps):
 
                 # Create the component
                 parsed = self.parse_component(comp_entity, comp)
@@ -60,4 +77,7 @@ class Parser:
         if not hasattr(self, parse_fn):
             return False
 
-        return getattr(self, parse_fn)(comp)
+        return getattr(self, parse_fn)(**comp)
+
+    def parse_component_component(self):
+        pass
