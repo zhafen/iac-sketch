@@ -1,9 +1,10 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=2,<4"]
+build-backend = "flit_core.buildapi"
+
 
 [project]
-name = "iac-sketch"
+name = "iac_sketch"
 version = "0.1.0"
 description = "A sketch for infrastructure as code."
 authors = [
