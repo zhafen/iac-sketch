@@ -4,13 +4,14 @@ report:
     Possible names:
     - report
     - product
+    - delivery
     - deliverable
     - report
     - solution
     - collection
     We are already using report widely, though. E.g. ra_reports, research_dm.reports.
 - data:
-    product_id [str]: ID for the report, {irb_number}.{irb_rank:.02d} (e.g. STU001234.01)
+    report_id [str]: ID for the report, {irb_number}.{irb_rank:.02d} (e.g. STU001234.01)
     irb_number [str]: IRB number for the study associated with the report.
     irb_rank [int]: >
         IRB rank is defined as the number of reports associated with a study at
@@ -46,5 +47,5 @@ work_item:
 
 table_references:
 - references: >
-    report.product_id 1 -- 1..* request.product_id
-    report.azdo_id 0..1 -- 0..* work_item.azdo_id
+    report.report_id 1 -- 1..* request.product_id
+    report.report_id 0..1 -- 0..* work_item.report_id

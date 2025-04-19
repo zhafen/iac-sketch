@@ -12,3 +12,6 @@ framework_manifest_documentation:
 - description: We need to convert the manifest data into useable documentation.
 - requirement
 
+power_users:
+- description: The framework needs to be usable by power users.
+- requirement

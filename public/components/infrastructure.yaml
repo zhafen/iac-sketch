@@ -1,5 +1,20 @@
+cloud_reporting_framework:
+- description: >
+    Term for the combined infrastructure that makes it possible for RA to deliver
+    reports using cloud data and resources.
+
 research_analytics_azdo_project:
 - description: Azure Dev Ops project used for FSM Research Analytics.
 
 power_users_azdo_project:
 - description: Azure Dev Ops project used for Power Users.
+
+ra_lib:
+- description:
+    Git repo containing code that is the backbone for the cloud reporting framework.
+
+ra_reports:
+- description: Git repo containing the code for reports.
+
+pu_reports:
+- description: Git repo containing the code for Power User reports.
