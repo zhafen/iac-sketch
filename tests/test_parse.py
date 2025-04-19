@@ -15,7 +15,7 @@ class TestParser(unittest.TestCase):
 
         self.parser.extract()
 
-        assert "component" in self.parser.entities.keys()
+        assert "component" in self.parser.entities.index
 
     def test_transform(self):
 

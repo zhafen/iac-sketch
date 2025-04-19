@@ -1,5 +1,6 @@
 import glob
 
+import pandas as pd
 import yaml
 
 
@@ -10,7 +11,7 @@ class Parser:
 
     def extract(self):
 
-        self.entities = {}
+        self.entities = []
         for filename in glob.glob(f"{self.input_dir}/*.yaml"):
             with open(filename, 'r', encoding='utf-8') as file:
                 file_entities = yaml.safe_load(file)
@@ -23,9 +24,13 @@ class Parser:
                             f"Entity {entity} is defined in multiple files."
                         )
 
-                    self.entities[entity] = self.extract_entity(entity, comps)
+                    self.entities += self.extract_entity(entity, comps)
 
-    def extract_entity(self, entity: str, comps: list):
+        self.entities = pd.DataFrame(self.entities).set_index(("entity", "entity_ind"))
+
+        return self.entities
+
+    def extract_entity(self, entity: str, comps: list) -> list:
 
         extracted_comps = []
         for i, entry in enumerate(comps):
@@ -47,7 +52,12 @@ class Parser:
             else:
                 raise format_error
 
-            extracted_comps.append((comp_entity, comp))
+            row = {
+                "entity": entity,
+                "entity_ind": i,
+                "component_entity": comp_entity,
+                "component": comp,
+            }
 
         return extracted_comps
 
@@ -59,7 +69,7 @@ class Parser:
             for i, (comp_entity, comp) in enumerate(comps):
 
                 # Create the component
-                parsed = self.parse_component(comp_entity, comp)
+                parsed = self.parse_component(comp_entity, comp, comps)
 
                 self.components["entity"].append(
                     {
@@ -70,7 +80,7 @@ class Parser:
                     }
                 )
 
-    def parse_component(self, comp_entity: str, comp: dict) -> bool:
+    def parse_component(self, comp_entity: str, comp: dict, comps: list[]) -> bool:
         
         # Look for the function to parse the entity
         parse_fn = f"parse_component_{comp_entity}"
