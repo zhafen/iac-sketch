@@ -6,7 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "iac-sketch"
 version = "0.1.0"
 description = "A sketch for infrastructure as code."
-authors = ["Zachary Hafen-Saavedra <z.hafen.saavedra@gmail.com>"]
-
-[project.dependencies]
-python = ">=3.8"
+authors = [
+    {name = "Zachary Hafen-Saavedra", email = "z.hafen.saavedra@gmail.com"},
+]
+dependencies = [
+    "PyYAML>=6.0.2",
+    "pandas",
+    "seaborn",
+]
