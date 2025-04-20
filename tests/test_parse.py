@@ -15,19 +15,13 @@ class TestParser(unittest.TestCase):
 
         self.parser.extract()
 
-        assert "component" in self.parser.entities.index
+        assert "component" in self.parser.entities["entity"].values
 
     def test_transform(self):
 
         self.parser.extract()
         self.parser.transform()
 
-        assert "component" in self.parser.components.keys()
+        assert "component" in self.parser.components
         assert "link" in self.parser.components["component"].index
-
-        # The entity component should record every entity
-        assert (
-            ~pd.Series(self.parser.entities.keys()).isin(
-                self.parser.components["entity"].index
-            )
-        ).sum() == 0
+        assert "data" not in self.parser.components

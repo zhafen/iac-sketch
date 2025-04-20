@@ -99,6 +99,9 @@ class Parser:
                 self.components[group_key] = getattr(self, parse_fn)(
                     group_key, entities_by_comp
                 )
+            # If the component is ignored, skip it
+            elif group_key in self.ignored_components:
+                continue
             # Default to the cleaned version
             else:
                 self.components[group_key] = self.get_cleaned_component_group(
@@ -107,6 +110,7 @@ class Parser:
 
         return self.components
 
+    # These components are handled as part of the component component
     ignored_components += ["data", "value"]
 
     def parse_component_component(
