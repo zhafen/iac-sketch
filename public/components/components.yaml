@@ -104,7 +104,7 @@ references:
 
 # Descriptive components
 
-- tag:
+tag:
 - component
 - description: >
     When a component owns a tag component as part of its definition, then the component
