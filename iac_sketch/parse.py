@@ -1,5 +1,6 @@
 import glob
 
+import numpy as np
 import pandas as pd
 import yaml
 
@@ -11,7 +12,7 @@ class Parser:
     def __init__(self, input_dir: str):
         self.input_dir = input_dir
 
-    def extract(self):
+    def extract(self) -> pd.DataFrame:
 
         self.entities = []
         for filename in glob.glob(f"{self.input_dir}/*.yaml"):
@@ -86,7 +87,7 @@ class Parser:
 
         return group
 
-    def transform(self):
+    def transform(self) -> dict[str, pd.DataFrame]:
 
         entities_by_comp = self.entities.groupby("component_entity")
 
@@ -109,6 +110,62 @@ class Parser:
                 )
 
         return self.components
+
+    def validate(self):
+
+        # Get the component table for easy access
+        comps = self.components["component"].copy()
+        # for comp_key, comp_df in self.components.items():
+
+        # Identify the components that are defined vs implicitly included
+        comps["defined"] = True
+        comps_created = pd.DataFrame({"entity": self.components.keys()})
+        comps = comps.merge(comps_created, how="outer", on="entity")
+        comps.loc[comps["defined"].isna(), "defined"] = False
+
+        valid = []
+        valid_message = []
+        for i, comp in comps.query("defined").iterrows():
+
+            comp_key = comp["entity"]
+            comp_is_na = comp.isna()
+
+            if not comp_is_na["value_type"]:
+
+                # Check if we only have one or the other
+                if not comp_is_na["data"]:
+                    valid.append(False)
+                    valid_message.append("has both a value_type and data")
+                    continue
+
+                # If we have a value type we turn the data into that
+                try:
+                    self.components[comp_key][comp_key] = self.components[comp_key][
+                        comp_key
+                    ].astype(comp["value_type"])
+                except (TypeError, KeyError):
+                    valid.append(False)
+                    valid_message.append(
+                        f"cannot convert {comp_key} to {comp['value_type']}"
+                    )
+                    continue
+
+            else:
+                pass
+
+            # If we got this far the component is valid
+            valid.append(False)
+            valid_message.append("validate function incomplete")
+
+        # Defaults
+        comps["valid"] = False
+        comps["valid_message"] = "undefined"
+        # Then override
+        comps.loc[comps["defined"], "valid"] = valid
+        comps.loc[comps["defined"], "valid_message"] = valid_message
+
+        self.components["component"] = comps
+        return comps
 
     # These components are handled as part of the component component
     ignored_components += ["data", "value"]
