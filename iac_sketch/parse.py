@@ -208,9 +208,9 @@ class Parser:
                 fields = {}
                 valid_fields = True
                 for field_key, field_descr in comp["data"].items():
-                    field_def = self.parse_field_definition(field_key, field_descr)
+                    field_name, field_def = self.parse_field_definition(field_key, field_descr)
 
-                    if isinstance(field_def, str):
+                    if field_name is None:
                         valid_fields = False
                         valid_message = (
                             f"field {field_key} is incorrectly formatted: "
@@ -218,7 +218,7 @@ class Parser:
                         )
                         break
                         
-                    fields[field_def["name"]] = field_def
+                    fields[field_name] = field_def
 
                 if not valid_fields:
                     valids.append(False)
