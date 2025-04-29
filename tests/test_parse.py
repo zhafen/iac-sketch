@@ -69,4 +69,14 @@ class TestParseFieldDefinition(unittest.TestCase):
         assert field_definition["description"] == "This is my field"
         assert field_definition["multiplicity"] == "0..*"
 
+    def test_nested_brackets(self):
+
+        field_key = 'my_field [dict[str, str]]'
+        field_value = 'This is my field'
+
+        field_definition = self.parser.parse_field_definition(field_key, field_value)
+        assert field_definition["name"] == "my_field"
+        assert field_definition["type"] == "dict[str, str]"
+        assert field_definition["description"] == "This is my field"
+        assert field_definition["multiplicity"] == "0..*"
         

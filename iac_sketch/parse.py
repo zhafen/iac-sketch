@@ -172,8 +172,8 @@ class Parser:
         components = components.merge(comps_created, how="outer", on="entity")
         components.loc[components["defined"].isna(), "defined"] = False
 
-        valid = []
-        valid_message = []
+        valids = []
+        valid_messages = []
         for i, comp in components.query("defined").iterrows():
 
             comp_key = comp["entity"]
@@ -184,8 +184,8 @@ class Parser:
 
                 # Check if we only have one or the other
                 if comp_not_na["data"]:
-                    valid.append(False)
-                    valid_message.append("has both a value_type and data")
+                    valids.append(False)
+                    valid_messages.append("has both a value_type and data")
                     continue
 
                 # If we have a value type we turn the data into that
@@ -196,8 +196,8 @@ class Parser:
                         comp_key
                     ].astype(comp["value_type"])
                 except (TypeError, KeyError):
-                    valid.append(False)
-                    valid_message.append(
+                    valids.append(False)
+                    valid_messages.append(
                         f"cannot convert {comp_key} to {comp['value_type']}"
                     )
                     continue
@@ -206,34 +206,35 @@ class Parser:
 
                 # Parse the fields
                 fields = {}
+                valid_fields = True
                 for field_key, field_descr in comp["data"].items():
                     field_def = self.parse_field_definition(field_key, field_descr)
 
-                    # Check if any field definition values are None,
-                    # i.e. incorrectly formatted
-                    valid_field_definition = None not in list(field_def.values())
-                    if not valid_field_definition:
-                        valid.append(False)
-                        valid_message.append(
-                            f"field {field_key} is not formatted correctly"
+                    if isinstance(field_def, str):
+                        valid_fields = False
+                        valid_message = (
+                            f"field {field_key} is incorrectly formatted: "
+                            + field_def
                         )
                         break
                         
                     fields[field_def["name"]] = field_def
 
-                if not valid_field_definition:
+                if not valid_fields:
+                    valids.append(False)
+                    valid_messages.append(valid_message)
                     continue
 
             # If we got this far the component is valid
-            valid.append(True)
-            valid_message.append("")
+            valids.append(True)
+            valid_messages.append("")
 
         # Defaults
         components["valid"] = False
         components["valid_message"] = "undefined"
         # Then override
-        components.loc[components["defined"], "valid"] = valid
-        components.loc[components["defined"], "valid_message"] = valid_message
+        components.loc[components["defined"], "valid"] = valids
+        components.loc[components["defined"], "valid_message"] = valid_messages
 
         return components
 
@@ -241,15 +242,16 @@ class Parser:
         self, field_key: str, field_value: str | dict[str, str]
     ) -> dict[str, str]:
 
-
         # Regex to parse the field definition
         pattern = (
             r"(?P<name>\w+)\s*"
-            + r"\[(?P<type>\w+)?"
+            + r"\[(?P<type>[^\[\]]+)?"
             + r"(?:\|(?P<multiplicity>[01\*]\.\.[01\*]))?\]"
         )
 
         match = re.match(pattern, field_key)
+        if match is None:
+            return "no match found"
 
         # Parse the multiplicity
         field_multiplicity = match.group("multiplicity")
@@ -264,13 +266,16 @@ class Parser:
             "multiplicity": field_multiplicity,
         }
 
+        # Check for None values
+        for key, value in field_definition.items():
+            if value is None:
+                return f"{key} not found"
+
         if isinstance(field_value, str):
             field_definition["description"] = field_value
         elif isinstance(field_value, dict):
             field_definition.update(field_value)
         else:
-            raise TypeError(
-                f"Field value must be a string or a dictionary, got {type(field_value)}"
-            )
+            return "unexpected field_value type"
 
         return field_definition
