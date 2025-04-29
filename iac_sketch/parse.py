@@ -243,7 +243,9 @@ class Parser:
     ) -> dict[str, str]:
 
         # Parse the overall field definition
-        pattern = r"(?P<name>\w+)\s*\[(?P<bracket>.*?)\]"
+        # The awful regex expression is to match the field name and balance brackets
+        # It was spat out by copilot, but it works...
+        pattern = r"(?P<name>\w+)\s*\[(?P<bracket>[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*)]"
         match = re.match(pattern, field_key)
 
         # Check results
