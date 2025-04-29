@@ -224,6 +224,7 @@ class Parser:
         self, field_key: str, field_value: str | dict[str, str]
     ) -> dict[str, str]:
 
+
         # Regex to parse the field definition
         pattern = r"(?P<field_name>\w+)\s*\[(?P<field_type>\w+)?\]"
 
@@ -235,7 +236,15 @@ class Parser:
         field_definition = {
             "field": field_name,
             "type": field_type,
-            "description": field_value,
         }
+
+        if isinstance(field_value, str):
+            field_definition["description"] = field_value
+        elif isinstance(field_value, dict):
+            field_definition.update(field_value)
+        else:
+            raise TypeError(
+                f"Field value must be a string or a dictionary, got {type(field_value)}"
+            )
 
         return field_definition

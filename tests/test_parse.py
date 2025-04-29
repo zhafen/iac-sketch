@@ -32,7 +32,7 @@ class TestParseFieldDefinition(unittest.TestCase):
         self.test_data_dir = "./public/components"
         self.parser = parse.Parser(self.test_data_dir)
 
-    def test_parse_field_definition(self):
+    def test_default(self):
 
         field_key = "my_field [int]"
         field_value = "This is my field"
@@ -41,5 +41,19 @@ class TestParseFieldDefinition(unittest.TestCase):
         assert field_definition["field"] == "my_field"
         assert field_definition["type"] == "int"
         assert field_definition["description"] == "This is my field"
+
+    def test_dict_provided(self):
+
+        field_key = "my_field [int]"
+        field_value = {
+            "description": "This is my field",
+            "multiplicity": "0..1",
+        }
+
+        field_definition = self.parser.parse_field_definition(field_key, field_value)
+        assert field_definition["field"] == "my_field"
+        assert field_definition["type"] == "int"
+        assert field_definition["description"] == "This is my field"
+        assert field_definition["multiplicity"] == "0..1"
 
         
