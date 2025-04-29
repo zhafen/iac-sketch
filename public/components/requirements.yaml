@@ -15,3 +15,8 @@ framework_manifest_documentation:
 power_users:
 - description: The framework needs to be usable by power users.
 - requirement
+
+audit_cohorts:
+- description: >
+    Be able to identify what patients were in a given cohort at a given date.
+- requirement

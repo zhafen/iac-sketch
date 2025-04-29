@@ -1,0 +1,3 @@
+variable_names:
+- description: >
+    Snake case. Do not put the type in the name unless there's possible confusion.

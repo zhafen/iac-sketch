@@ -18,3 +18,7 @@ ra_reports:
 
 pu_reports:
 - description: Git repo containing the code for Power User reports.
+
+databricks_workspace_volume:
+- description: The location we can write files to, including unstructured data.
+- uri: databricks:/Volumes/edr/external_volumes/mnt_eda_adls_research

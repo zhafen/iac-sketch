@@ -1,3 +1,47 @@
+patient:
+- description: Central entity all care and analysis is centered around.
+- data:
+    nm_bi.ir_id [str]: >
+        One of the options for identifying a patient, the unique ID contained in NM_BI.
+    clarity.pat_id [str]: >
+        Another option for identifying a patient.
+- time_dependent
+
+cohort:
+- description: A group of patients for a study.
+- data:
+    report [entity|1..*]: Each cohort corresponses to a specific report.
+    patients [list[entity]]:
+    is_active [bool]: Cohorts become active after a specific time and de-activate later.
+- data_size:
+    algorithm: time_size * (2 + n_patients) * n_entities
+    estimate: (365 * 5) * (2 + 1e6) * 2e3 ~ 1e12 ~ 1 TB
+
+cohort_3NF:
+- description: Third normal-form representation of cohort data.
+- representation_of: cohort
+
+
+query_cohort:
+- description: Load the list of patients in a cohort at a specified time.
+- task
+- parameters:
+    cohort [entity]:
+    time_observed [timestamp]: >
+        The time at which to look at the population of the cohort.
+- requirement
+- algorithm: >
+    cohort_ti = cohort.tloc[time_observed]
+    if not cohort_ti.is_active:
+        return
+    return cohort_ti.patients
+
+cohort_patient:
+- description: A record showing that a patient was in a cohort
+- data:
+    patient [entity]: 
+    cohort [entity]: 
+
 report:
 - description: >
     A report is a set of code, tables, etc. generated in response to a request.
