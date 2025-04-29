@@ -204,12 +204,29 @@ class Parser:
 
             if comp_not_na["data"]:
 
+                # Parse the fields
+                fields = {}
                 for field_key, field_descr in comp["data"].items():
-                    assert False
+                    field_def = self.parse_field_definition(field_key, field_descr)
+
+                    # Check if any field definition values are None,
+                    # i.e. incorrectly formatted
+                    valid_field_definition = None not in list(field_def.values())
+                    if not valid_field_definition:
+                        valid.append(False)
+                        valid_message.append(
+                            f"field {field_key} is not formatted correctly"
+                        )
+                        break
+                        
+                    fields[field_def["name"]] = field_def
+
+                if not valid_field_definition:
+                    continue
 
             # If we got this far the component is valid
-            valid.append(False)
-            valid_message.append("validate function incomplete")
+            valid.append(True)
+            valid_message.append("")
 
         # Defaults
         components["valid"] = False
@@ -242,7 +259,7 @@ class Parser:
 
         # Set up the field definition
         field_definition = {
-            "field": match.group("name"),
+            "name": match.group("name"),
             "type": match.group("type"),
             "multiplicity": field_multiplicity,
         }

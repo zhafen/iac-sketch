@@ -38,7 +38,7 @@ class TestParseFieldDefinition(unittest.TestCase):
         field_value = "This is my field"
 
         field_definition = self.parser.parse_field_definition(field_key, field_value)
-        assert field_definition["field"] == "my_field"
+        assert field_definition["name"] == "my_field"
         assert field_definition["type"] == "int"
         assert field_definition["description"] == "This is my field"
         # Default multiplicity
@@ -53,7 +53,7 @@ class TestParseFieldDefinition(unittest.TestCase):
         }
 
         field_definition = self.parser.parse_field_definition(field_key, field_value)
-        assert field_definition["field"] == "my_field"
+        assert field_definition["name"] == "my_field"
         assert field_definition["type"] == "int"
         assert field_definition["description"] == "This is my field"
         assert field_definition["multiplicity"] == "0..1"
@@ -64,7 +64,7 @@ class TestParseFieldDefinition(unittest.TestCase):
         field_value = "This is my field"
 
         field_definition = self.parser.parse_field_definition(field_key, field_value)
-        assert field_definition["field"] == "my_field"
+        assert field_definition["name"] == "my_field"
         assert field_definition["type"] == "int"
         assert field_definition["description"] == "This is my field"
         assert field_definition["multiplicity"] == "0..*"
