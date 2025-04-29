@@ -3,6 +3,13 @@ import glob
 import numpy as np
 import pandas as pd
 import yaml
+import re
+
+
+class Entity(str):
+    """Subclass of str to represent entities."""
+
+    pass
 
 
 class Parser:
@@ -97,9 +104,7 @@ class Parser:
             # Look for the function to parse the entity
             parse_fn = f"parse_component_{group_key}"
             if hasattr(self, parse_fn):
-                self.components[group_key] = getattr(self, parse_fn)(
-                    group_key, entities_by_comp
-                )
+                self.components[group_key] = getattr(self, parse_fn)(entities_by_comp)
             # If the component is ignored, skip it
             elif group_key in self.ignored_components:
                 continue
@@ -115,56 +120,9 @@ class Parser:
 
         # Get the component table for easy access
         comps = self.components["component"].copy()
-        # for comp_key, comp_df in self.components.items():
-
-        # Identify the components that are defined vs implicitly included
-        comps["defined"] = True
-        comps_created = pd.DataFrame({"entity": self.components.keys()})
-        comps = comps.merge(comps_created, how="outer", on="entity")
-        comps.loc[comps["defined"].isna(), "defined"] = False
-
-        valid = []
-        valid_message = []
-        for i, comp in comps.query("defined").iterrows():
-
-            comp_key = comp["entity"]
-            comp_is_na = comp.isna()
-
-            if not comp_is_na["value_type"]:
-
-                # Check if we only have one or the other
-                if not comp_is_na["data"]:
-                    valid.append(False)
-                    valid_message.append("has both a value_type and data")
-                    continue
-
-                # If we have a value type we turn the data into that
-                try:
-                    self.components[comp_key][comp_key] = self.components[comp_key][
-                        comp_key
-                    ].astype(comp["value_type"])
-                except (TypeError, KeyError):
-                    valid.append(False)
-                    valid_message.append(
-                        f"cannot convert {comp_key} to {comp['value_type']}"
-                    )
-                    continue
-
-            else:
-                pass
-
-            # If we got this far the component is valid
-            valid.append(False)
-            valid_message.append("validate function incomplete")
-
-        # Defaults
-        comps["valid"] = False
-        comps["valid_message"] = "undefined"
-        # Then override
-        comps.loc[comps["defined"], "valid"] = valid
-        comps.loc[comps["defined"], "valid_message"] = valid_message
 
         self.components["component"] = comps
+
         return comps
 
     # These components are handled as part of the component component
@@ -172,9 +130,16 @@ class Parser:
 
     def parse_component_component(
         self,
-        group_key: pd.DataFrame,
         entities_by_comp: pd.core.groupby.DataFrameGroupBy,
     ) -> pd.DataFrame:
+
+        components = self.build_components_dataframe(entities_by_comp)
+        components = self.validate_components(components)
+
+    def build_components_dataframe(
+        self, entities_by_comp: pd.core.groupby.DataFrameGroupBy
+    ) -> pd.DataFrame:
+        group_key = "component"
 
         # Get the entities with the components flag
         components = entities_by_comp.get_group(group_key)
@@ -198,3 +163,79 @@ class Parser:
         )
 
         return components
+
+    def validate_components(self, components: pd.DataFrame) -> pd.DataFrame:
+
+        # Identify the components that are defined vs implicitly included
+        components["defined"] = True
+        comps_created = pd.DataFrame({"entity": self.components.keys()})
+        components = components.merge(comps_created, how="outer", on="entity")
+        components.loc[components["defined"].isna(), "defined"] = False
+
+        valid = []
+        valid_message = []
+        for i, comp in components.query("defined").iterrows():
+
+            comp_key = comp["entity"]
+            comp_not_na = comp.notna()
+
+            # When there's a value, we check it's valid
+            if comp_not_na["value_type"]:
+
+                # Check if we only have one or the other
+                if comp_not_na["data"]:
+                    valid.append(False)
+                    valid_message.append("has both a value_type and data")
+                    continue
+
+                # If we have a value type we turn the data into that
+                try:
+                    # Among the components, the column with the name of the component
+                    # is where values are stored if the component is a single value
+                    self.components[comp_key][comp_key] = self.components[comp_key][
+                        comp_key
+                    ].astype(comp["value_type"])
+                except (TypeError, KeyError):
+                    valid.append(False)
+                    valid_message.append(
+                        f"cannot convert {comp_key} to {comp['value_type']}"
+                    )
+                    continue
+
+            if comp_not_na["data"]:
+
+                for field_key, field_descr in comp["data"].items():
+                    assert False
+
+            # If we got this far the component is valid
+            valid.append(False)
+            valid_message.append("validate function incomplete")
+
+        # Defaults
+        components["valid"] = False
+        components["valid_message"] = "undefined"
+        # Then override
+        components.loc[components["defined"], "valid"] = valid
+        components.loc[components["defined"], "valid_message"] = valid_message
+
+        return components
+
+    def parse_field_definition(
+        self, field_key: str, field_value: str | dict[str, str]
+    ) -> dict[str, str]:
+
+        # Regex to parse the field definition
+        pattern = r"(?P<field_name>\w+)\s*\[(?P<field_type>\w+)?\]"
+
+        match = re.match(pattern, field_key)
+
+        field_name = match.group("field_name")
+        field_type = match.group("field_type")
+
+        field_definition = {
+            "field": field_name,
+            "type": field_type,
+            "description": field_value,
+        }
+
+        return field_definition
