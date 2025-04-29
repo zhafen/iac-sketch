@@ -226,7 +226,11 @@ class Parser:
 
 
         # Regex to parse the field definition
-        pattern = r"(?P<name>\w+)\s*\[(?P<type>\w+)?(?:\|(?P<multiplicity>[01\*]\.\.[01\*]))?\]"
+        pattern = (
+            r"(?P<name>\w+)\s*"
+            + r"\[(?P<type>\w+)?"
+            + r"(?:\|(?P<multiplicity>[01\*]\.\.[01\*]))?\]"
+        )
 
         match = re.match(pattern, field_key)
 
