@@ -226,16 +226,21 @@ class Parser:
 
 
         # Regex to parse the field definition
-        pattern = r"(?P<field_name>\w+)\s*\[(?P<field_type>\w+)?\]"
+        pattern = r"(?P<name>\w+)\s*\[(?P<type>\w+)?(?:\|(?P<multiplicity>[01\*]\.\.[01\*]))?\]"
 
         match = re.match(pattern, field_key)
 
-        field_name = match.group("field_name")
-        field_type = match.group("field_type")
+        # Parse the multiplicity
+        field_multiplicity = match.group("multiplicity")
+        if field_multiplicity is None:
+            # Default multiplicity
+            field_multiplicity = "1..*"
 
+        # Set up the field definition
         field_definition = {
-            "field": field_name,
-            "type": field_type,
+            "field": match.group("name"),
+            "type": match.group("type"),
+            "multiplicity": field_multiplicity,
         }
 
         if isinstance(field_value, str):
