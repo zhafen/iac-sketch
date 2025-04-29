@@ -242,40 +242,38 @@ class Parser:
         self, field_key: str, field_value: str | dict[str, str]
     ) -> dict[str, str]:
 
-        # Regex to parse the field definition
-        pattern = (
-            r"(?P<name>\w+)\s*"
-            + r"\[(?P<type>[^\[\]]+)?"
-            + r"(?:\|(?P<multiplicity>[01\*]\.\.[01\*]))?\]"
-        )
-
+        # Parse the overall field definition
+        pattern = r"(?P<name>\w+)\s*\[(?P<bracket>.*?)\]"
         match = re.match(pattern, field_key)
+
+        # Check results
         if match is None:
-            return "no match found"
+            return None, "no match found"
+        field_name = match.group("name")
+        if field_name is None:
+            return None, "name not found"
+        bracket_contents = match.group("bracket")
 
-        # Parse the multiplicity
-        field_multiplicity = match.group("multiplicity")
-        if field_multiplicity is None:
-            # Default multiplicity
-            field_multiplicity = "1..*"
-
-        # Set up the field definition
+        # Override defaults
         field_definition = {
-            "name": match.group("name"),
-            "type": match.group("type"),
-            "multiplicity": field_multiplicity,
+            "type": None,
+            "multiplicity": "0..*",
         }
+        field_def_keys = list(field_definition.keys())
+        for i, field_attr_value in enumerate(bracket_contents.split("|")):
+            field_attr = field_def_keys[i]
+            field_definition[field_attr] = field_attr_value
 
         # Check for None values
         for key, value in field_definition.items():
             if value is None:
-                return f"{key} not found"
+                return None, f"{key} not found"
 
         if isinstance(field_value, str):
             field_definition["description"] = field_value
         elif isinstance(field_value, dict):
             field_definition.update(field_value)
         else:
-            return "unexpected field_value type"
+            return None, "unexpected type for field_value"
 
-        return field_definition
+        return field_name, field_definition
