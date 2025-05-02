@@ -126,7 +126,7 @@ class Parser:
         return comps
 
     # These components are handled as part of the component component
-    ignored_components += ["data", "value"]
+    ignored_components += ["data", ]
 
     def parse_component_component(
         self,
@@ -135,6 +135,8 @@ class Parser:
 
         components = self.build_components_dataframe(entities_by_comp)
         components = self.validate_components(components)
+
+        return components
 
     def build_components_dataframe(
         self, entities_by_comp: pd.core.groupby.DataFrameGroupBy
@@ -151,15 +153,10 @@ class Parser:
             columns={"comp_ind": "data_comp_ind", "component": "data"}
         ).drop(columns=["component_entity"])
 
-        # Get the entities with the value component
-        values = entities_by_comp.get_group("value")
-        values = values.rename(
-            columns={"comp_ind": "value_comp_ind", "component": "value_type"}
-        ).drop(columns=["component_entity"])
-
-        # Join the components with the data and value components
+        # Join the components with the data component
         components = components.set_index("entity").join(
-            [data.set_index("entity"), values.set_index("entity")], how="outer"
+            data.set_index("entity"),
+            how="outer"
         )
 
         return components
@@ -174,38 +171,15 @@ class Parser:
 
         valids = []
         valid_messages = []
+        fields_inds = []
+        fields = []
         for i, comp in components.query("defined").iterrows():
+            fields_i = {}
 
-            comp_key = comp["entity"]
-            comp_not_na = comp.notna()
-
-            # When there's a value, we check it's valid
-            if comp_not_na["value_type"]:
-
-                # Check if we only have one or the other
-                if comp_not_na["data"]:
-                    valids.append(False)
-                    valid_messages.append("has both a value_type and data")
-                    continue
-
-                # If we have a value type we turn the data into that
-                try:
-                    # Among the components, the column with the name of the component
-                    # is where values are stored if the component is a single value
-                    self.components[comp_key][comp_key] = self.components[comp_key][
-                        comp_key
-                    ].astype(comp["value_type"])
-                except (TypeError, KeyError):
-                    valids.append(False)
-                    valid_messages.append(
-                        f"cannot convert {comp_key} to {comp['value_type']}"
-                    )
-                    continue
-
-            if comp_not_na["data"]:
+            if comp.notna()["data"]:
 
                 # Parse the fields
-                fields = {}
+                fields_inds.append(i)
                 valid_fields = True
                 for field_key, field_descr in comp["data"].items():
                     field_name, field_def = self.parse_field_definition(field_key, field_descr)
@@ -218,12 +192,14 @@ class Parser:
                         )
                         break
                         
-                    fields[field_name] = field_def
+                    fields_i[field_name] = field_def
 
                 if not valid_fields:
                     valids.append(False)
                     valid_messages.append(valid_message)
+                    fields.append(pd.NA)
                     continue
+                fields.append(fields_i)
 
             # If we got this far the component is valid
             valids.append(True)
@@ -232,9 +208,11 @@ class Parser:
         # Defaults
         components["valid"] = False
         components["valid_message"] = "undefined"
+        components["fields"] = pd.NA
         # Then override
         components.loc[components["defined"], "valid"] = valids
         components.loc[components["defined"], "valid_message"] = valid_messages
+        components.loc[fields_inds, "fields"] = fields
 
         return components
 
