@@ -23,7 +23,7 @@ class TestParser(unittest.TestCase):
         self.parser.transform()
 
         assert "component" in self.parser.components
-        assert "link" in self.parser.components["component"].index
+        assert "link" in self.parser.components["component"]["entity"].values
         assert "data" not in self.parser.components
 
 

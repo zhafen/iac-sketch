@@ -50,7 +50,7 @@ class Field:
         elif isinstance(field_value, dict):
             kwargs.update(field_value)
         else:
-            return None, "unexpected type for field_value"
+            raise ValueError(f"field key {field_key} is not formatted correctly.")
 
         return cls(**kwargs)
 
@@ -224,29 +224,26 @@ class Parser:
 
                 # Parse the fields
                 valid_fields = True
-                for field_key, field_descr in comp["data"].items():
-                    field_name, field_def = self.parse_field_definition(field_key, field_descr)
-
-                    if field_name is None:
+                valid_message = ""
+                for field_key, field_value in comp["data"].items():
+                    try:
+                        field = Field.from_kv_pair(field_key, field_value)
+                        fields_i[field.name] = field
+                    except ValueError:
                         valid_fields = False
                         valid_message = (
-                            f"field {field_key} is incorrectly formatted: "
-                            + field_def
+                            f"field {field_key} is incorrectly formatted: {field_value}"
                         )
                         break
                         
-                    fields_i[field_name] = field_def
-
                 if not valid_fields:
                     valids.append(False)
                     valid_messages.append(valid_message)
                     fields.append(pd.NA)
                     continue
-                fields.append(fields_i)
-            else:
-                fields.append(pd.NA)
 
             # If we got this far the component is valid
+            fields.append(fields_i)
             valids.append(True)
             valid_messages.append("")
 
