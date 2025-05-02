@@ -27,23 +27,18 @@ class TestParser(unittest.TestCase):
         assert "data" not in self.parser.components
 
 
-class TestParseFieldDefinition(unittest.TestCase):
-
-    def setUp(self):
-        self.test_data_dir = "./public/components"
-        self.parser = parse.Parser(self.test_data_dir)
+class TestField(unittest.TestCase):
 
     def test_default(self):
 
         field_key = "my_field [int]"
         field_value = "This is my field"
 
-        field_name, field_def = self.parser.parse_field_definition(field_key, field_value)
-        assert field_name == "my_field"
-        assert field_def["type"] == "int"
-        assert field_def["description"] == "This is my field"
-        # Default multiplicity
-        assert field_def["multiplicity"] == "0..*"
+        field = parse.Field.from_kv_pair(field_key, field_value)
+        assert field.name == "my_field"
+        assert field.type == "int"
+        assert field.description == "This is my field"
+        assert field.multiplicity == "0..*"
 
     def test_dict_provided(self):
 
@@ -53,36 +48,30 @@ class TestParseFieldDefinition(unittest.TestCase):
             "multiplicity": "0..1",
         }
 
-        field_name, field_def = self.parser.parse_field_definition(
-            field_key, field_value
-        )
-        assert field_name == "my_field"
-        assert field_def["type"] == "int"
-        assert field_def["description"] == "This is my field"
-        assert field_def["multiplicity"] == "0..1"
+        field = parse.Field.from_kv_pair(field_key, field_value)
+        assert field.name == "my_field"
+        assert field.type == "int"
+        assert field.description == "This is my field"
+        assert field.multiplicity == "0..1"
 
     def test_multiplicity_in_brackets(self):
 
-        field_key = "my_field [int|0..*]"
+        field_key = "my_field [int|1..1]"
         field_value = "This is my field"
 
-        field_name, field_def = self.parser.parse_field_definition(
-            field_key, field_value
-        )
-        assert field_name == "my_field"
-        assert field_def["type"] == "int"
-        assert field_def["description"] == "This is my field"
-        assert field_def["multiplicity"] == "0..*"
+        field = parse.Field.from_kv_pair(field_key, field_value)
+        assert field.name == "my_field"
+        assert field.type == "int"
+        assert field.description == "This is my field"
+        assert field.multiplicity == "1..1"
 
     def test_nested_brackets(self):
 
         field_key = "my_field [dict[str, str]]"
         field_value = "This is my field"
 
-        field_name, field_def = self.parser.parse_field_definition(
-            field_key, field_value
-        )
-        assert field_name == "my_field"
-        assert field_def["type"] == "dict[str, str]"
-        assert field_def["description"] == "This is my field"
-        assert field_def["multiplicity"] == "0..*"
+        field = parse.Field.from_kv_pair(field_key, field_value)
+        assert field.name == "my_field"
+        assert field.type == "dict[str, str]"
+        assert field.description == "This is my field"
+        assert field.multiplicity == "0..*"

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import glob
 
 import numpy as np
@@ -9,8 +10,49 @@ import re
 class Entity(str):
     """Subclass of str to represent entities."""
 
-    pass
 
+@dataclass
+class Field:
+    name: str
+    type: str
+    description: str = ""
+    multiplicity: str = "0..*"
+
+    field_def_order = ["type", "multiplicity"]
+
+    @classmethod
+    def from_kv_pair(
+        cls, field_key: str, field_value: str | dict[str, str]
+    ) -> "Field":
+
+        # Parse the overall field definition
+        # The awful regex expression is to match the field name and balance brackets
+        # It was spat out by copilot, but it works...
+        pattern = r"(?P<name>\w+)\s*\[(?P<bracket>[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*)]"
+        match = re.match(pattern, field_key)
+
+        # Check results
+        if match is None:
+            raise ValueError(f"field key {field_key} is not formatted correctly.")
+        field_name = match.group("name")
+        if field_name is None:
+            raise ValueError(f"field key {field_key} is not formatted correctly.")
+        bracket_contents = match.group("bracket")
+
+        # Convert into keyword arguments
+        kwargs = {"name": field_name}
+        for i, field_attr_value in enumerate(bracket_contents.split("|")):
+            field_attr = cls.field_def_order[i]
+            kwargs[field_attr] = field_attr_value
+
+        if isinstance(field_value, str):
+            kwargs["description"] = field_value
+        elif isinstance(field_value, dict):
+            kwargs.update(field_value)
+        else:
+            return None, "unexpected type for field_value"
+
+        return cls(**kwargs)
 
 class Parser:
 
@@ -169,9 +211,11 @@ class Parser:
         components = components.merge(comps_created, how="outer", on="entity")
         components.loc[components["defined"].isna(), "defined"] = False
 
+        # Make a copy of the data column so we can refer to the unparsed data as well
+        components["unparsed_data"] = components["data"]
+
         valids = []
         valid_messages = []
-        fields_inds = []
         fields = []
         for i, comp in components.query("defined").iterrows():
             fields_i = {}
@@ -179,7 +223,6 @@ class Parser:
             if comp.notna()["data"]:
 
                 # Parse the fields
-                fields_inds.append(i)
                 valid_fields = True
                 for field_key, field_descr in comp["data"].items():
                     field_name, field_def = self.parse_field_definition(field_key, field_descr)
@@ -200,6 +243,8 @@ class Parser:
                     fields.append(pd.NA)
                     continue
                 fields.append(fields_i)
+            else:
+                fields.append(pd.NA)
 
             # If we got this far the component is valid
             valids.append(True)
@@ -208,52 +253,9 @@ class Parser:
         # Defaults
         components["valid"] = False
         components["valid_message"] = "undefined"
-        components["fields"] = pd.NA
         # Then override
         components.loc[components["defined"], "valid"] = valids
         components.loc[components["defined"], "valid_message"] = valid_messages
-        components.loc[fields_inds, "fields"] = fields
+        components.loc[components["defined"], "data"] = fields
 
         return components
-
-    def parse_field_definition(
-        self, field_key: str, field_value: str | dict[str, str]
-    ) -> dict[str, str]:
-
-        # Parse the overall field definition
-        # The awful regex expression is to match the field name and balance brackets
-        # It was spat out by copilot, but it works...
-        pattern = r"(?P<name>\w+)\s*\[(?P<bracket>[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*)]"
-        match = re.match(pattern, field_key)
-
-        # Check results
-        if match is None:
-            return None, "no match found"
-        field_name = match.group("name")
-        if field_name is None:
-            return None, "name not found"
-        bracket_contents = match.group("bracket")
-
-        # Override defaults
-        field_definition = {
-            "type": None,
-            "multiplicity": "0..*",
-        }
-        field_def_keys = list(field_definition.keys())
-        for i, field_attr_value in enumerate(bracket_contents.split("|")):
-            field_attr = field_def_keys[i]
-            field_definition[field_attr] = field_attr_value
-
-        # Check for None values
-        for key, value in field_definition.items():
-            if value is None:
-                return None, f"{key} not found"
-
-        if isinstance(field_value, str):
-            field_definition["description"] = field_value
-        elif isinstance(field_value, dict):
-            field_definition.update(field_value)
-        else:
-            return None, "unexpected type for field_value"
-
-        return field_name, field_definition
