@@ -134,3 +134,11 @@ status:
 - component
 - description: "Progress status for the entity."
 - value: str
+
+time_dependent:
+- component
+- description: Description of how the data depends on time.
+- data:
+    scd_type [categorical]:
+        description: Slowly-changing dimension type.
+        default: Type II

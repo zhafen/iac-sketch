@@ -1,3 +1,11 @@
 variable_names:
 - description: >
     Snake case. Do not put the type in the name unless there's possible confusion.
+    Including a reference to the variable type in the name is optional;
+    if included the reference should be appended to the end of the name separated
+    by an underscore.
+    Variables should be referred to by their full name unless there is an instantly
+    recognizable letter that can be substituted. For example, time_observed can be
+    t_observed.
+    Variables that represent a boolean or list-like of booleans should start with "is",
+    "are", or "has".

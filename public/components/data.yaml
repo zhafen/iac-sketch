@@ -1,26 +1,52 @@
 patient:
 - description: Central entity all care and analysis is centered around.
 - data:
-    nm_bi_ir_id [str]: >
+    nm_bi.ir_id [str]: >
         One of the options for identifying a patient, the unique ID contained in NM_BI.
-    clarity_pat_id [str]: >
+    clarity.pat_id [str]: >
         Another option for identifying a patient.
 - time_dependent
 
 cohort:
 - description: A group of patients for a study.
 - data:
+    config_id [str]: Unique ID for a cohort.
     report [entity|1..*]: Each cohort corresponses to a specific report.
     patients [list[entity]]:
     is_active [bool]: Cohorts become active after a specific time and de-activate later.
 - data_size:
-    algorithm: time_size * (2 + n_patients) * n_entities
-    estimate: (365 * 5) * (2 + 1e6) * 2e3 ~ 1e12 ~ 1 TB
+    estimate: >
+        time_size * (2 + n_patients) * n_entities
+        ~ (365 * 5) * (2 + 1e6) * 2e3 ~ 1e12 ~ 1 TB
 
-cohort_3NF:
-- description: Third normal-form representation of cohort data.
+cohort_patients:
+- description: >
+    Normalized version of a cohort, in the form of a crosswalk between
+    cohort and patient. This is technically Type II, but we routinely archive to keep
+    the data size small.
 - representation_of: cohort
+- data:
+    cohort [entity]:
+    patient [entity]:
+    meta_updated_datetime [timestamp]: Time at which this entry was added.
+- time_dependent:
+    scd_type: Type II
 
+cohort_patients_history:
+- description: >
+    Only stores changes to cohort, which reduces the amount of data stored.
+- representation_of: cohort
+- data:
+    cohort [entity]:
+    patient [entity]:
+    change_type [categorical]: 'Options: "inserted" or "deleted".'
+    change_datetime [timestamp]: When the change occurred.
+- time_dependent:
+    scd_type: Type IV
+- algorithm: >
+    inserted = cohort_patients.join(cohort_patients_history, how="left_anti")
+    deleted = cohort_patients_history.join(cohort_patients, how="left_anti")
+    cohort_patients_history = cohort_patients_history.union(inserted).union(deleted)
 
 query_cohort:
 - description: Load the list of patients in a cohort at a specified time.
