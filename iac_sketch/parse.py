@@ -49,6 +49,8 @@ class Field:
             kwargs["description"] = field_value
         elif isinstance(field_value, dict):
             kwargs.update(field_value)
+        elif field_value is None:
+            pass
         else:
             raise ValueError(f"field key {field_key} is not formatted correctly.")
 

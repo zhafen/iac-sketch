@@ -1,9 +1,9 @@
 patient:
 - description: Central entity all care and analysis is centered around.
 - data:
-    nm_bi.ir_id [str]: >
+    nm_bi_ir_id [str]: >
         One of the options for identifying a patient, the unique ID contained in NM_BI.
-    clarity.pat_id [str]: >
+    clarity_pat_id [str]: >
         Another option for identifying a patient.
 - time_dependent
 
