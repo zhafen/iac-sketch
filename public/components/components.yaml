@@ -21,21 +21,14 @@ component:
 description:
 - component
 - description: Widely-used component that describes the entity in question.
-- value: str
+- data:
+    description [str]:
 
 data:
 - component
 - description: >
     Component used to define data associated with instances of a component.
     Any entity that owns a data component is assumed to be a component itself.
-
-value:
-- component
-- description: >
-    If an entity/component has a "value" then this component describes
-    the type for that value. In the data this is represented as a field with the same
-    name as the entity.
-- value: str
 
 case:
 - component
@@ -50,12 +43,14 @@ case:
 source:
 - component
 - description: A source entity used for describing relationships.
-- value: entity
+- data:
+    source [entity]:
 
 target:
 - component
 - description: A target entity used for describing relationships.
-- value: entity
+- data:
+    target [entity]:
 
 links:
 - component
@@ -93,14 +88,14 @@ dependency:
 alternative_to:
 - component
 - description: >
-    If an entity has this component, then the entity is an alternative to the component
-    stored in the value.
-- value: entity
+    If an entity has this component, then the entity is an alternative to the
+    indicated entity.
+- data:
+    alternative_to [entity]:
 
 references:
 - component
 - description: Describes relationships between fields in components
-- value: str
 
 # Descriptive components
 
@@ -117,13 +112,14 @@ task:
 
 workflow:
 - component
-- descrition: If owned, the entity describes a series of tasks to run in order.
+- description: If owned, the entity describes a series of tasks to run in order.
 
 trigger:
 - component
 - description: If owned, the entity can be triggered by the event described.
 - tag
-- value: str
+- data:
+    trigger [entity]:
 
 requirement:
 - component
@@ -133,7 +129,8 @@ requirement:
 status:
 - component
 - description: "Progress status for the entity."
-- value: str
+- data:
+    status [str]:
 
 time_dependent:
 - component
