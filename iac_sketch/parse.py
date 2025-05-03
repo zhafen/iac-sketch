@@ -17,6 +17,7 @@ class Field:
     type: str
     description: str = ""
     multiplicity: str = "0..*"
+    default: str = ""
 
     field_def_order = ["type", "multiplicity"]
 
