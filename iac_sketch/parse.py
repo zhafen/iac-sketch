@@ -21,9 +21,7 @@ class Field:
     field_def_order = ["type", "multiplicity"]
 
     @classmethod
-    def from_kv_pair(
-        cls, field_key: str, field_value: str | dict[str, str]
-    ) -> "Field":
+    def from_kv_pair(cls, field_key: str, field_value: str | dict[str, str]) -> "Field":
 
         # Parse the overall field definition
         # The awful regex expression is to match the field name and balance brackets
@@ -56,6 +54,7 @@ class Field:
 
         return cls(**kwargs)
 
+
 class Parser:
 
     ignored_components = []
@@ -76,7 +75,20 @@ class Parser:
                     if entity in self.entities:
                         raise KeyError(f"Entity {entity} is defined in multiple files.")
 
-                    self.entities += self.extract_entity(entity, comps)
+                    # Get a list containing each component
+                    entity_comps = self.extract_entity(entity, comps)
+
+                    # Add a component indicating the file the entity was found in
+                    entity_comps.append(
+                        {
+                            "entity": entity,
+                            "comp_ind": len(entity_comps),
+                            "component_entity": "source_file",
+                            "component": filename,
+                        }
+                    )
+
+                    self.entities += entity_comps
 
         # Convert to a DataFrame
         self.entities = pd.DataFrame(self.entities)
@@ -142,35 +154,37 @@ class Parser:
 
         entities_by_comp = self.entities.groupby("component_entity")
 
-        self.components = {}
+        self.comps = {}
         for group_key in entities_by_comp.groups.keys():
 
             # Look for the function to parse the entity
             parse_fn = f"parse_component_{group_key}"
             if hasattr(self, parse_fn):
-                self.components[group_key] = getattr(self, parse_fn)(entities_by_comp)
+                self.comps[group_key] = getattr(self, parse_fn)(entities_by_comp)
             # If the component is ignored, skip it
             elif group_key in self.ignored_components:
                 continue
             # Default to the cleaned version
             else:
-                self.components[group_key] = self.get_cleaned_component_group(
+                self.comps[group_key] = self.get_cleaned_component_group(
                     group_key, entities_by_comp
                 )
 
-        return self.components
+        return self.comps
 
     def validate(self):
 
         # Get the component table for easy access
-        comps = self.components["component"].copy()
+        comps = self.comps["component"].copy()
 
-        self.components["component"] = comps
+        self.comps["component"] = comps
 
         return comps
 
     # These components are handled as part of the component component
-    ignored_components += ["data", ]
+    ignored_components += [
+        "data",
+    ]
 
     def parse_component_component(
         self,
@@ -199,8 +213,7 @@ class Parser:
 
         # Join the components with the data component
         components = components.set_index("entity").join(
-            data.set_index("entity"),
-            how="outer"
+            data.set_index("entity"), how="outer"
         )
 
         return components
@@ -209,7 +222,7 @@ class Parser:
 
         # Identify the components that are defined vs implicitly included
         components["defined"] = True
-        comps_created = pd.DataFrame({"entity": self.components.keys()})
+        comps_created = pd.DataFrame({"entity": self.comps.keys()})
         components = components.merge(comps_created, how="outer", on="entity")
         components.loc[components["defined"].isna(), "defined"] = False
 
@@ -237,7 +250,7 @@ class Parser:
                             f"field {field_key} is incorrectly formatted: {field_value}"
                         )
                         break
-                        
+
                 if not valid_fields:
                     valids.append(False)
                     valid_messages.append(valid_message)

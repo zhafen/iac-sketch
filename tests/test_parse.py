@@ -22,9 +22,9 @@ class TestParser(unittest.TestCase):
         self.parser.extract()
         self.parser.transform()
 
-        assert "component" in self.parser.components
-        assert "link" in self.parser.components["component"]["entity"].values
-        assert "data" not in self.parser.components
+        assert "component" in self.parser.comps
+        assert "link" in self.parser.comps["component"]["entity"].values
+        assert "data" not in self.parser.comps
 
 
 class TestField(unittest.TestCase):
