@@ -67,6 +67,9 @@ class Registry:
 
     def __getitem__(self, key: str):
 
+        if key not in self.components:
+            raise KeyError(f"Component '{key}' not found in registry.")
+
         return self.components[key]
 
     def view(self, keys: str | list[str], how="inner"):
@@ -77,9 +80,6 @@ class Registry:
         if isinstance(keys, list):
 
             for i, key in enumerate(keys):
-
-                if key not in self.components:
-                    raise KeyError(f"Component '{key}' not found in registry.")
 
                 df_i = self[key].drop(columns=["comp_ind"])
 
