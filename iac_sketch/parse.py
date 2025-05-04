@@ -3,27 +3,27 @@ import glob
 import pandas as pd
 import yaml
 
-from .data import Field, Registry
+from . import data
 
 
 class ParseSystem:
 
     ignored_components = []
 
-    def parse(self, input_dir: str) -> Registry:
+    def parse(self, input_dir: str) -> data.Registry:
         """
         Parse the input directory and return a dictionary of DataFrames.
         """
 
         # Extract the entities from the YAML files
-        entities = self.extract(input_dir)
+        registry = self.extract(input_dir)
 
         # Transform the entities into a dictionary of DataFrames
-        comps = self.transform(entities)
+        registry = self.transform(registry)
 
-        return Registry(entities=entities, components=comps)
+        return registry
 
-    def extract(self, input_dir: str) -> dict[str, pd.DataFrame]:
+    def extract(self, input_dir: str) -> data.Registry:
 
         entities = []
         for filename in glob.glob(f"{input_dir}/*.yaml"):
@@ -57,9 +57,11 @@ class ParseSystem:
 
         # Convert to a DataFrame and then to components
         entities = pd.DataFrame(entities)
-        components = {key: df for key, df in entities.groupby("component_entity")}
+        registry = data.Registry(
+            {key: df for key, df in entities.groupby("component_entity")}
+        )
 
-        return components
+        return registry
 
     def extract_entity(self, entity: str, comps: list) -> list:
 
@@ -93,34 +95,32 @@ class ParseSystem:
 
         return extracted_comps
 
-    def transform(self, entities: pd.DataFrame) -> dict[str, pd.DataFrame]:
-
-        entities_by_comp = entities.groupby("component_entity")
+    def transform(self, registry: data.Registry) -> data.Registry:
 
         comps = {}
-        for group_key in entities_by_comp.groups.keys():
+        for comp_key in registry.keys():
 
             # Look for the function to parse the entity
-            parse_fn = f"parsecomp_{group_key}"
+            parse_fn = f"parsecomp_{comp_key}"
             if hasattr(self, parse_fn):
-                comps[group_key] = getattr(self, parse_fn)(entities_by_comp)
+                comps[comp_key] = getattr(self, parse_fn)(registry)
             # If the component is ignored, skip it
-            elif group_key in self.ignored_components:
+            elif comp_key in self.ignored_components:
                 continue
             # Default to the cleaned version
             else:
-                comps[group_key] = self.general_parsecomp(
-                    group_key, entities_by_comp
+                comps[comp_key] = self.general_parsecomp(
+                    comp_key, registry
                 )
 
         return comps
 
     def general_parsecomp(
-        self, group_key: str, entities_by_comp: pd.core.groupby.DataFrameGroupBy
+        self, group_key: str, registry: data.Registry
     ) -> pd.DataFrame:
 
         # Get the data, slightly cleaned
-        group = entities_by_comp.get_group(group_key).reset_index(drop=True)
+        group = registry[group_key].reset_index(drop=True)
         group = group.drop(columns=["component_entity"])
 
         # Try parsing the component column
@@ -154,37 +154,36 @@ class ParseSystem:
 
     def parsecomp_component(
         self,
-        entities_by_comp: pd.core.groupby.DataFrameGroupBy,
+        registry: data.Registry,
     ) -> pd.DataFrame:
 
-        components = self.build_components_dataframe(entities_by_comp)
+        components = self.build_components_dataframe(registry)
         components = self.parse_fields(components)
 
         return components
 
     def build_components_dataframe(
-        self, entities_by_comp: pd.core.groupby.DataFrameGroupBy
+        self, registry: data.Registry
     ) -> pd.DataFrame:
-        group_key = "component"
 
         # Get the entities with the components flag
-        components = entities_by_comp.get_group(group_key)
+        components = registry["component"]
         components = components[["entity", "comp_ind"]]
 
         # Get the entities with the data component
-        data = entities_by_comp.get_group("data")
-        data = data.rename(
+        data_comp = registry["data"]
+        data_comp = data_comp.rename(
             columns={"comp_ind": "data_comp_ind", "component": "data"}
         ).drop(columns=["component_entity"])
 
         # Join the components with the data component
         components = components.set_index("entity").join(
-            data.set_index("entity"), how="outer"
+            data_comp.set_index("entity"), how="outer"
         )
 
         # Identify the components that are defined vs implicitly included
         components["defined"] = True
-        comps_created = pd.DataFrame({"entity": entities_by_comp.groups.keys()})
+        comps_created = pd.DataFrame({"entity": registry.keys()})
         components = components.merge(comps_created, how="outer", on="entity")
         components.loc[components["defined"].isna(), "defined"] = False
         components["defined"] = components["defined"].astype(bool)
@@ -209,7 +208,7 @@ class ParseSystem:
                 valid_message = ""
                 for field_key, field_value in comp["data"].items():
                     try:
-                        field = Field.from_kv_pair(field_key, field_value)
+                        field = data.Field.from_kv_pair(field_key, field_value)
                         fields_i[field.name] = field
                     except ValueError:
                         valid_fields = False

@@ -62,7 +62,6 @@ class Field:
 
 @dataclass
 class Registry:
-    entities: pd.DataFrame
     components: dict[str, pd.DataFrame]
 
     def __getitem__(self, key: str):
@@ -71,6 +70,12 @@ class Registry:
             raise KeyError(f"Component '{key}' not found in registry.")
 
         return self.components[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.components
+
+    def keys(self):
+        return self.components.keys()
 
     def view(self, keys: str | list[str], how="left") -> pd.DataFrame:
         """Get a component by key or list of keys."""

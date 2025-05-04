@@ -15,18 +15,18 @@ class TestParser(unittest.TestCase):
 
     def test_extract(self):
 
-        entities = self.parse_sys.extract(self.test_data_dir)
+        registry = self.parse_sys.extract(self.test_data_dir)
 
-        assert "component" in entities["entity"].values
+        assert "component" in registry
 
     def test_transform(self):
 
-        entities = self.parse_sys.extract(self.test_data_dir)
-        comps = self.parse_sys.transform(entities)
+        registry = self.parse_sys.extract(self.test_data_dir)
+        registry = self.parse_sys.transform(registry)
 
-        assert "component" in comps
-        assert "link" in comps["component"]["entity"].values
-        assert "data" not in comps
+        assert "component" in registry
+        assert "link" in registry["component"]["entity"].values
+        assert "data" not in registry
 
 
 class TestParseGeneralComponents(unittest.TestCase):
