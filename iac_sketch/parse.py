@@ -57,8 +57,9 @@ class ParseSystem:
                     "component_entity": "metadata",
                     "component": {
                         # Increase by one to account for the metadata component
-                        "n_comps": len(entity_comps) + 1,
-                    }
+                        "n_comps": len(entity_comps)
+                        + 1,
+                    },
                 }
             )
 
@@ -118,9 +119,7 @@ class ParseSystem:
                 continue
             # Default to the cleaned version
             else:
-                comps[comp_key] = self.general_parsecomp(
-                    comp_key, registry
-                )
+                comps[comp_key] = self.general_parsecomp(comp_key, registry)
 
         return comps
 
@@ -170,9 +169,7 @@ class ParseSystem:
 
         return components
 
-    def build_components_dataframe(
-        self, registry: data.Registry
-    ) -> pd.DataFrame:
+    def build_components_dataframe(self, registry: data.Registry) -> pd.DataFrame:
 
         # Get the entities with the components flag
         components = registry["component"]
@@ -248,11 +245,42 @@ class ParseSystem:
 
     def parsecomp_links(
         self,
-        entities_by_comp: pd.core.groupby.DataFrameGroupBy,
+        registry: data.Registry,
     ) -> pd.DataFrame:
 
         # Pass the entities to the general parse function first
-        links = self.general_parsecomp("links", entities_by_comp)
+        links = self.general_parsecomp("links", registry)
 
-        # Now parse the edges, etc.
+        # Parse the links column
+        exploded_links = (
+            links["links"]
+            # Split on newlines
+            .str.strip()
+            .str.split("\n")
+            .explode()
+            # Split on arrows
+            .str.strip()
+            .str.split("-->", expand=True)
+            # Rename columns
+            .rename(columns={0: "source", 1: "target"})
+        )
+        if len(exploded_links.columns) > 2:
+            raise ValueError(
+                "Links column is not formatted correctly. Did you use | or >? "
+            )
+        # Add the parsed results back to the original DataFrame
+        links = (
+            links.join(exploded_links).drop(columns=["links"]).reset_index(drop=True)
+        )
+
+        # Get the new comp index, using the metadata
+        links["comp_ind"] = links.groupby("entity").cumcount()
+        links["comp_ind"] += links.merge(registry["metadata"], on="entity", how="left")[
+            "n_comps"
+        ]
+
+        # Add these links to the link component
+        link_comp = registry.get("link", pd.DataFrame())
+        registry.components["link"] = pd.concat([link_comp, links], ignore_index=True)
+
         return links

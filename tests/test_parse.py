@@ -216,26 +216,18 @@ class TestParseComponentTypes(unittest.TestCase):
 
     def test_parsecomp_links(self):
 
-        entities = pd.DataFrame(
-            [
-                {
-                    "entity": "my_workflow",
-                    "comp_ind": 0,
-                    "component_entity": "links",
-                    "component": {
-                        "edges": (
-                            """my_first_task --> my_second_task
-                            my_second_task --> my_third_task
-                            """
-                        ),
-                        "link_type": "dependency",
-                    },
-                },
-            ]
+        registry = self.parse_sys.extract_from_stream(
+            """
+            workflow:
+            - links:
+                links: |
+                    my_first_task --> my_second_task
+                    my_second_task --> my_third_task
+                link_type: dependency
+            """
         )
 
-        entities_by_group = entities.groupby("component_entity")
-        actual = self.parse_sys.parsecomp_links(entities_by_group)
+        actual = self.parse_sys.parsecomp_links(registry)
 
         expected = pd.DataFrame(
             [
