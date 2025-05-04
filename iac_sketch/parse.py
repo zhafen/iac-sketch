@@ -25,37 +25,46 @@ class ParseSystem:
 
     def extract(self, input_dir: str) -> data.Registry:
 
-        entities = []
+        registry = data.Registry({})
         for filename in glob.glob(f"{input_dir}/*.yaml"):
-            with open(filename, "r", encoding="utf-8") as file:
-                file_entities = yaml.safe_load(file)
+            with open(filename, "r", encoding="utf-8") as f:
+                registry_i = self.extract_from_stream(f)
+            registry.components.update(registry_i.components)
+            # Mark the file as the source of the data
+            registry["metadata"]["source_file"] = filename
 
-                for entity, comps in file_entities.items():
+        return registry
 
-                    # Check if the entity already exists
-                    if entity in entities:
-                        raise KeyError(f"Entity {entity} is defined in multiple files.")
+    def extract_from_stream(self, input_file: str) -> data.Registry:
 
-                    # Get a list containing each component
-                    entity_comps = self.extract_entity(entity, comps)
+        input_file = yaml.safe_load(input_file)
 
-                    # Add a component indicating the file the entity was found in
-                    entity_comps.append(
-                        {
-                            "entity": entity,
-                            "comp_ind": len(entity_comps),
-                            "component_entity": "metadata",
-                            "component": {
-                                "source_file": filename,
-                                # Increase by one to account for the metadata component
-                                "n_comps": len(entity_comps) + 1,
-                            }
-                        }
-                    )
+        entities = []
+        for entity, comps in input_file.items():
 
-                    entities += entity_comps
+            # Check if the entity already exists
+            if entity in entities:
+                raise KeyError(f"Entity {entity} is defined in multiple files.")
 
-        # Convert to a DataFrame and then to components
+            # Get a list containing each component
+            entity_comps = self.extract_entity(entity, comps)
+
+            # Add a component indicating the file the entity was found in
+            entity_comps.append(
+                {
+                    "entity": entity,
+                    "comp_ind": len(entity_comps),
+                    "component_entity": "metadata",
+                    "component": {
+                        # Increase by one to account for the metadata component
+                        "n_comps": len(entity_comps) + 1,
+                    }
+                }
+            )
+
+            entities += entity_comps
+
+        # Convert to a registry
         entities = pd.DataFrame(entities)
         registry = data.Registry(
             {key: df for key, df in entities.groupby("component_entity")}
@@ -121,7 +130,6 @@ class ParseSystem:
 
         # Get the data, slightly cleaned
         group = registry[group_key].reset_index(drop=True)
-        group = group.drop(columns=["component_entity"])
 
         # Try parsing the component column
         comp_data = pd.json_normalize(group["component"])

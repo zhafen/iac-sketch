@@ -37,27 +37,26 @@ class TestParseGeneralComponents(unittest.TestCase):
 
     def test_parse_general_component(self):
 
-        entities = pd.DataFrame(
-            [
-                {
-                    "entity": "my_entity",
-                    "comp_ind": 0,
-                    "component_entity": "description",
-                    "component": "This entity is a test entity.",
-                },
-                {
-                    "entity": "my_other_entity",
-                    "comp_ind": 0,
-                    "component_entity": "description",
-                    "component": "This entity is also a test entity.",
-                },
-            ]
+        registry = data.Registry(
+            {
+                "description": pd.DataFrame(
+                    [
+                        {
+                            "entity": "my_entity",
+                            "comp_ind": 0,
+                            "component": "This entity is a test entity.",
+                        },
+                        {
+                            "entity": "my_other_entity",
+                            "comp_ind": 0,
+                            "component": "This entity is also a test entity.",
+                        },
+                    ]
+                )
+            }
         )
 
-        entities_by_group = entities.groupby("component_entity")
-        actual = self.parse_sys.general_parsecomp(
-            "description", entities_by_group
-        )
+        actual = self.parse_sys.general_parsecomp("description", registry)
 
         expected = pd.DataFrame(
             [
@@ -77,29 +76,30 @@ class TestParseGeneralComponents(unittest.TestCase):
 
     def test_parse_general_component_complex(self):
 
-        entities = pd.DataFrame(
-            [
-                {
-                    "entity": "my_time",
-                    "comp_ind": 0,
-                    "component_entity": "timestamp",
-                    "component": "2023-10-01",
-                },
-                {
-                    "entity": "my_other_time",
-                    "comp_ind": 0,
-                    "component_entity": "timestamp",
-                    "component": {
-                        "timestamp": "1970-01-01",
-                        "seconds": 0,
-                        "timezone": "UTC",
-                    },
-                },
-            ]
+        registry = data.Registry(
+            {
+                "timestamp": pd.DataFrame(
+                    [
+                        {
+                            "entity": "my_time",
+                            "comp_ind": 0,
+                            "component": "2023-10-01",
+                        },
+                        {
+                            "entity": "my_other_time",
+                            "comp_ind": 0,
+                            "component": {
+                                "timestamp": "1970-01-01",
+                                "seconds": 0,
+                                "timezone": "UTC",
+                            },
+                        },
+                    ]
+                )
+            }
         )
 
-        entities_by_group = entities.groupby("component_entity")
-        actual = self.parse_sys.general_parsecomp("timestamp", entities_by_group)
+        actual = self.parse_sys.general_parsecomp("timestamp", registry)
 
         expected = pd.DataFrame(
             [
@@ -130,35 +130,20 @@ class TestParseComponentTypes(unittest.TestCase):
 
     def test_parsecomp_component(self):
 
-        entities = pd.DataFrame(
-            [
-                {
-                    "entity": "my_simple_component",
-                    "comp_ind": 0,
-                    "component_entity": "component",
-                    "component": pd.NA,
-                },
-                {
-                    "entity": "my_other_component",
-                    "comp_ind": 0,
-                    "component_entity": "component",
-                    "component": pd.NA,
-                },
-                {
-                    "entity": "my_other_component",
-                    "comp_ind": 1,
-                    "component_entity": "data",
-                    "component":
-                        {
-                            "my_field [int]": "This is a test field.",
-                            "my_other_field [bool]": "This is another test field.",
-                        },
-                },
-            ]
+        registry = self.parse_sys.extract_from_stream(
+            """
+            my_simple_component:
+            - component
+
+            my_other_component:
+            - component
+            - data:
+                my_field [int]: This is a test field.
+                my_other_field [bool]: This is another test field.
+            """
         )
 
-        entities_by_group = entities.groupby("component_entity")
-        actual = self.parse_sys.parsecomp_component(entities_by_group)
+        actual = self.parse_sys.parsecomp_component(registry)
 
         expected = pd.DataFrame(
             [
@@ -184,12 +169,26 @@ class TestParseComponentTypes(unittest.TestCase):
                     "valid_message": "undefined",
                 },
                 {
+                    "entity": "metadata",
+                    "comp_ind": np.nan,
+                    "data_comp_ind": np.nan,
+                    "data": np.nan,
+                    "defined": False,
+                    "unparsed_data": np.nan,
+                    "valid": False,
+                    "valid_message": "undefined",
+                },
+                {
                     "entity": "my_other_component",
                     "comp_ind": 0,
                     "data_comp_ind": 1,
                     "data": {
-                        "my_field": data.Field("my_field", "int", "This is a test field."),
-                        "my_other_field": data.Field("my_other_field", "bool", "This is another test field."),
+                        "my_field": data.Field(
+                            "my_field", "int", "This is a test field."
+                        ),
+                        "my_other_field": data.Field(
+                            "my_other_field", "bool", "This is another test field."
+                        ),
                     },
                     "defined": True,
                     "unparsed_data": {
@@ -230,7 +229,7 @@ class TestParseComponentTypes(unittest.TestCase):
                             """
                         ),
                         "link_type": "dependency",
-                    }
+                    },
                 },
             ]
         )
