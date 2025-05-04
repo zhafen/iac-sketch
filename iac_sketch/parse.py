@@ -23,7 +23,7 @@ class ParseSystem:
 
         return Registry(entities=entities, components=comps)
 
-    def extract(self, input_dir: str) -> pd.DataFrame:
+    def extract(self, input_dir: str) -> dict[str, pd.DataFrame]:
 
         entities = []
         for filename in glob.glob(f"{input_dir}/*.yaml"):
@@ -55,10 +55,11 @@ class ParseSystem:
 
                     entities += entity_comps
 
-        # Convert to a DataFrame
+        # Convert to a DataFrame and then to components
         entities = pd.DataFrame(entities)
+        components = {key: df for key, df in entities.groupby("component_entity")}
 
-        return entities
+        return components
 
     def extract_entity(self, entity: str, comps: list) -> list:
 
