@@ -10,9 +10,6 @@ class Parser:
 
     ignored_components = []
 
-    def __init__(self, input_dir: str):
-        self.input_dir = input_dir
-
     def extract(self) -> pd.DataFrame:
 
         self.entities = []
