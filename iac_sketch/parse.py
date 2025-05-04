@@ -3,12 +3,25 @@ import glob
 import pandas as pd
 import yaml
 
-from .data import Field
+from .data import Field, Registry
 
 
 class ParseSystem:
 
     ignored_components = []
+
+    def parse(self, input_dir: str) -> Registry:
+        """
+        Parse the input directory and return a dictionary of DataFrames.
+        """
+
+        # Extract the entities from the YAML files
+        entities = self.extract(input_dir)
+
+        # Transform the entities into a dictionary of DataFrames
+        comps = self.transform(entities)
+
+        return Registry(entities=entities, components=comps)
 
     def extract(self, input_dir: str) -> pd.DataFrame:
 

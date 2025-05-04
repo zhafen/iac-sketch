@@ -10,9 +10,9 @@ class TestArchitect(unittest.TestCase):
         self.architect = sketch.Architect(self.test_data_dir)
 
     def test_parse(self):
-        self.architect.parse()
+        registry = self.architect.parse()
 
-        assert "component" in self.architect.comps
-        assert "link" in self.architect.comps["component"]["entity"].values
-        assert "data" not in self.architect.comps
+        assert "component" in registry.components
+        assert "link" in registry.components["component"]["entity"].values
+        assert "data" not in registry.components
 

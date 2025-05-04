@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 import re
 
+import pandas as pd
+
 
 class Entity(str):
     """Subclass of str to represent entities."""
@@ -56,3 +58,8 @@ class Field:
             raise ValueError(f"field key {field_key} is not formatted correctly.")
 
         return cls(**kwargs)
+
+@dataclass
+class Registry:
+    entities: pd.DataFrame
+    components: dict[str, pd.DataFrame]
