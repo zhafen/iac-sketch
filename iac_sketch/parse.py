@@ -44,8 +44,12 @@ class ParseSystem:
                         {
                             "entity": entity,
                             "comp_ind": len(entity_comps),
-                            "component_entity": "source_file",
-                            "component": filename,
+                            "component_entity": "metadata",
+                            "component": {
+                                "source_file": filename,
+                                # Increase by one to account for the metadata component
+                                "n_comps": len(entity_comps) + 1,
+                            }
                         }
                     )
 
@@ -233,3 +237,14 @@ class ParseSystem:
         components.loc[components["defined"], "data"] = fields
 
         return components
+
+    def parsecomp_links(
+        self,
+        entities_by_comp: pd.core.groupby.DataFrameGroupBy,
+    ) -> pd.DataFrame:
+
+        # Pass the entities to the general parse function first
+        links = self.general_parsecomp("links", entities_by_comp)
+
+        # Now parse the edges, etc.
+        return links

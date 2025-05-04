@@ -217,4 +217,43 @@ class TestParseComponentTypes(unittest.TestCase):
 
     def test_parsecomp_links(self):
 
-        assert False
+        entities = pd.DataFrame(
+            [
+                {
+                    "entity": "my_workflow",
+                    "comp_ind": 0,
+                    "component_entity": "links",
+                    "component": {
+                        "edges": (
+                            """my_first_task --> my_second_task
+                            my_second_task --> my_third_task
+                            """
+                        ),
+                        "link_type": "dependency",
+                    }
+                },
+            ]
+        )
+
+        entities_by_group = entities.groupby("component_entity")
+        actual = self.parse_sys.parsecomp_links(entities_by_group)
+
+        expected = pd.DataFrame(
+            [
+                {
+                    "entity": "my_workflow",
+                    "comp_ind": 1,
+                    "source": "my_first_task",
+                    "target": "my_second_task",
+                    "link_type": "dependency",
+                },
+                {
+                    "entity": "my_workflow",
+                    "comp_ind": 2,
+                    "source": "my_second_task",
+                    "target": "my_third_task",
+                    "link_type": "dependency",
+                },
+            ]
+        )
+        assert_frame_equal(actual, expected)

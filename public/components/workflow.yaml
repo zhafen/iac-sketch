@@ -2,7 +2,7 @@
 request_workflow:
 - description: The overall workflow.
 - links:
-    edges: |
+    links: |
       accept_request --> build_report
       build_report --> deliver_report
     link_type: dependency
@@ -12,7 +12,7 @@ build_report:
     The actual work on the report itself.
 - task
 - links:
-    edges: |
+    links: |
       define_report --> set_up_environment
       set_up_environment --> set_up_report
       set_up_report --> work_on_report
@@ -50,7 +50,7 @@ run_report:
 - description: The steps to run the code to generate a report.
 - task
 - links:
-    edges: |
+    links: |
       run_etl --> run_cohort_notebook
       run_cohort_notebook --> run_report_notebook
     link_type: dependency
