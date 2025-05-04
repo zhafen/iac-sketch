@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-class Validator:
+class ValidationSystem:
 
     def validate_requirements(self, components: dict[pd.DataFrame]) -> pd.DataFrame:
 

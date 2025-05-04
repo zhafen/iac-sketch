@@ -6,7 +6,7 @@ import yaml
 from .data import Field
 
 
-class Parser:
+class ParseSystem:
 
     ignored_components = []
 

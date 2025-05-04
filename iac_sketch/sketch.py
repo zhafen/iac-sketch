@@ -6,14 +6,14 @@ class Architect:
     def __init__(
         self,
         input_dir: str,
-        validator: validate.Validator = None,
+        valid_sys: validate.ValidationSystem = None,
     ):
         self.input_dir = input_dir
-        self.parser = parse.Parser(input_dir)
-        self.validator = validator if not validator else validator.Validator()
+        self.parse_sys = parse.ParseSystem(input_dir)
+        self.valid_sys = valid_sys if not valid_sys else valid_sys.Validator()
 
     def parse(self):
 
-        self.parser.extract()
-        self.parser.transform()
-        self.comps = self.parser.comps
+        self.parse_sys.extract()
+        self.parse_sys.transform()
+        self.comps = self.parse_sys.comps

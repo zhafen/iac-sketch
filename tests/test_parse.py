@@ -7,7 +7,7 @@ class TestParser(unittest.TestCase):
 
     def setUp(self):
         self.test_data_dir = "./public/components"
-        self.parser = parse.Parser(self.test_data_dir)
+        self.parser = parse.ParseSystem(self.test_data_dir)
 
     def test_extract(self):
 
