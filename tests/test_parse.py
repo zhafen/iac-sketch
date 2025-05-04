@@ -1,5 +1,6 @@
 import unittest
 
+import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
@@ -52,8 +53,8 @@ class TestParseGeneralComponents(unittest.TestCase):
                 },
             ]
         )
-        entities_by_group = entities.groupby("component_entity")
 
+        entities_by_group = entities.groupby("component_entity")
         actual = self.parse_sys.general_parse_component(
             "description", entities_by_group
         )
@@ -69,6 +70,54 @@ class TestParseGeneralComponents(unittest.TestCase):
                     "entity": "my_other_entity",
                     "comp_ind": 0,
                     "description": "This entity is also a test entity.",
+                },
+            ]
+        )
+        assert_frame_equal(actual, expected)
+
+    def test_parse_general_component_complex(self):
+
+        entities = pd.DataFrame(
+            [
+                {
+                    "entity": "my_time",
+                    "comp_ind": 0,
+                    "component_entity": "timestamp",
+                    "component": "2023-10-01",
+                },
+                {
+                    "entity": "my_other_time",
+                    "comp_ind": 0,
+                    "component_entity": "timestamp",
+                    "component": {
+                        "timestamp": "1970-01-01",
+                        "seconds": 0,
+                        "timezone": "UTC",
+                    }
+                },
+            ]
+        )
+
+        entities_by_group = entities.groupby("component_entity")
+        actual = self.parse_sys.general_parse_component(
+            "timestamp", entities_by_group
+        )
+
+        expected = pd.DataFrame(
+            [
+                {
+                    "entity": "my_time",
+                    "comp_ind": 0,
+                    "timestamp": "2023-10-01",
+                    "seconds": np.nan,
+                    "timezone": np.nan,
+                },
+                {
+                    "entity": "my_other_time",
+                    "comp_ind": 0,
+                    "timestamp": "1970-01-01",
+                    "seconds": 0.0,
+                    "timezone": "UTC",
                 },
             ]
         )

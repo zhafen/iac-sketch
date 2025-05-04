@@ -110,11 +110,6 @@ class ParseSystem:
 
         return comps
 
-    # These components are handled as part of the component component
-    ignored_components += [
-        "data",
-    ]
-
     def general_parse_component(
         self, group_key: str, entities_by_comp: pd.core.groupby.DataFrameGroupBy
     ) -> pd.DataFrame:
@@ -133,10 +128,22 @@ class ParseSystem:
                 group = group.drop(columns=[group_key])
         # If the component column was parsed successfully
         else:
+
+            # For the rows that were not parsed because they were not dictionaries
+            # try setting the group_key column to the component value.
+            not_parsed = comp_data[group_key].isna()
+            comp_data.loc[not_parsed, group_key] = group.loc[not_parsed, "component"]
+
+            # Clean and join
             group = group.drop(columns=["component"])
             group = group.join(comp_data)
 
         return group
+
+    # These components are handled as part of the component component
+    ignored_components += [
+        "data",
+    ]
 
     def parse_component_component(
         self,
