@@ -7,19 +7,19 @@ class TestParser(unittest.TestCase):
 
     def setUp(self):
         self.test_data_dir = "./public/components"
-        self.parser = parse.ParseSystem(self.test_data_dir)
+        self.parser = parse.ParseSystem()
 
     def test_extract(self):
 
-        self.parser.extract()
+        entities = self.parser.extract(self.test_data_dir)
 
-        assert "component" in self.parser.entities["entity"].values
+        assert "component" in entities["entity"].values
 
     def test_transform(self):
 
-        self.parser.extract()
-        self.parser.transform()
+        entities = self.parser.extract(self.test_data_dir)
+        comps = self.parser.transform(entities)
 
-        assert "component" in self.parser.comps
-        assert "link" in self.parser.comps["component"]["entity"].values
-        assert "data" not in self.parser.comps
+        assert "component" in comps
+        assert "link" in comps["component"]["entity"].values
+        assert "data" not in comps

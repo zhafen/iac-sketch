@@ -10,17 +10,17 @@ class ParseSystem:
 
     ignored_components = []
 
-    def extract(self) -> pd.DataFrame:
+    def extract(self, input_dir: str) -> pd.DataFrame:
 
-        self.entities = []
-        for filename in glob.glob(f"{self.input_dir}/*.yaml"):
+        entities = []
+        for filename in glob.glob(f"{input_dir}/*.yaml"):
             with open(filename, "r", encoding="utf-8") as file:
                 file_entities = yaml.safe_load(file)
 
                 for entity, comps in file_entities.items():
 
                     # Check if the entity already exists
-                    if entity in self.entities:
+                    if entity in entities:
                         raise KeyError(f"Entity {entity} is defined in multiple files.")
 
                     # Get a list containing each component
@@ -36,12 +36,12 @@ class ParseSystem:
                         }
                     )
 
-                    self.entities += entity_comps
+                    entities += entity_comps
 
         # Convert to a DataFrame
-        self.entities = pd.DataFrame(self.entities)
+        entities = pd.DataFrame(entities)
 
-        return self.entities
+        return entities
 
     def extract_entity(self, entity: str, comps: list) -> list:
 
@@ -98,34 +98,25 @@ class ParseSystem:
 
         return group
 
-    def transform(self) -> dict[str, pd.DataFrame]:
+    def transform(self, entities: pd.DataFrame) -> dict[str, pd.DataFrame]:
 
-        entities_by_comp = self.entities.groupby("component_entity")
+        entities_by_comp = entities.groupby("component_entity")
 
-        self.comps = {}
+        comps = {}
         for group_key in entities_by_comp.groups.keys():
 
             # Look for the function to parse the entity
             parse_fn = f"parse_component_{group_key}"
             if hasattr(self, parse_fn):
-                self.comps[group_key] = getattr(self, parse_fn)(entities_by_comp)
+                comps[group_key] = getattr(self, parse_fn)(entities_by_comp)
             # If the component is ignored, skip it
             elif group_key in self.ignored_components:
                 continue
             # Default to the cleaned version
             else:
-                self.comps[group_key] = self.get_cleaned_component_group(
+                comps[group_key] = self.get_cleaned_component_group(
                     group_key, entities_by_comp
                 )
-
-        return self.comps
-
-    def validate(self):
-
-        # Get the component table for easy access
-        comps = self.comps["component"].copy()
-
-        self.comps["component"] = comps
 
         return comps
 
@@ -140,7 +131,7 @@ class ParseSystem:
     ) -> pd.DataFrame:
 
         components = self.build_components_dataframe(entities_by_comp)
-        components = self.validate_components(components)
+        components = self.parse_fields(components)
 
         return components
 
@@ -164,15 +155,15 @@ class ParseSystem:
             data.set_index("entity"), how="outer"
         )
 
-        return components
-
-    def validate_components(self, components: pd.DataFrame) -> pd.DataFrame:
-
         # Identify the components that are defined vs implicitly included
         components["defined"] = True
-        comps_created = pd.DataFrame({"entity": self.comps.keys()})
+        comps_created = pd.DataFrame({"entity": entities_by_comp.groups.keys()})
         components = components.merge(comps_created, how="outer", on="entity")
         components.loc[components["defined"].isna(), "defined"] = False
+
+        return components
+
+    def parse_fields(self, components: pd.DataFrame) -> pd.DataFrame:
 
         # Make a copy of the data column so we can refer to the unparsed data as well
         components["unparsed_data"] = components["data"]
