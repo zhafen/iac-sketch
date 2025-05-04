@@ -15,4 +15,20 @@ class TestValidator(unittest.TestCase):
 
     def test_validate_requirements(self):
 
-        self.validator.validate_requirements(self.architect.comps)
+        invalid_reqs = self.validator.validate_requirements(self.architect.comps)
+
+        assert invalid_reqs.empty
+
+    def test_validate_tasks(self):
+
+        invalid_tasks = self.validator.validate_tasks(self.architect.comps)
+
+        assert invalid_tasks.empty
+
+    def test_validate_connectivity(self):
+
+        invalid_entities = self.validator.validate_connectivity(
+            self.architect.comps
+        )
+
+        assert invalid_entities.empty
