@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from iac_sketch import parse
+from iac_sketch import data, parse
 
 
 class TestParser(unittest.TestCase):
@@ -93,15 +93,13 @@ class TestParseGeneralComponents(unittest.TestCase):
                         "timestamp": "1970-01-01",
                         "seconds": 0,
                         "timezone": "UTC",
-                    }
+                    },
                 },
             ]
         )
 
         entities_by_group = entities.groupby("component_entity")
-        actual = self.parse_sys.general_parse_component(
-            "timestamp", entities_by_group
-        )
+        actual = self.parse_sys.general_parse_component("timestamp", entities_by_group)
 
         expected = pd.DataFrame(
             [
@@ -131,9 +129,88 @@ class TestParseComponentTypes(unittest.TestCase):
         self.parse_sys = parse.ParseSystem()
 
     def test_parse_component_component(self):
-        entities = self.parse_sys.extract(self.test_data_dir)
-        comps = self.parse_sys.transform(entities)
 
-        assert "component" in comps
-        assert "link" in comps["component"]["entity"].values
-        assert "data" not in comps
+        entities = pd.DataFrame(
+            [
+                {
+                    "entity": "my_simple_component",
+                    "comp_ind": 0,
+                    "component_entity": "component",
+                    "component": pd.NA,
+                },
+                {
+                    "entity": "my_other_component",
+                    "comp_ind": 0,
+                    "component_entity": "component",
+                    "component": pd.NA,
+                },
+                {
+                    "entity": "my_other_component",
+                    "comp_ind": 1,
+                    "component_entity": "data",
+                    "component":
+                        {
+                            "my_field [int]": "This is a test field.",
+                            "my_other_field [bool]": "This is another test field.",
+                        },
+                },
+            ]
+        )
+
+        entities_by_group = entities.groupby("component_entity")
+        actual = self.parse_sys.parse_component_component(entities_by_group)
+
+        expected = pd.DataFrame(
+            [
+                # the component and data entities are defined by use
+                {
+                    "entity": "component",
+                    "comp_ind": np.nan,
+                    "data_comp_ind": np.nan,
+                    "data": np.nan,
+                    "defined": False,
+                    "unparsed_data": np.nan,
+                    "valid": False,
+                    "valid_message": "undefined",
+                },
+                {
+                    "entity": "data",
+                    "comp_ind": np.nan,
+                    "data_comp_ind": np.nan,
+                    "data": np.nan,
+                    "defined": False,
+                    "unparsed_data": np.nan,
+                    "valid": False,
+                    "valid_message": "undefined",
+                },
+                {
+                    "entity": "my_other_component",
+                    "comp_ind": 0,
+                    "data_comp_ind": 1,
+                    "data": {
+                        "my_field": data.Field("my_field", "int", "This is a test field."),
+                        "my_other_field": data.Field("my_other_field", "bool", "This is another test field."),
+                    },
+                    "defined": True,
+                    "unparsed_data": {
+                        "my_field [int]": "This is a test field.",
+                        "my_other_field [bool]": "This is another test field.",
+                    },
+                    "valid": True,
+                    "valid_message": "",
+                },
+                {
+                    "entity": "my_simple_component",
+                    "comp_ind": 0,
+                    "data_comp_ind": np.nan,
+                    "data": np.nan,
+                    "defined": True,
+                    "unparsed_data": np.nan,
+                    "valid": True,
+                    "valid_message": "",
+                },
+            ]
+        )
+        actual = actual.drop(columns="data")
+        expected = expected.drop(columns="data")
+        assert_frame_equal(actual, expected)

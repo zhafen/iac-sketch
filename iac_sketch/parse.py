@@ -180,6 +180,7 @@ class ParseSystem:
         comps_created = pd.DataFrame({"entity": entities_by_comp.groups.keys()})
         components = components.merge(comps_created, how="outer", on="entity")
         components.loc[components["defined"].isna(), "defined"] = False
+        components["defined"] = components["defined"].astype(bool)
 
         return components
 
