@@ -30,7 +30,7 @@ field:
     name [str]: Name of the field.
     type [entity]: Entity this field is an instance of.
     description [description]: A description of the field.
-    multiplicity [str] = "0..*": Number of instances of field. TODO: Delete?
+    multiplicity [str] = "0..*": "Number of instances of field. TODO: Delete?"
     default [entity]: Default value for the field
 
 description:
