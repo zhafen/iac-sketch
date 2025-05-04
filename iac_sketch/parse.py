@@ -88,7 +88,34 @@ class ParseSystem:
 
         return extracted_comps
 
-    def get_cleaned_component_group(
+    def transform(self, entities: pd.DataFrame) -> dict[str, pd.DataFrame]:
+
+        entities_by_comp = entities.groupby("component_entity")
+
+        comps = {}
+        for group_key in entities_by_comp.groups.keys():
+
+            # Look for the function to parse the entity
+            parse_fn = f"parse_component_{group_key}"
+            if hasattr(self, parse_fn):
+                comps[group_key] = getattr(self, parse_fn)(entities_by_comp)
+            # If the component is ignored, skip it
+            elif group_key in self.ignored_components:
+                continue
+            # Default to the cleaned version
+            else:
+                comps[group_key] = self.general_parse_component(
+                    group_key, entities_by_comp
+                )
+
+        return comps
+
+    # These components are handled as part of the component component
+    ignored_components += [
+        "data",
+    ]
+
+    def general_parse_component(
         self, group_key: str, entities_by_comp: pd.core.groupby.DataFrameGroupBy
     ) -> pd.DataFrame:
 
@@ -110,33 +137,6 @@ class ParseSystem:
             group = group.join(comp_data)
 
         return group
-
-    def transform(self, entities: pd.DataFrame) -> dict[str, pd.DataFrame]:
-
-        entities_by_comp = entities.groupby("component_entity")
-
-        comps = {}
-        for group_key in entities_by_comp.groups.keys():
-
-            # Look for the function to parse the entity
-            parse_fn = f"parse_component_{group_key}"
-            if hasattr(self, parse_fn):
-                comps[group_key] = getattr(self, parse_fn)(entities_by_comp)
-            # If the component is ignored, skip it
-            elif group_key in self.ignored_components:
-                continue
-            # Default to the cleaned version
-            else:
-                comps[group_key] = self.get_cleaned_component_group(
-                    group_key, entities_by_comp
-                )
-
-        return comps
-
-    # These components are handled as part of the component component
-    ignored_components += [
-        "data",
-    ]
 
     def parse_component_component(
         self,
