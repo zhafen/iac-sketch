@@ -66,9 +66,11 @@ class ParseSystem:
             entities += entity_comps
 
         # Convert to a registry
-        entities = pd.DataFrame(entities)
         registry = data.Registry(
-            {key: df for key, df in entities.groupby("component_entity")}
+            {
+                key: df.drop(columns="component_entity")
+                for key, df in pd.DataFrame(entities).groupby("component_entity")
+            }
         )
 
         return registry
@@ -107,6 +109,9 @@ class ParseSystem:
 
     def transform(self, registry: data.Registry) -> data.Registry:
 
+        # Do a regular pass-through first
+        registry = self.base_transform(registry)
+
         comps = {}
         for comp_key in registry.keys():
 
@@ -114,18 +119,20 @@ class ParseSystem:
             parse_fn = f"parsecomp_{comp_key}"
             if hasattr(self, parse_fn):
                 comps[comp_key] = getattr(self, parse_fn)(registry)
-            # If the component is ignored, skip it
-            elif comp_key in self.ignored_components:
-                continue
-            # Default to the cleaned version
-            else:
-                comps[comp_key] = self.general_parsecomp(comp_key, registry)
 
         return comps
 
-    def general_parsecomp(
-        self, group_key: str, registry: data.Registry
-    ) -> pd.DataFrame:
+    def base_transform(self, registry: data.Registry) -> data.Registry:
+
+        # Do a regular pass-through first
+        registry.components = {
+            comp_key: self.base_parsecomp(comp_key, registry)
+            for comp_key in registry.keys()
+        }
+
+        return registry
+
+    def base_parsecomp(self, group_key: str, registry: data.Registry) -> pd.DataFrame:
 
         # Get the data, slightly cleaned
         group = registry[group_key].reset_index(drop=True)
@@ -248,8 +255,7 @@ class ParseSystem:
         registry: data.Registry,
     ) -> pd.DataFrame:
 
-        # Pass the entities to the general parse function first
-        links = self.general_parsecomp("links", registry)
+        links = registry["links"]
 
         # Parse the links column
         exploded_links = (
@@ -264,6 +270,9 @@ class ParseSystem:
             # Rename columns
             .rename(columns={0: "source", 1: "target"})
         )
+        # Strip whitespace
+        for col in exploded_links.columns:
+            exploded_links[col] = exploded_links[col].str.strip()
         if len(exploded_links.columns) > 2:
             raise ValueError(
                 "Links column is not formatted correctly. Did you use | or >? "
@@ -280,7 +289,7 @@ class ParseSystem:
         ]
 
         # Add these links to the link component
-        link_comp = registry.get("link", pd.DataFrame())
+        link_comp = registry.components.get("link", pd.DataFrame())
         registry.components["link"] = pd.concat([link_comp, links], ignore_index=True)
 
         return links

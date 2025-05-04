@@ -56,7 +56,7 @@ class TestParseGeneralComponents(unittest.TestCase):
             }
         )
 
-        actual = self.parse_sys.general_parsecomp("description", registry)
+        actual = self.parse_sys.base_parsecomp("description", registry)
 
         expected = pd.DataFrame(
             [
@@ -99,7 +99,7 @@ class TestParseGeneralComponents(unittest.TestCase):
             }
         )
 
-        actual = self.parse_sys.general_parsecomp("timestamp", registry)
+        actual = self.parse_sys.base_parsecomp("timestamp", registry)
 
         expected = pd.DataFrame(
             [
@@ -218,7 +218,7 @@ class TestParseComponentTypes(unittest.TestCase):
 
         registry = self.parse_sys.extract_from_stream(
             """
-            workflow:
+            my_workflow:
             - links:
                 links: |
                     my_first_task --> my_second_task
@@ -227,23 +227,24 @@ class TestParseComponentTypes(unittest.TestCase):
             """
         )
 
+        registry = self.parse_sys.base_transform(registry)
         actual = self.parse_sys.parsecomp_links(registry)
 
         expected = pd.DataFrame(
             [
                 {
                     "entity": "my_workflow",
-                    "comp_ind": 1,
+                    "comp_ind": 2,
+                    "link_type": "dependency",
                     "source": "my_first_task",
                     "target": "my_second_task",
-                    "link_type": "dependency",
                 },
                 {
                     "entity": "my_workflow",
-                    "comp_ind": 2,
+                    "comp_ind": 3,
+                    "link_type": "dependency",
                     "source": "my_second_task",
                     "target": "my_third_task",
-                    "link_type": "dependency",
                 },
             ]
         )
