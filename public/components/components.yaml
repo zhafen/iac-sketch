@@ -132,21 +132,25 @@ workflow:
 trigger:
 - component
 - description: If owned, the entity can be triggered by the event described.
-- tag
 - data:
     trigger [entity]:
 
 requirement:
 - component
 - description: If owned, the owner is mandated for the system to function.
-- data:
-    satisfied [bool]: If True, the requirement has been met.
 
 status:
 - component
-- description: "Progress status for the entity."
+- description: Implementation progress status for an entity.
 - data:
-    status [str]:
+    status [categorical]:
+        categories:
+            - new
+            - in design
+            - in progress
+            - in review
+            - closed
+            - removed
 
 time_dependent:
 - component
@@ -171,14 +175,3 @@ person:
     first_name [str]:
     last_name [str]:
     data_of_birth [timestamp]:
-
-# Meta components
-
-fully_defined:
-- description: All fields for the target components must not have null values.
-- requirement
-- target: task
-
-fully_connected:
-- description: All entities must be fully linked.
-- requirement

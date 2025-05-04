@@ -1,22 +1,43 @@
+accept_request:
+- description: >
+    We should be able to receive a request, initiating the process.
+- requirement
+- task
+- status: new
+
+deliver_report:
+- description: >
+    After completing the request, viewers should be able to access the report
+    products at their preferred time.
+- requirement
+- task
+- status: new
+
 archive_data_products:
 - description: >
     We want to be able to archive some of a table's history for data quality purposes.
 - requirement
+- status: new
 
 framework_manifest_data:
 - description:
     We need the decisions that make up the framework detailed as some form of data.
+    This data needs to pass the validation tests.
 - requirement
+- status: in design
 
 framework_manifest_documentation:
 - description: We need to convert the manifest data into useable documentation.
 - requirement
+- status: new
 
 power_users:
 - description: The framework needs to be usable by power users.
 - requirement
+- status: new
 
 audit_cohorts:
 - description: >
-    Be able to identify what patients were in a given cohort at a given date.
+    Users must able to identify what patients were in a given cohort at a given date.
 - requirement
+- status: new

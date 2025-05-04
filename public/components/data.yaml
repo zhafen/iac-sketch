@@ -55,7 +55,6 @@ query_cohort:
     cohort [entity]:
     time_observed [timestamp]: >
         The time at which to look at the population of the cohort.
-- requirement
 - algorithm: >
     cohort_ti = cohort.tloc[time_observed]
     if not cohort_ti.is_active:

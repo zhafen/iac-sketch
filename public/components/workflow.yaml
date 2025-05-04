@@ -1,16 +1,3 @@
-# Requirements
-accept_request:
-- description: >
-    We should be able to receive a request, initiating the process.
-- requirement
-- task
-
-deliver_report:
-- description: >
-    After completing the request, viewers should be able to access the report
-    products at their preferred time.
-- requirement
-- task
 
 # Implementation
 request_workflow:
