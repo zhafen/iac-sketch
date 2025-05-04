@@ -15,6 +15,7 @@ class Field:
     description: str = ""
     multiplicity: str = "0..*"
     default: str = ""
+    categories: list[str] = None
 
     field_def_order = ["type", "multiplicity"]
 
@@ -63,3 +64,37 @@ class Field:
 class Registry:
     entities: pd.DataFrame
     components: dict[str, pd.DataFrame]
+
+    def __getitem__(self, key: str):
+
+        return self.components[key]
+
+    def view(self, keys: str | list[str], how="inner"):
+        """Get a component by key or list of keys."""
+
+        if isinstance(keys, str):
+            return self[keys]
+        if isinstance(keys, list):
+
+            for i, key in enumerate(keys):
+
+                if key not in self.components:
+                    raise KeyError(f"Component '{key}' not found in registry.")
+
+                df_i = self[key].drop(columns=["comp_ind"])
+
+                if i == 0:
+                    view_df = df_i
+                    continue
+
+                view_df = pd.merge(
+                    view_df,
+                    df_i,
+                    how=how,
+                    on="entity",
+                )
+
+            return view_df
+
+        # If we got here, keys is not a string or a list of strings
+        raise TypeError("keys must be a string or a list of strings.")
