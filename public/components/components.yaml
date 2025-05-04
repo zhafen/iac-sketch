@@ -16,13 +16,28 @@ component:
     for their definition, then that entity must be a component of the component.
     Alternatively, a would-be component can be part of a parent component alongside
     the component it depends on.
-- tag
+- data:
+    multiplicity [str]:
+        description: >
+            Allowed number of instances of a component per
+            entity.
+        default: 0..*
+
+field:
+- component
+- description: A single attribute or column.
+- data:
+    name [str]: Name of the field.
+    type [entity]: Entity this field is an instance of.
+    description [description]: A description of the field.
+    multiplicity [str] = "0..*": Number of instances of field. TODO: Delete?
+    default [entity]: Default value for the field
 
 description:
 - component
 - description: Widely-used component that describes the entity in question.
 - data:
-    description [str]:
+    description [str]: The actual field containing the description.
 
 data:
 - component
@@ -124,7 +139,8 @@ trigger:
 requirement:
 - component
 - description: If owned, the owner is mandated for the system to function.
-- tag
+- data:
+    satisfied [bool]: If True, the requirement has been met.
 
 status:
 - component
@@ -139,3 +155,14 @@ time_dependent:
     scd_type [categorical]:
         description: Slowly-changing dimension type.
         default: Type II
+
+# Meta components
+
+fully_defined:
+- description: All fields for the target components must not have null values.
+- requirement
+- target: task
+
+fully_connected:
+- description: All entities must be fully linked.
+- requirement
