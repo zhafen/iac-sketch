@@ -8,7 +8,10 @@ from . import data
 
 class ParseSystem:
 
-    ignored_components = []
+    ignored_components = [
+        # data is handled as part of parsecomp_component
+        "data",
+    ]
 
     def parse(self, input_dir: str) -> data.Registry:
         """
@@ -127,6 +130,8 @@ class ParseSystem:
         # Do a regular pass-through first
         registry.components = {
             comp_key: self.base_parsecomp(comp_key, registry)
+            if comp_key not in self.ignored_components
+            else registry[comp_key]
             for comp_key in registry.keys()
         }
 
@@ -161,11 +166,6 @@ class ParseSystem:
 
         return group
 
-    # These components are handled as part of the component component
-    ignored_components += [
-        "data",
-    ]
-
     def parsecomp_component(
         self,
         registry: data.Registry,
@@ -186,7 +186,7 @@ class ParseSystem:
         data_comp = registry["data"]
         data_comp = data_comp.rename(
             columns={"comp_ind": "data_comp_ind", "component": "data"}
-        ).drop(columns=["component_entity"])
+        )
 
         # Join the components with the data component
         components = components.set_index("entity").join(

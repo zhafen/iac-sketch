@@ -143,6 +143,7 @@ class TestParseComponentTypes(unittest.TestCase):
             """
         )
 
+        registry = self.parse_sys.base_transform(registry)
         actual = self.parse_sys.parsecomp_component(registry)
 
         expected = pd.DataFrame(
