@@ -1,0 +1,27 @@
+basic_report_test:
+- testcase
+- description: Simplest possible request.
+- request:
+    requester_net_id: net001
+    irb_number: STU00012345
+
+no_irb_test:
+- testcase
+- description: A request with no IRB number.
+- request:
+    requester_net_id: net002
+    irb_number: 
+
+updated_report_test:
+- testcase
+- description: Update to the simplest possible request.
+- request:
+    requester_net_id: net001
+    irb_number: STU00012345
+
+updated_report_new_analyst_test:
+- testcase
+- description: Update to the simplest possible request, but the original analyst left.
+- request:
+    requester_net_id: net001
+    irb_number: STU00012345
