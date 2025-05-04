@@ -50,8 +50,8 @@ case:
 - description: >
     Component used to document if/elif/else statements.
 - data:
-    input [str]: Component entity that is the input for the case statement.
-    cases [dict[str, str]]: Case statement. Can be nested.
+    case [dict[str, str]]: Case statement. Can be nested.
+    input [input]: Component entity that is the input for the case statement.
 
 # Relationship components
 

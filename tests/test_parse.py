@@ -55,7 +55,7 @@ class TestParseGeneralComponents(unittest.TestCase):
         )
 
         entities_by_group = entities.groupby("component_entity")
-        actual = self.parse_sys.general_parse_component(
+        actual = self.parse_sys.general_parsecomp(
             "description", entities_by_group
         )
 
@@ -99,7 +99,7 @@ class TestParseGeneralComponents(unittest.TestCase):
         )
 
         entities_by_group = entities.groupby("component_entity")
-        actual = self.parse_sys.general_parse_component("timestamp", entities_by_group)
+        actual = self.parse_sys.general_parsecomp("timestamp", entities_by_group)
 
         expected = pd.DataFrame(
             [
@@ -128,7 +128,7 @@ class TestParseComponentTypes(unittest.TestCase):
         self.test_data_dir = "./public/components"
         self.parse_sys = parse.ParseSystem()
 
-    def test_parse_component_component(self):
+    def test_parsecomp_component(self):
 
         entities = pd.DataFrame(
             [
@@ -158,7 +158,7 @@ class TestParseComponentTypes(unittest.TestCase):
         )
 
         entities_by_group = entities.groupby("component_entity")
-        actual = self.parse_sys.parse_component_component(entities_by_group)
+        actual = self.parse_sys.parsecomp_component(entities_by_group)
 
         expected = pd.DataFrame(
             [
@@ -214,3 +214,7 @@ class TestParseComponentTypes(unittest.TestCase):
         actual = actual.drop(columns="data")
         expected = expected.drop(columns="data")
         assert_frame_equal(actual, expected)
+
+    def test_parsecomp_links(self):
+
+        assert False

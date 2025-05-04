@@ -96,7 +96,7 @@ class ParseSystem:
         for group_key in entities_by_comp.groups.keys():
 
             # Look for the function to parse the entity
-            parse_fn = f"parse_component_{group_key}"
+            parse_fn = f"parsecomp_{group_key}"
             if hasattr(self, parse_fn):
                 comps[group_key] = getattr(self, parse_fn)(entities_by_comp)
             # If the component is ignored, skip it
@@ -104,13 +104,13 @@ class ParseSystem:
                 continue
             # Default to the cleaned version
             else:
-                comps[group_key] = self.general_parse_component(
+                comps[group_key] = self.general_parsecomp(
                     group_key, entities_by_comp
                 )
 
         return comps
 
-    def general_parse_component(
+    def general_parsecomp(
         self, group_key: str, entities_by_comp: pd.core.groupby.DataFrameGroupBy
     ) -> pd.DataFrame:
 
@@ -131,7 +131,9 @@ class ParseSystem:
 
             # For the rows that were not parsed because they were not dictionaries
             # try setting the group_key column to the component value.
-            not_parsed = comp_data[group_key].isna()
+            not_parsed = comp_data.isna().all(axis="columns")
+            if group_key not in comp_data.columns and not_parsed.any():
+                comp_data[group_key] = pd.NA
             comp_data.loc[not_parsed, group_key] = group.loc[not_parsed, "component"]
 
             # Clean and join
@@ -145,7 +147,7 @@ class ParseSystem:
         "data",
     ]
 
-    def parse_component_component(
+    def parsecomp_component(
         self,
         entities_by_comp: pd.core.groupby.DataFrameGroupBy,
     ) -> pd.DataFrame:

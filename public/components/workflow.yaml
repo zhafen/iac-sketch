@@ -73,13 +73,14 @@ run_report_algorithm_version:
     sorted_report_code = report_code.sort("execution_priority")
     for code in sorted_report_code:
       notebook.run(code)
+
 report_string_formatter:
 - case:
-    input: report
-    cases:
+    case: >
         report.irb_rank == 1:
             report.product == cohort_notebook : reports/{irb_number}/cohort{optional_label}.py
             report.product == report_notebook: reports/{irb_number}/report{optional_label}.py
             report.product == report_table: reports/{irb_number}/report{optional_label}.py
         report.irb_rank > 1:
             file == cohort_notebook: reports/{irb_number}/cohort.py
+    input: report
