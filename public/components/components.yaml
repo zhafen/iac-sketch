@@ -156,6 +156,22 @@ time_dependent:
         description: Slowly-changing dimension type.
         default: Type II
 
+timestamp:
+- component
+- description: A specific moment in time.
+- data:
+    timestamp [str]: String representation of the timestamp.
+    seconds [float]: Epoch time representation of the timestamp.
+    timezone [categorical]: Timezone for the timestamp.
+
+person:
+- component
+- description: An entity representing a person.
+- data:
+    first_name [str]:
+    last_name [str]:
+    data_of_birth [timestamp]:
+
 # Meta components
 
 fully_defined:
