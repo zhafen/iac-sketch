@@ -72,7 +72,7 @@ class Registry:
 
         return self.components[key]
 
-    def view(self, keys: str | list[str], how="inner"):
+    def view(self, keys: str | list[str], how="left") -> pd.DataFrame:
         """Get a component by key or list of keys."""
 
         if isinstance(keys, str):
