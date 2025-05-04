@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 import glob
+import re
 
-import numpy as np
 import pandas as pd
 import yaml
-import re
 
 
 class Entity(str):
@@ -27,7 +26,11 @@ class Field:
         # Parse the overall field definition
         # The awful regex expression is to match the field name and balance brackets
         # It was spat out by copilot, but it works...
-        pattern = r"(?P<name>\w+)\s*\[(?P<bracket>[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*)]"
+        pattern = (
+            r"(?P<name>\w+)\s*"
+            + r"\[(?P<bracket>[^\[\]]*(?:\[[^\[\]]*\][^\[\]]*)*)]"
+            + r"(?:\s*=\s*(?P<default>.+))?"
+        )
         match = re.match(pattern, field_key)
 
         # Check results
@@ -39,7 +42,10 @@ class Field:
         bracket_contents = match.group("bracket")
 
         # Convert into keyword arguments
-        kwargs = {"name": field_name}
+        kwargs = {
+            "name": field_name,
+            "default": match.group("default"),
+        }
         for i, field_attr_value in enumerate(bracket_contents.split("|")):
             field_attr = cls.field_def_order[i]
             kwargs[field_attr] = field_attr_value
@@ -233,7 +239,7 @@ class Parser:
         valids = []
         valid_messages = []
         fields = []
-        for i, comp in components.query("defined").iterrows():
+        for _, comp in components.query("defined").iterrows():
             fields_i = {}
 
             if comp.notna()["data"]:

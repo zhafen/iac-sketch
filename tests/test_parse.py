@@ -75,3 +75,14 @@ class TestField(unittest.TestCase):
         assert field.type == "dict[str, str]"
         assert field.description == "This is my field"
         assert field.multiplicity == "0..*"
+
+    def test_default_provided(self):
+
+        field_key = "my_field [str] = 0..*"
+        field_value = "This is my field"
+
+        field = parse.Field.from_kv_pair(field_key, field_value)
+        assert field.name == "my_field"
+        assert field.type == "str"
+        assert field.description == "This is my field"
+        assert field.default == "0..*"
