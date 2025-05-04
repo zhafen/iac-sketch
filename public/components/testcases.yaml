@@ -4,6 +4,7 @@ basic_report_test:
 - request:
     requester_net_id: net001
     irb_number: STU00012345
+- status: new
 
 no_irb_test:
 - testcase
@@ -11,6 +12,7 @@ no_irb_test:
 - request:
     requester_net_id: net002
     irb_number: 
+- status: new
 
 updated_report_test:
 - testcase
@@ -18,6 +20,7 @@ updated_report_test:
 - request:
     requester_net_id: net001
     irb_number: STU00012345
+- status: new
 
 updated_report_new_analyst_test:
 - testcase
@@ -25,3 +28,4 @@ updated_report_new_analyst_test:
 - request:
     requester_net_id: net001
     irb_number: STU00012345
+- status: new

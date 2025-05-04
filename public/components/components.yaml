@@ -123,7 +123,22 @@ tag:
 task:
 - component
 - description: If owned, the entity is a task to complete.
-- tag
+
+input:
+- component
+- description: Component representing input.
+- data:
+    input [data]: >
+        Input component instances for the task. Is of type "data", so will be parsed
+        in the same manner.
+
+output:
+- component
+- description: Component representing output.
+- data:
+    output [data]: >
+        Output component instances for the task. Is of type "data", so will be parsed
+        in the same manner.
 
 workflow:
 - component
