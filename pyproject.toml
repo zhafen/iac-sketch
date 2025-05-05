@@ -16,4 +16,5 @@ dependencies = [
     "seaborn",
     "jupyterlab",
     "networkx",
+    "scipy>=1.15.2",
 ]
