@@ -23,14 +23,25 @@ databricks_workspace_volume:
 - description: The location we can write files to, including unstructured data.
 - uri: databricks:/Volumes/edr/external_volumes/mnt_eda_adls_research
 
+databricks_workspace:
+- description: Databricks wokspaces used to develop and deploy reports.
+- data:
+    url [str]: Unique URL for the workspace.
+    name [str]: Name for the wokspace.
+    deployment_environment [categorical]:
+        categories:
+            - dev
+            - stg
+            - prd
+
 research_analytics_pbi_workspace:
 - description: Where the PBI reports live.
 - data:
     workspace_name [str]: E.g. "Research Core".
     workspace_domain [str]: E.g. "Research IRB".
     workspace_folders [list[str]]: E.g. "NUCATS, Study Tracker, FSMIT".
-    deployment_environment [ categorical]:
+    deployment_environment [categorical]:
         categories:
-            - Dev
-            - Stg
-            - Prd
+            - dev
+            - stg
+            - prd
