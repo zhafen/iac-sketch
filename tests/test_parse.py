@@ -25,8 +25,8 @@ class TestParser(unittest.TestCase):
         registry = self.parse_sys.transform(registry)
 
         assert "component" in registry
+        assert "component" in registry["metadata"]["entity"].values
         assert "link" in registry["component"]["entity"].values
-
 
 class TestParseGeneralComponents(unittest.TestCase):
 

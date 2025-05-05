@@ -32,9 +32,9 @@ class ParseSystem:
         for filename in glob.glob(f"{input_dir}/*.yaml"):
             with open(filename, "r", encoding="utf-8") as f:
                 registry_i = self.extract_from_stream(f)
-            registry.components.update(registry_i.components)
             # Mark the file as the source of the data
-            registry["metadata"]["source_file"] = filename
+            registry_i["metadata"]["source_file"] = filename
+            registry.update(registry_i)
 
         return registry
 

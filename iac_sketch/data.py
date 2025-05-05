@@ -82,6 +82,19 @@ class Registry:
     def keys(self):
         return self.components.keys()
 
+    def items(self):
+        return self.components.items()
+
+    def update(self, other: "Registry"):
+
+        for comp_key, comp_df in other.items():
+            if comp_key not in self.components:
+                self.components[comp_key] = comp_df
+            else:
+                self.components[comp_key] = pd.concat(
+                    [self.components[comp_key], comp_df], ignore_index=True
+                )
+
     def view(self, keys: str | list[str], how="left") -> pd.DataFrame:
         """Get a component by key or list of keys."""
 
