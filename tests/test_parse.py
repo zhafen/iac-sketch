@@ -249,3 +249,5 @@ class TestParseComponentTypes(unittest.TestCase):
             ]
         )
         assert_frame_equal(actual, expected)
+
+        assert registry["metadata"]["n_comps"].max() == 4

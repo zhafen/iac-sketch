@@ -128,9 +128,11 @@ class ParseSystem:
 
         # Do a regular pass-through first
         registry.components = {
-            comp_key: self.base_parsecomp(comp_key, registry)
-            if comp_key not in self.ignored_components
-            else registry[comp_key]
+            comp_key: (
+                self.base_parsecomp(comp_key, registry)
+                if comp_key not in self.ignored_components
+                else registry[comp_key]
+            )
             for comp_key in registry.keys()
         }
 
@@ -279,7 +281,7 @@ class ParseSystem:
             )
         # Add the parsed results back to the original DataFrame
         link_df = (
-            links_df.join(exploded_links).drop(columns=["links"])
+            links_df.join(exploded_links).drop(columns=["links"]).reset_index(drop=True)
         )
 
         # Get the new comp index, using the metadata
@@ -289,7 +291,9 @@ class ParseSystem:
 
         # Also update the metadata
         n_new_comps = link_df.reset_index()["entity"].value_counts()
-        registry["metadata"].loc[n_new_comps.index, "n_comps"] += n_new_comps
+        metadata_df = registry["metadata"].set_index("entity")
+        metadata_df.loc[n_new_comps.index, "n_comps"] += n_new_comps
+        registry["metadata"] = metadata_df.reset_index()
 
         # Add these links to the link component
         link_comp = registry.components.get("link", pd.DataFrame())
