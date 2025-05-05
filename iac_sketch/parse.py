@@ -252,11 +252,11 @@ class ParseSystem:
         registry: data.Registry,
     ) -> pd.DataFrame:
 
-        links = registry["links"]
+        links_df = registry["links"]
 
         # Parse the links column
         exploded_links = (
-            links["links"]
+            links_df["links"]
             # Split on newlines
             .str.strip()
             .str.split("\n")
@@ -275,21 +275,21 @@ class ParseSystem:
                 "Links column is not formatted correctly. Did you use | or >? "
             )
         # Add the parsed results back to the original DataFrame
-        links = (
-            links.join(exploded_links).drop(columns=["links"]).reset_index(drop=True)
+        link_df = (
+            links_df.join(exploded_links).drop(columns=["links"])
         )
 
         # Get the new comp index, using the metadata
-        links["comp_ind"] = links.groupby("entity").cumcount()
-        merged_links = links.merge(registry["metadata"], on="entity", how="left")
-        links["comp_ind"] += merged_links["n_comps"]
+        link_df["comp_ind"] = link_df.groupby("entity").cumcount()
+        merged_links = link_df.merge(registry["metadata"], on="entity", how="left")
+        link_df["comp_ind"] += merged_links["n_comps"]
 
         # Also update the metadata
-        n_new_comps = links.reset_index()["entity"].value_counts()
+        n_new_comps = link_df.reset_index()["entity"].value_counts()
         registry["metadata"].loc[n_new_comps.index, "n_comps"] += n_new_comps
 
         # Add these links to the link component
         link_comp = registry.components.get("link", pd.DataFrame())
-        registry["link"] = pd.concat([link_comp, links], ignore_index=True)
+        registry["link"] = pd.concat([link_comp, link_df], ignore_index=True)
 
-        return links
+        return link_df
