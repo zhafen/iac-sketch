@@ -163,9 +163,6 @@ class ParseSystem:
             comp = comp.drop(columns=["component"])
             comp = comp.join(comp_data)
 
-        # Set the indexes to the unique entity + component index
-        comp = comp.set_index(["entity", "comp_ind"])
-
         return comp
 
     def parsecomp_component(
@@ -181,23 +178,29 @@ class ParseSystem:
 
     def build_components_dataframe(self, registry: data.Registry) -> pd.DataFrame:
 
+        # Get the entities with the components flag
+        components = registry["component"]
+        components = components[["entity", "comp_ind"]]
+
         # Get the entities with the data component
-        data_comp = registry["data"].rename(
+        data_comp = registry["data"]
+        data_comp = data_comp.rename(
             columns={"comp_ind": "data_comp_ind", "component": "data"}
-        ).set_index("entity")
+        )
 
         # Join the components with the data component
-        # It will only join on the shared index, which is entity
-        comp_df = registry["component"].join(data_comp, how="left")
+        components = components.set_index("entity").join(
+            data_comp.set_index("entity"), how="outer"
+        )
 
         # Identify the components that are defined vs implicitly included
-        comp_df["defined"] = True
-        created_comp_df = pd.DataFrame({"entity": registry.keys()})
-        comp_df = comp_df.reset_index().merge(created_comp_df, how="outer", on="entity")
-        comp_df.loc[comp_df["defined"].isna(), "defined"] = False
-        comp_df["defined"] = comp_df["defined"].astype(bool)
+        components["defined"] = True
+        comps_created = pd.DataFrame({"entity": registry.keys()})
+        components = components.merge(comps_created, how="outer", on="entity")
+        components.loc[components["defined"].isna(), "defined"] = False
+        components["defined"] = components["defined"].astype(bool)
 
-        return comp_df.set_index(["entity", "comp_ind"])
+        return components
 
     def parse_fields(self, components: pd.DataFrame) -> pd.DataFrame:
 
