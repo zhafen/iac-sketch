@@ -115,15 +115,14 @@ class ParseSystem:
         # Do a regular pass-through first
         registry = self.base_transform(registry)
 
-        comps = {}
-        for comp_key in registry.keys():
+        for comp_key in list(registry.keys()):
 
             # Look for the function to parse the entity
             parse_fn = f"parsecomp_{comp_key}"
             if hasattr(self, parse_fn):
-                comps[comp_key] = getattr(self, parse_fn)(registry)
+                getattr(self, parse_fn)(registry)
 
-        return comps
+        return registry
 
     def base_transform(self, registry: data.Registry) -> data.Registry:
 
@@ -137,44 +136,45 @@ class ParseSystem:
 
         return registry
 
-    def base_parsecomp(self, group_key: str, registry: data.Registry) -> pd.DataFrame:
+    def base_parsecomp(self, comp_key: str, registry: data.Registry) -> pd.DataFrame:
 
         # Get the data, slightly cleaned
-        group = registry[group_key].reset_index(drop=True)
+        comp = registry[comp_key].reset_index(drop=True)
 
         # Try parsing the component column
-        comp_data = pd.json_normalize(group["component"])
+        comp_data = pd.json_normalize(comp["component"])
 
         # If there wasn't a dictionary to parse
         if len(comp_data.columns) == 0:
-            group = group.rename(columns={"component": group_key})
-            if group[group_key].isna().all():
-                group = group.drop(columns=[group_key])
+            comp = comp.rename(columns={"component": comp_key})
+            if comp[comp_key].isna().all():
+                comp = comp.drop(columns=[comp_key])
         # If the component column was parsed successfully
         else:
 
             # For the rows that were not parsed because they were not dictionaries
             # try setting the group_key column to the component value.
             not_parsed = comp_data.isna().all(axis="columns")
-            if group_key not in comp_data.columns and not_parsed.any():
-                comp_data[group_key] = pd.NA
-            comp_data.loc[not_parsed, group_key] = group.loc[not_parsed, "component"]
+            if comp_key not in comp_data.columns and not_parsed.any():
+                comp_data[comp_key] = pd.NA
+            comp_data.loc[not_parsed, comp_key] = comp.loc[not_parsed, "component"]
 
             # Clean and join
-            group = group.drop(columns=["component"])
-            group = group.join(comp_data)
+            comp = comp.drop(columns=["component"])
+            comp = comp.join(comp_data)
 
-        return group
+        return comp
 
     def parsecomp_component(
         self,
         registry: data.Registry,
     ) -> pd.DataFrame:
 
-        components = self.build_components_dataframe(registry)
-        components = self.parse_fields(components)
+        comps_df = self.build_components_dataframe(registry)
+        comps_df = self.parse_fields(comps_df)
+        registry["component"] = comps_df
 
-        return components
+        return comps_df
 
     def build_components_dataframe(self, registry: data.Registry) -> pd.DataFrame:
 
@@ -290,6 +290,6 @@ class ParseSystem:
 
         # Add these links to the link component
         link_comp = registry.components.get("link", pd.DataFrame())
-        registry.components["link"] = pd.concat([link_comp, links], ignore_index=True)
+        registry["link"] = pd.concat([link_comp, links], ignore_index=True)
 
         return links

@@ -26,7 +26,6 @@ class TestParser(unittest.TestCase):
 
         assert "component" in registry
         assert "link" in registry["component"]["entity"].values
-        assert "data" not in registry
 
 
 class TestParseGeneralComponents(unittest.TestCase):

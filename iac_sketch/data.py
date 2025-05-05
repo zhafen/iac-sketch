@@ -71,6 +71,11 @@ class Registry:
 
         return self.components[key]
 
+    def __setitem__(self, key: str, value: pd.DataFrame):
+        if not isinstance(value, pd.DataFrame):
+            raise TypeError("Value must be a pandas DataFrame.")
+        self.components[key] = value
+
     def __contains__(self, key: str) -> bool:
         return key in self.components
 
