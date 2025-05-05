@@ -110,11 +110,9 @@ class Registry:
                     view_df = df_i
                     continue
 
-                view_df = pd.merge(
-                    view_df,
+                view_df = view_df.join(
                     df_i,
                     how=how,
-                    on="entity",
                 )
 
             return view_df

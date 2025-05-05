@@ -70,7 +70,7 @@ class TestParseGeneralComponents(unittest.TestCase):
                     "description": "This entity is also a test entity.",
                 },
             ]
-        )
+        ).set_index(["entity", "comp_ind"])
         assert_frame_equal(actual, expected)
 
     def test_parse_general_component_complex(self):
@@ -117,7 +117,7 @@ class TestParseGeneralComponents(unittest.TestCase):
                     "timezone": "UTC",
                 },
             ]
-        )
+        ).set_index(["entity", "comp_ind"])
         assert_frame_equal(actual, expected)
 
 
@@ -209,7 +209,7 @@ class TestParseComponentTypes(unittest.TestCase):
                     "valid_message": "",
                 },
             ]
-        )
+        ).set_index(["entity", "comp_ind"])
         actual = actual.drop(columns="data")
         expected = expected.drop(columns="data")
         assert_frame_equal(actual, expected)
@@ -247,5 +247,8 @@ class TestParseComponentTypes(unittest.TestCase):
                     "target": "my_third_task",
                 },
             ]
-        )
+        ).set_index(["entity", "comp_ind"])
         assert_frame_equal(actual, expected)
+
+        # There are now more comps
+        assert registry["metadata"]["n_comps"].max() == 4

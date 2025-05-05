@@ -163,6 +163,9 @@ class ParseSystem:
             comp = comp.drop(columns=["component"])
             comp = comp.join(comp_data)
 
+        # Set the indexes to the unique entity + component index
+        comp = comp.set_index(["entity", "comp_ind"])
+
         return comp
 
     def parsecomp_component(
@@ -178,29 +181,23 @@ class ParseSystem:
 
     def build_components_dataframe(self, registry: data.Registry) -> pd.DataFrame:
 
-        # Get the entities with the components flag
-        components = registry["component"]
-        components = components[["entity", "comp_ind"]]
-
         # Get the entities with the data component
-        data_comp = registry["data"]
-        data_comp = data_comp.rename(
+        data_comp = registry["data"].rename(
             columns={"comp_ind": "data_comp_ind", "component": "data"}
-        )
+        ).set_index("entity")
 
         # Join the components with the data component
-        components = components.set_index("entity").join(
-            data_comp.set_index("entity"), how="outer"
-        )
+        # It will only join on the shared index, which is entity
+        comp_df = registry["component"].join(data_comp, how="left")
 
         # Identify the components that are defined vs implicitly included
-        components["defined"] = True
-        comps_created = pd.DataFrame({"entity": registry.keys()})
-        components = components.merge(comps_created, how="outer", on="entity")
-        components.loc[components["defined"].isna(), "defined"] = False
-        components["defined"] = components["defined"].astype(bool)
+        comp_df["defined"] = True
+        created_comp_df = pd.DataFrame({"entity": registry.keys()})
+        comp_df = comp_df.reset_index().merge(created_comp_df, how="outer", on="entity")
+        comp_df.loc[comp_df["defined"].isna(), "defined"] = False
+        comp_df["defined"] = comp_df["defined"].astype(bool)
 
-        return components
+        return comp_df.set_index(["entity", "comp_ind"])
 
     def parse_fields(self, components: pd.DataFrame) -> pd.DataFrame:
 
@@ -284,9 +281,12 @@ class ParseSystem:
 
         # Get the new comp index, using the metadata
         links["comp_ind"] = links.groupby("entity").cumcount()
-        links["comp_ind"] += links.merge(registry["metadata"], on="entity", how="left")[
-            "n_comps"
-        ]
+        merged_links = links.merge(registry["metadata"], on="entity", how="left")
+        links["comp_ind"] += merged_links["n_comps"]
+
+        # Also update the metadata
+        n_new_comps = links.reset_index()["entity"].value_counts()
+        registry["metadata"].loc[n_new_comps.index, "n_comps"] += n_new_comps
 
         # Add these links to the link component
         link_comp = registry.components.get("link", pd.DataFrame())
