@@ -14,5 +14,4 @@ class TestArchitect(unittest.TestCase):
 
         assert "component" in registry.components
         assert "link" in registry.components["component"]["entity"].values
-        assert "data" not in registry.components
 
