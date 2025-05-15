@@ -224,6 +224,11 @@ class TestParseComponentTypes(unittest.TestCase):
                     my_first_task --> my_second_task
                     my_second_task --> my_third_task
                 link_type: dependency
+            my_other_workflow:
+            - links:
+                links: |
+                    my_first_task --> my_third_task
+                link_type: dependency
             """
         )
 
@@ -244,6 +249,13 @@ class TestParseComponentTypes(unittest.TestCase):
                     "comp_ind": 3,
                     "link_type": "dependency",
                     "source": "my_second_task",
+                    "target": "my_third_task",
+                },
+                {
+                    "entity": "my_other_workflow",
+                    "comp_ind": 2,
+                    "link_type": "dependency",
+                    "source": "my_first_task",
                     "target": "my_third_task",
                 },
             ]

@@ -115,12 +115,21 @@ class ParseSystem:
         # Do a regular pass-through first
         registry = self.base_transform(registry)
 
+        # Parse the components component first
+        self.parsecomp_component(registry)
+
+        # Now that the components component is parsed, we can validate the registry
+        registry.validate()
+
         for comp_key in list(registry.keys()):
 
             # Look for the function to parse the entity
             parse_fn = f"parsecomp_{comp_key}"
             if hasattr(self, parse_fn):
                 getattr(self, parse_fn)(registry)
+
+        # Validate again after the transformation
+        registry.validate()
 
         return registry
 
