@@ -3,89 +3,77 @@ request_workflow:
 - description: The overall workflow.
 - links:
     links: |
-      accept_and_define_request -->|request| build_report
-      build_report -->|report| deliver_report
+      accept_request --> build_report
+      build_report --> deliver_report
     link_type: dependency
 
-accept_and_define_request:
-- todo: >
-    Change to accomodate working on the request prior to DS approval and prior to the
-    service agreement, as needed.
+accept_request_workflow:
+- append_to: accept_request
+- description: >
+    We should be able to receive and assign a request, initiating the process.
+- input:
+    requester [person]: The person seeking to submit a request.
+- output:
+    request [request]: The formalized request.
+    initialized_report [report]: Incomplete report.
+    analyst [person]: The analyst or power user working on the request
+- links:
+    links: |
+      submit_intake_form --> assign_analyst
+      assign_analyst --> submit_for_data_steward_approval
+
+build_report_workflow:
+- description: The workflow for building a report
 - task
 - links:
     links: |
-      submit_intake_form -->|request| create_azdo_ticket
-      create_azdo_ticket -->|request.azdo_id| assign_analyst
-      assign_analyst -->|request.analyst| get_data_steward_approval
-      get_data_steward_approval -->|request.is_approved| add_request_to_backlog
-
-      analyst_is_power_user([analyst_is_power_user?])
-
-      assign_analyst -->|request.analyst| analyst_is_power_user
-      analyst_is_power_user -->|no| complete_service_agreement
-      analyst_is_power_user -->|yes| add_request_to_backlog
-      complete_service_agreement -->|request.is_defined| add_request_to_backlog
-
-      add_request_to_backlog --> build_report
+      define_report --> set_up_environment
+      set_up_environment --> set_up_report
+      set_up_report --> work_on_report
+      work_on_report --> get_feedback_on_report
+      get_feedback_on_report --> work_on_report
+      get_feedback_on_report --> finalize_report
     link_type: dependency
 
-build_report:
+work_on_report:
+- description: The workflow for actually working on the report.
 - task
 - links:
     links: |
-      accept_and_define_request -->|request| prepare_report_for_work
-
-      prepare_report_for_work -->|report| work_on_report
-      work_on_report --> submit_pr
-
-      all_reviewers_approve([all_reviewers_approve?])
-
-      submit_pr -->|pr| get_feedback
-      get_feedback --> all_reviewers_approve
-      all_reviewers_approve -->|yes| merge_pr
-      all_reviewers_approve -->|no| update_report
-      update_report --> get_feedback
-      merge_pr --> deliver_report
-
+        build_cohort --> build_report
+        build_report --> build_pbi_report
     link_type: dependency
+
+get_feedback_on_report:
+- task
+- links:
+    links: |
+        run_report_with_stg_workflow --> update_pbi_data_connections
+        update_pbi_data_connections --> publish_pbi_to_stg
+        publish_pbi_to_stg --> submit_pr
+        submit_pr --> get_feedback_from_first_reviewer
+        get_feedback_from_first_reviewer --> revise_pr
+        revise_pr --> get_feedback_from_first_reviewer
+        get_feedback_from_first_reviewer --> get_feedback_from_second_reviewer
+        get_feedback_from_second_reviewer --> revise_pr
+        revise_pr --> get_feedback_from_second_reviewer
+    link_type: dependency
+
+finalize_report:
+- task
+- links:
+    links: |
+        publish_pbi_to_prd --> update_prd_pbi_with_prd_parameters
+        update_prd_pbi_with_prd_parameters --> validate_prd_report
+        merge_pr --> run_report_with_prd_workflow
+        run_report_with_prd_workflow --> validate_prd_report
 
 deliver_report:
 - task
 - links:
     links: |
-      build_report -->|report| deployment_complete
-
-      deployment_complete([deployment_complete?])
-
-      deployment_complete -->|no| wait
-      wait --> deployment_complete
-      deployment_complete -->|yes| share_link_with_requester
-    link_type: dependency
-
-define_report:
-- task
-- description: Define the report products to be delivered, etc.
-
-set_up_environment:
-- task
-- description: Set up the environment used to create the report.
-
-set_up_report:
-- task
-- description: Set up the file structure for a report, including a template.
-- status: design
-
-work_on_report:
-- task
-- description: Make progress on producing the report products defined in define_report.
-
-get_feedback_on_report:
-- task
-- description: Get feedback on the report in progress.
-
-finalize_report:
-- task
-- description: Close out the PR for the report.
+        deploy_report --> run_report
+        run_report --> share_report
 
 run_report:
 - description: The steps to run the code to generate a report.

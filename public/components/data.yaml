@@ -102,7 +102,6 @@ request:
 - description: The data submitted via the intake form.
 - data:
     snow_id [str]: The service now ticket associated with the request.
-    product_id [str]: The ID of the overall product.
     requester_net_id [str]: NU Net ID for the requester.
     irb_number [str]: IRB number of the associated study.
     description [str]: Description of the request.
@@ -118,3 +117,64 @@ table_references:
 - references: >
     report.report_id 1 -- 1..* request.product_id
     report.report_id 0..1 -- 0..* work_item.report_id
+
+
+# // SNow
+# Table requests {
+#   snow_id varchar [pk]
+#   requester_net_id varchar
+#   irb_number varchar
+#   azdo_id varchar
+#   is_approved bool
+#   is_defined bool
+# }
+
+# // Azure DevOps
+# Table reports {
+#   report_id varchar [pk, not null]
+#   irb_number varchar [ref: > studies.irb_number]
+#   irb_rank int
+#   snow_id varchar [null, ref: < requests.snow_id]
+#   analyst_nm_id varchar [ref: - analysts.nm_id]
+# }
+
+# // From eirb
+# Table studies {
+#   irb_number varchar [pk, not null]
+# }
+
+# // Our team + list of power users
+# Table analysts {
+#   nm_id varchar [pk, not null]
+#   pa_id varchar
+#   is_power_user bool
+# }
+
+# // Written by analysts
+# Table code_products {
+#   report_id varchar [not null, ref: > reports.report_id]
+#   git_branch varchar
+#   notebook_path varchar
+#   notebook_type varchar [note: 'etl, cohort, or report']
+# }
+
+# // Defined by cohort_notebook
+# Table cohort_patients {
+#   report_id varchar [not null, ref: > reports.report_id, note: '1:1 cohort to report']
+#   patient_id varchar
+#   patient_id_type varchar [note: 'e.g. nm_bi.ir_id, clarity.pat_id, caboodle.pat_dur_key']
+# }
+
+# // Defined by code products
+# Table data_products {
+#   report_id varchar [not null, ref: > reports.report_id]
+#   path varchar
+# }
+
+# // Created by analysts
+# Table pbi_products {
+#   pbi_id varchar
+#   report_id varchar [not null, ref: < reports.report_id]
+#   path varchar
+# }
+

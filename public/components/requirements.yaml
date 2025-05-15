@@ -1,13 +1,8 @@
 accept_request:
 - description: >
-    We should be able to receive a request, initiating the process.
+    We should be able to receive and assign a request, initiating the process.
 - requirement
 - task
-- input:
-    requester [person]: The person seeking to submit a request.
-- output:
-    request [request]: The formalized request.
-    initialized_report [report]: Incomplete report.
 - status: in design
 
 deliver_report:
