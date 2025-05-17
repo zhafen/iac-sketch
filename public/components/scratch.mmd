@@ -1,0 +1,12 @@
+flowchart TD
+
+    subgraph extract
+        open_file --> extract_from_stream
+        extract_from_stream --> update_registry
+        update_registry --> open_file
+    end
+
+    extract -->|registry| transform
+    
+    base_transform -->|registry| parsecomp_component
+    parsecomp_component -->|component_table| registry.validate

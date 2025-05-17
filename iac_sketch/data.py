@@ -123,19 +123,28 @@ class Registry:
         raise TypeError("keys must be a string or a list of strings.")
 
     def validate(self):
-        """Validate the registry. This only validates that the data is correctly
-        formatted. It does not perform the level of checks that Validator does."""
+        """Validate the data in the registry. This only validates that the data
+        is correctly consistent with the component definition. It does not perform the
+        level of checks that Validator does."""
+
+        comp_defs: pd.DataFrame = self["component"].copy().set_index("entity")
 
         for comp_key, comp_df in self.items():
 
             # Get the settings according to the component definition,
             # stored in the component row
-            comp_row = self["component"].loc[comp_key]
+            comp_row: pd.Series = comp_defs.loc[comp_key]
 
             if "entity" not in comp_df.columns:
                 raise ValueError(f"Component '{comp_key}' does not have an 'entity' column.")
             if "comp_ind" not in comp_df.columns:
                 raise ValueError(f"Component '{comp_key}' does not have a 'comp_ind' column.")
+
+            # After this we check for matching with component definition, so if
+            # the component definition is not valid we skip this step
+            if not comp_row["valid"]:
+                continue
+
             if comp_df[["entity", "comp_ind"]].nunique() != len(comp_df):
                 raise ValueError(f"Component '{comp_key}' has duplicate entities.")
             if "comp_key" == "metadata":

@@ -18,10 +18,8 @@ component:
     the component it depends on.
 - data:
     multiplicity [str]:
-        description: >
-            Allowed number of instances of a component per
-            entity.
-        default: 0..*
+        description: Allowed number of instances of a component per entity.
+        default: "*"
 
 field:
 - component
