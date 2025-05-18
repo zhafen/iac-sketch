@@ -127,26 +127,30 @@ class Registry:
         is correctly consistent with the component definition. It does not perform the
         level of checks that Validator does."""
 
-        comp_defs: pd.DataFrame = self["component"].copy().set_index("entity")
+        for comp_key in self.keys():
 
-        for comp_key, comp_df in self.items():
+            self.validate_component_table(comp_key)
 
-            # Get the settings according to the component definition,
-            # stored in the component row
-            comp_row: pd.Series = comp_defs.loc[comp_key]
+    def validate_component_table(self, comp_key: str):
+        """Validate the component table. This only validates that the data
+        is correctly consistent with the component definition. It does not perform the
+        level of checks that Validator does."""
 
-            if "entity" not in comp_df.columns:
-                raise ValueError(f"Component '{comp_key}' does not have an 'entity' column.")
-            if "comp_ind" not in comp_df.columns:
-                raise ValueError(f"Component '{comp_key}' does not have a 'comp_ind' column.")
+        comp_df = self[comp_key].copy()
 
-            # After this we check for matching with component definition, so if
-            # the component definition is not valid we skip this step
-            if not comp_row["valid"]:
-                continue
+        # Get the settings according to the component definition,
+        # stored in the component row
+        comp_def: pd.Series = self["component"].loc[comp_key]
 
-            if comp_df[["entity", "comp_ind"]].nunique() != len(comp_df):
-                raise ValueError(f"Component '{comp_key}' has duplicate entities.")
-            if "comp_key" == "metadata":
-                if comp_df["entity"].nunique() != len(comp_df):
-                    raise ValueError(f"Component '{comp_key}' has multiple entities.")
+        if "entity" not in comp_df.columns:
+            raise ValueError(f"Component '{comp_key}' does not have an 'entity' column.")
+        if "comp_ind" not in comp_df.columns:
+            raise ValueError(f"Component '{comp_key}' does not have a 'comp_ind' column.")
+
+        # After this we check for matching with component definition, so if
+        # the component definition is not valid we skip this step
+        if not comp_def["valid_def"]:
+            return
+
+        if comp_df[["entity", "comp_ind"]].nunique() != len(comp_df):
+            raise ValueError(f"Component '{comp_key}' has duplicate entities.")

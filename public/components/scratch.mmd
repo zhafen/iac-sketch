@@ -8,5 +8,9 @@ flowchart TD
 
     extract -->|registry| transform
     
-    base_transform -->|registry| parsecomp_component
-    parsecomp_component -->|component_table| registry.validate
+    subgraph transform
+        base_transform --> parsecomp_component
+        parsecomp_component --> parse_all_components
+    end
+
+    

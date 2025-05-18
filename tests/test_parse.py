@@ -155,8 +155,8 @@ class TestParseComponentTypes(unittest.TestCase):
                     "data": np.nan,
                     "defined": False,
                     "unparsed_data": np.nan,
-                    "valid": False,
-                    "valid_message": "undefined",
+                    "valid_def": False,
+                    "valid_def_message": "undefined",
                 },
                 {
                     "entity": "data",
@@ -165,8 +165,8 @@ class TestParseComponentTypes(unittest.TestCase):
                     "data": np.nan,
                     "defined": False,
                     "unparsed_data": np.nan,
-                    "valid": False,
-                    "valid_message": "undefined",
+                    "valid_def": False,
+                    "valid_def_message": "undefined",
                 },
                 {
                     "entity": "metadata",
@@ -175,8 +175,8 @@ class TestParseComponentTypes(unittest.TestCase):
                     "data": np.nan,
                     "defined": False,
                     "unparsed_data": np.nan,
-                    "valid": False,
-                    "valid_message": "undefined",
+                    "valid_def": False,
+                    "valid_def_message": "undefined",
                 },
                 {
                     "entity": "my_other_component",
@@ -195,8 +195,8 @@ class TestParseComponentTypes(unittest.TestCase):
                         "my_field [int]": "This is a test field.",
                         "my_other_field [bool]": "This is another test field.",
                     },
-                    "valid": True,
-                    "valid_message": "",
+                    "valid_def": True,
+                    "valid_def_message": "",
                 },
                 {
                     "entity": "my_simple_component",
@@ -205,11 +205,11 @@ class TestParseComponentTypes(unittest.TestCase):
                     "data": np.nan,
                     "defined": True,
                     "unparsed_data": np.nan,
-                    "valid": True,
-                    "valid_message": "",
+                    "valid_def": True,
+                    "valid_def_message": "",
                 },
             ]
-        )
+        ).set_index("entity")
         actual = actual.drop(columns="data")
         expected = expected.drop(columns="data")
         assert_frame_equal(actual, expected)

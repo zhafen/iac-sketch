@@ -183,6 +183,7 @@ class ParseSystem:
 
         comps_df = self.build_components_dataframe(registry)
         comps_df = self.parse_fields(comps_df)
+        comps_df = comps_df.set_index("entity")
         registry["component"] = comps_df
 
         return comps_df
@@ -252,11 +253,11 @@ class ParseSystem:
             valid_messages.append("")
 
         # Defaults
-        components["valid"] = False
-        components["valid_message"] = "undefined"
+        components["valid_def"] = False
+        components["valid_def_message"] = "undefined"
         # Then override
-        components.loc[components["defined"], "valid"] = valids
-        components.loc[components["defined"], "valid_message"] = valid_messages
+        components.loc[components["defined"], "valid_def"] = valids
+        components.loc[components["defined"], "valid_def_message"] = valid_messages
         components.loc[components["defined"], "data"] = fields
 
         return components
