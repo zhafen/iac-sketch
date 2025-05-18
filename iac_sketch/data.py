@@ -130,14 +130,16 @@ class Registry:
 
         for comp_key in self.keys():
 
-            self.validate_component(comp_key)
+            comp_def, comp_df = self.validate_component(comp_key)
+            self["component"].loc[comp_key] = comp_def
+            self[comp_key] = comp_df
 
-    def validate_component(self, comp_key: str):
+    def validate_component(self, comp_key: str) -> tuple[pd.Series, pd.DataFrame]:
         """Validate the component table. This only validates that the data
         is correctly consistent with the component definition. It does not perform the
         level of checks that Validator does."""
 
-        comp_df = self[comp_key]
+        comp_df = self[comp_key].copy()
 
         # Get the settings according to the component definition,
         # stored in the component row
@@ -148,8 +150,7 @@ class Registry:
         if not comp_def["valid_def"]:
             comp_def["valid_data"] = False
             comp_def["valid_data_message"] = "Invalid component definition."
-            self["component"].loc[comp_key] = comp_def
-            return
+            return comp_def, comp_df
 
         # Validate fields
         for field_name, field in comp_def["fields"].items():
@@ -168,12 +169,11 @@ class Registry:
                         "Multiplicity is 1, but there are duplicates: "
                         f"{list(comp_df.index[comp_df.index.duplicated()].values)}"
                     )
-                    self["component"].loc[comp_key] = comp_def
-                    return
+                    return comp_def, comp_df
             else:
                 comp_df = comp_df.set_index(["entity", "comp_ind"])
 
         # If we got this far, the component table is valid
         comp_def["valid_data"] = True
         comp_def["valid_data_message"] = ""
-        self["component"].loc[comp_key] = comp_def
+        return comp_def, comp_df

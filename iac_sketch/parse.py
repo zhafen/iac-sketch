@@ -119,7 +119,9 @@ class ParseSystem:
 
         # Parse the components component first
         self.parsecomp_component(registry)
-        registry.validate_component("component")
+        comp_def, comp_df = registry.validate_component("component")
+        comp_df.loc["component"] = comp_def
+        registry["component"] = comp_df
         self.ignored_components.append("component")
 
         # Now that the components component is parsed, we can validate the registry

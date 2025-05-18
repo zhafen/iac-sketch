@@ -25,8 +25,8 @@ class TestParser(unittest.TestCase):
         registry = self.parse_sys.transform(registry)
 
         assert "component" in registry
-        assert "component" in registry["metadata"]["entity"].values
-        assert "link" in registry["component"]["entity"].values
+        assert "component" in registry["metadata"].index.values
+        assert "link" in registry["component"].index.values
 
     def test_parsecomp_component_and_validate(self):
 
@@ -38,6 +38,7 @@ class TestParser(unittest.TestCase):
         assert "valid_data" in registry["component"].columns    
         assert registry["component"].loc["component", "valid_data"]
         assert "valid_data_message" in registry["component"].columns
+
 class TestParseGeneralComponents(unittest.TestCase):
 
     def setUp(self):
