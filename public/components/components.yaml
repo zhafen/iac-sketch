@@ -40,17 +40,27 @@ field:
     multiplicity [str] = "0..*": "Number of instances of field. TODO: Delete?"
     default [entity]: Default value for the field
 
+fields:
+- component
+- description: >
+    Component used to define fields associated with instances of a component.
+    Any entity that owns a fields component is assumed to be a component itself.
+
 description:
 - component
 - description: Widely-used component that describes the entity in question.
 - fields:
     description [str]: The actual field containing the description.
 
-data:
-- component
-- description: >
-    Component used to define data associated with instances of a component.
-    Any entity that owns a data component is assumed to be a component itself.
+metadata:
+- component:
+    multiplicity: "1"
+- description: Component that describes metadata about an entity.
+- fields:
+    n_comps [int]: >
+        Number of components associated with an entity,
+        including the metadata component
+    source_file [str]: Path to the file containing the entity definition.
 
 case:
 - component

@@ -117,6 +117,7 @@ class ParseSystem:
 
         # Parse the components component first
         self.parsecomp_component(registry)
+        registry.validate_component("component")
 
         # Now that the components component is parsed, we can validate the registry
         registry.validate()

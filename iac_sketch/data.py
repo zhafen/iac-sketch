@@ -166,7 +166,7 @@ class Registry:
                     comp_def["valid_data"] = False
                     comp_def["valid_data_message"] = (
                         "Multiplicity is 1, but there are duplicates: "
-                        f"{comp_df.index.duplicated()}"
+                        f"{list(comp_df.index[comp_df.index.duplicated()].values)}"
                     )
                     self["component"].loc[comp_key] = comp_def
                     return
