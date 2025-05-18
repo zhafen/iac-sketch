@@ -141,7 +141,7 @@ class Registry:
 
         # Get the settings according to the component definition,
         # stored in the component row
-        comp_def: pd.Series = self["component"].loc[comp_key]
+        comp_def: pd.Series = self["component"].loc[comp_key].copy()
 
         # After this we check for matching with component definition, so if
         # the component definition is not valid then the component table is not valid

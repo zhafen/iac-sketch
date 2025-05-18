@@ -8,10 +8,12 @@ from . import data
 
 class ParseSystem:
 
-    ignored_components = [
-        # data is handled as part of parsecomp_component
-        "fields",
-    ]
+    def __init__(self):
+
+        self.ignored_components = [
+            # data is handled as part of parsecomp_component
+            "fields",
+        ]
 
     def parse(self, input_dir: str) -> data.Registry:
         """
@@ -118,11 +120,15 @@ class ParseSystem:
         # Parse the components component first
         self.parsecomp_component(registry)
         registry.validate_component("component")
+        self.ignored_components.append("component")
 
         # Now that the components component is parsed, we can validate the registry
         registry.validate()
 
         for comp_key in list(registry.keys()):
+
+            if comp_key in self.ignored_components:
+                continue
 
             # Look for the function to parse the entity
             parse_fn = f"parsecomp_{comp_key}"
