@@ -34,6 +34,9 @@ class TestParser(unittest.TestCase):
         registry = self.parse_sys.base_transform(registry)
         self.parse_sys.parsecomp_component(registry)
         registry.validate_component("component")
+
+        assert "valid_data" in registry["component"].columns    
+        assert "valid_data_message" in registry["component"].columns    
 class TestParseGeneralComponents(unittest.TestCase):
 
     def setUp(self):
@@ -143,7 +146,7 @@ class TestParseComponentTypes(unittest.TestCase):
             my_other_component:
             - component:
                 multiplicity: "1"
-            - data:
+            - fields:
                 my_field [int]: This is a test field.
                 my_other_field [bool]: This is another test field.
             """
@@ -159,19 +162,19 @@ class TestParseComponentTypes(unittest.TestCase):
                     "entity": "component",
                     "comp_ind": np.nan,
                     "data_comp_ind": np.nan,
-                    "data": np.nan,
+                    "fields": np.nan,
                     "defined": False,
-                    "unparsed_data": np.nan,
+                    "unparsed_fields": np.nan,
                     "valid_def": False,
                     "valid_def_message": "undefined",
                 },
                 {
-                    "entity": "data",
+                    "entity": "fields",
                     "comp_ind": np.nan,
                     "data_comp_ind": np.nan,
-                    "data": np.nan,
+                    "fields": np.nan,
                     "defined": False,
-                    "unparsed_data": np.nan,
+                    "unparsed_fields": np.nan,
                     "valid_def": False,
                     "valid_def_message": "undefined",
                 },
@@ -179,9 +182,9 @@ class TestParseComponentTypes(unittest.TestCase):
                     "entity": "metadata",
                     "comp_ind": np.nan,
                     "data_comp_ind": np.nan,
-                    "data": np.nan,
+                    "fields": np.nan,
                     "defined": False,
-                    "unparsed_data": np.nan,
+                    "unparsed_fields": np.nan,
                     "valid_def": False,
                     "valid_def_message": "undefined",
                 },
@@ -189,7 +192,7 @@ class TestParseComponentTypes(unittest.TestCase):
                     "entity": "my_other_component",
                     "comp_ind": 0,
                     "data_comp_ind": 1,
-                    "data": {
+                    "fields": {
                         "my_field": data.Field(
                             "my_field", "int", "This is a test field."
                         ),
@@ -198,7 +201,7 @@ class TestParseComponentTypes(unittest.TestCase):
                         ),
                     },
                     "defined": True,
-                    "unparsed_data": {
+                    "unparsed_fields": {
                         "my_field [int]": "This is a test field.",
                         "my_other_field [bool]": "This is another test field.",
                     },
@@ -210,16 +213,16 @@ class TestParseComponentTypes(unittest.TestCase):
                     "entity": "my_simple_component",
                     "comp_ind": 0,
                     "data_comp_ind": np.nan,
-                    "data": np.nan,
+                    "fields": np.nan,
                     "defined": True,
-                    "unparsed_data": np.nan,
+                    "unparsed_fields": np.nan,
                     "valid_def": True,
                     "valid_def_message": "",
                 },
             ]
         ).set_index("entity")
-        expected = expected.drop(columns="data")
-        actual = actual.drop(columns="data")[expected.columns]
+        expected = expected.drop(columns="fields")
+        actual = actual.drop(columns="fields")[expected.columns]
         assert_frame_equal(actual, expected)
 
     def test_parsecomp_links(self):

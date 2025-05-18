@@ -60,6 +60,7 @@ class Field:
 
         return cls(**kwargs)
 
+
 @dataclass
 class Registry:
     components: dict[str, pd.DataFrame]
@@ -143,15 +144,28 @@ class Registry:
         comp_def: pd.Series = self["component"].loc[comp_key]
 
         # After this we check for matching with component definition, so if
-        # the component definition is not valid we skip this step
+        # the component definition is not valid then the component table is not valid
         if not comp_def["valid_def"]:
-            comp_df["valid"] = False
-            comp_df["valid_message"] = "Invalid component definition."
+            comp_def["valid"] = False
+            comp_def["valid_message"] = "Invalid component definition."
+            return
 
-        # Based on multiplicity, we set the index
-        if comp_def["multiplicity"] != "*":
-            comp_df["entity"]
-
+        # Validate fields
         for field_name, field in comp_def["fields"].items():
             if field_name not in comp_df.columns:
                 comp_df[field_name] = field.default
+
+        # If the index is not set, we check the multiplicity and set the index
+        if comp_df.index.name != "entity":
+            if comp_def["multiplicity"] == "1":
+                comp_df = comp_df.set_index("entity")
+
+                # Check for duplicates
+                if comp_df.index.has_duplicates:
+                    comp_def["valid"] = False
+                    comp_def["valid_message"] = (
+                        "Multiplicity is 1, but there are duplicates: "
+                        f"{comp_df.index.duplicated()}"
+                    )
+            else:
+                comp_df = comp_df.set_index(["entity", "comp_ind"])

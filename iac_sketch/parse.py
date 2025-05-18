@@ -10,7 +10,7 @@ class ParseSystem:
 
     ignored_components = [
         # data is handled as part of parsecomp_component
-        "data",
+        "fields",
     ]
 
     def parse(self, input_dir: str) -> data.Registry:
@@ -196,9 +196,9 @@ class ParseSystem:
         comp_df = registry["component"].drop(columns=["component"])
 
         # Get the entities with the data component
-        data_comp = registry["data"]
+        data_comp = registry["fields"]
         data_comp = data_comp.rename(
-            columns={"comp_ind": "data_comp_ind", "component": "data"}
+            columns={"comp_ind": "data_comp_ind", "component": "fields"}
         )
 
         # Join the components with the data component
@@ -218,7 +218,7 @@ class ParseSystem:
     def parse_fields(self, components: pd.DataFrame) -> pd.DataFrame:
 
         # Make a copy of the data column so we can refer to the unparsed data as well
-        components["unparsed_data"] = components["data"]
+        components["unparsed_fields"] = components["fields"]
 
         valids = []
         valid_messages = []
@@ -226,12 +226,12 @@ class ParseSystem:
         for _, comp in components.query("defined").iterrows():
             fields_i = {}
 
-            if comp.notna()["data"]:
+            if comp.notna()["fields"]:
 
                 # Parse the fields
                 valid_fields = True
                 valid_message = ""
-                for field_key, field_value in comp["data"].items():
+                for field_key, field_value in comp["fields"].items():
                     try:
                         field = data.Field.from_kv_pair(field_key, field_value)
                         fields_i[field.name] = field
@@ -259,7 +259,7 @@ class ParseSystem:
         # Then override
         components.loc[components["defined"], "valid_def"] = valids
         components.loc[components["defined"], "valid_def_message"] = valid_messages
-        components.loc[components["defined"], "data"] = fields
+        components.loc[components["defined"], "fields"] = fields
 
         return components
 

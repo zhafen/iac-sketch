@@ -17,7 +17,7 @@ component:
     for their definition, then that entity must be a component of the component.
     Alternatively, a would-be component can be part of a parent component alongside
     the component it depends on.
-- data:
+- fields:
     multiplicity [str]:
         description: Allowed number of instances of a component per entity.
         default: "*"
@@ -33,7 +33,7 @@ component:
 field:
 - component
 - description: A single attribute or column.
-- data:
+- fields:
     name [str]: Name of the field.
     type [entity]: Entity this field is an instance of.
     description [description]: A description of the field.
@@ -43,7 +43,7 @@ field:
 description:
 - component
 - description: Widely-used component that describes the entity in question.
-- data:
+- fields:
     description [str]: The actual field containing the description.
 
 data:
@@ -56,7 +56,7 @@ case:
 - component
 - description: >
     Component used to document if/elif/else statements.
-- data:
+- fields:
     case [dict[str, str]]: Case statement. Can be nested.
     input [input]: Component entity that is the input for the case statement.
 
@@ -65,13 +65,13 @@ case:
 source:
 - component
 - description: A source entity used for describing relationships.
-- data:
+- fields:
     source [entity]:
 
 target:
 - component
 - description: A target entity used for describing relationships.
-- data:
+- fields:
     target [entity]:
 
 links:
@@ -80,7 +80,7 @@ links:
     A description of multiple links, using the syntax:
       source --> target
       second_source --> second_target
-- data:
+- fields:
     links [str]: A string that describes the edges, in the 
     link_type [entity]: >
       The type of the links. Must be a component that has either a source and target
@@ -90,7 +90,7 @@ link:
 - component
 - description: >
     A component that describes a generic link between two entities.
-- data:
+- fields:
     source [source]: The source entity.
     target [target]: The target entity.
     link_type [entity]: The type of link.
@@ -102,7 +102,7 @@ link_type:
     a component instance can be e.g. "- my_link_type: entity", which means the 
     owner entity is the source and the indicated entity is the target.
     
-- data:
+- fields:
     source_description [description]: Description of what the source entity represents.
     target_description [description]: Description of what the target entity represents.
 
@@ -133,17 +133,17 @@ task:
 input:
 - component
 - description: Component representing input.
-- data:
+- fields:
     input [data]: >
-        Input component instances for the task. Is of type "data", so will be parsed
+        Input component instances for the task. Is of type "fields", so will be parsed
         in the same manner.
 
 output:
 - component
 - description: Component representing output.
-- data:
+- fields:
     output [data]: >
-        Output component instances for the task. Is of type "data", so will be parsed
+        Output component instances for the task. Is of type "fields", so will be parsed
         in the same manner.
 
 workflow:
@@ -153,7 +153,7 @@ workflow:
 trigger:
 - component
 - description: If owned, the entity can be triggered by the event described.
-- data:
+- fields:
     trigger [entity]:
 
 requirement:
@@ -163,7 +163,7 @@ requirement:
 status:
 - component
 - description: Implementation progress status for an entity.
-- data:
+- fields:
     status [categorical]:
         categories:
             - new
@@ -176,7 +176,7 @@ status:
 time_dependent:
 - component
 - description: Description of how the data depends on time.
-- data:
+- fields:
     scd_type [categorical]:
         description: Slowly-changing dimension type.
         default: Type II
@@ -184,7 +184,7 @@ time_dependent:
 timestamp:
 - component
 - description: A specific moment in time.
-- data:
+- fields:
     timestamp [str]: String representation of the timestamp.
     seconds [float]: Epoch time representation of the timestamp.
     timezone [categorical]: Timezone for the timestamp.
@@ -192,7 +192,7 @@ timestamp:
 person:
 - component
 - description: An entity representing a person.
-- data:
+- fields:
     first_name [str]:
     last_name [str]:
     data_of_birth [timestamp]:

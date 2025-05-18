@@ -1,6 +1,6 @@
 patient:
 - description: Central entity all care and analysis is centered around.
-- data:
+- fields:
     nm_bi.ir_id [str]: >
         One of the options for identifying a patient, the unique ID contained in NM_BI.
     clarity.pat_id [str]: >
@@ -9,12 +9,12 @@ patient:
 
 cohort:
 - description: A group of patients for a study.
-- data:
+- fields:
     config_id [str]: Unique ID for a cohort.
     report [entity|1..*]: Each cohort corresponses to a specific report.
     patients [list[entity]]:
     is_active [bool]: Cohorts become active after a specific time and de-activate later.
-- data_size:
+- fields_size:
     estimate: >
         time_size * (2 + n_patients) * n_entities
         ~ (365 * 5) * (2 + 1e6) * 2e3 ~ 1e12 ~ 1 TB
@@ -25,7 +25,7 @@ cohort_patients:
     cohort and patient. This is technically Type II, but we routinely archive to keep
     the data size small.
 - representation_of: cohort
-- data:
+- fields:
     cohort [entity]:
     patient [entity]:
     meta_updated_datetime [timestamp]: Time at which this entry was added.
@@ -36,7 +36,7 @@ cohort_patients_history:
 - description: >
     Only stores changes to cohort, which reduces the amount of data stored.
 - representation_of: cohort
-- data:
+- fields:
     cohort [entity]:
     patient [entity]:
     change_type [categorical]: 'Options: "inserted" or "deleted".'
@@ -63,7 +63,7 @@ query_cohort:
 
 cohort_patient:
 - description: A record showing that a patient was in a cohort
-- data:
+- fields:
     patient [entity]: 
     cohort [entity]: 
 
@@ -79,7 +79,7 @@ report:
     - solution
     - collection
     We are already using report widely, though. E.g. ra_reports, research_dm.reports.
-- data:
+- fields:
     report_id [str]: ID for the report, {irb_number}.{irb_rank:.02d} (e.g. STU001234.01)
     irb_number [str]: IRB number for the study associated with the report.
     irb_rank [int]: >
@@ -100,7 +100,7 @@ report:
 
 request:
 - description: The data submitted via the intake form.
-- data:
+- fields:
     snow_id [str]: The service now ticket associated with the request.
     requester_net_id [str]: NU Net ID for the requester.
     irb_number [str]: IRB number of the associated study.
@@ -109,7 +109,7 @@ request:
 
 work_item:
 - description: An Azure DevOps work item.
-- data:
+- fields:
     azdo_id [int]: The ID provided by AzDO.
     assigned_to [str]: The analyst the ticket is assigned to.
 

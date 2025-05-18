@@ -12,25 +12,25 @@ power_user:
 
 nm_account:
 - description: An account associated with Northwestern Memorial Healthcare Corporation.
-- data:
+- fields:
     user [person]:
     nm_id [str]: NM identifier, e.g. NM342619.
 
 pa_account:
 - description: An account associated with NMHC that has additional privileges.
-- data:
+- fields:
     user [person]:
     pa_account [nm_account]: The actual NM account.
 
 nu_account:
 - description: An account associated with Northwestern University.
-- data:
+- fields:
     user [person]:
     net_id [str]: Main identifier, e.g. zhh137
 
 pbi_workspace_role:
 - description: 
-- data:
+- fields:
     user [person]: The user forr the role.
     workspace [workspace]: The PBI workspace in question.
     role [categorical]: The PBI role.

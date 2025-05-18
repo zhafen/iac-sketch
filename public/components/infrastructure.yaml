@@ -25,7 +25,7 @@ databricks_workspace_volume:
 
 databricks_workspace:
 - description: Databricks wokspaces used to develop and deploy reports.
-- data:
+- fields:
     url [str]: Unique URL for the workspace.
     name [str]: Name for the wokspace.
     deployment_environment [categorical]:
@@ -36,7 +36,7 @@ databricks_workspace:
 
 research_analytics_pbi_workspace:
 - description: Where the PBI reports live.
-- data:
+- fields:
     workspace_name [str]: E.g. "Research Core".
     workspace_domain [str]: E.g. "Research IRB".
     workspace_folders [list[str]]: E.g. "NUCATS, Study Tracker, FSMIT".

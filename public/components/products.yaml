@@ -59,7 +59,7 @@ code_location_format:
 - description: >
     Table for describing metadata about a type of code, including how locations
     are formatted.
-- data:
+- fields:
     code_type [str]: What type of code this is for.
     repository [case]: Formatted AzDO repo the code resides in.
     branch [case]: Branch inside the repo the code resides in.
@@ -71,7 +71,7 @@ product_location_format:
 - description: >
     Table for describing metadata about a type of data product, including how
     locations are formatted.
-- data:
+- fields:
     data_product_type [str]: The type of the product.
     location [case]: >
       Overall location the data resides in. Examples include "unity table"
