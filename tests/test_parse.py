@@ -36,7 +36,8 @@ class TestParser(unittest.TestCase):
         registry.validate_component("component")
 
         assert "valid_data" in registry["component"].columns    
-        assert "valid_data_message" in registry["component"].columns    
+        assert registry["component"].loc["component", "valid_data"]
+        assert "valid_data_message" in registry["component"].columns
 class TestParseGeneralComponents(unittest.TestCase):
 
     def setUp(self):
@@ -161,7 +162,7 @@ class TestParseComponentTypes(unittest.TestCase):
                 {
                     "entity": "component",
                     "comp_ind": np.nan,
-                    "data_comp_ind": np.nan,
+                    "fields_comp_ind": np.nan,
                     "fields": np.nan,
                     "defined": False,
                     "unparsed_fields": np.nan,
@@ -171,7 +172,7 @@ class TestParseComponentTypes(unittest.TestCase):
                 {
                     "entity": "fields",
                     "comp_ind": np.nan,
-                    "data_comp_ind": np.nan,
+                    "fields_comp_ind": np.nan,
                     "fields": np.nan,
                     "defined": False,
                     "unparsed_fields": np.nan,
@@ -181,7 +182,7 @@ class TestParseComponentTypes(unittest.TestCase):
                 {
                     "entity": "metadata",
                     "comp_ind": np.nan,
-                    "data_comp_ind": np.nan,
+                    "fields_comp_ind": np.nan,
                     "fields": np.nan,
                     "defined": False,
                     "unparsed_fields": np.nan,
@@ -191,7 +192,7 @@ class TestParseComponentTypes(unittest.TestCase):
                 {
                     "entity": "my_other_component",
                     "comp_ind": 0,
-                    "data_comp_ind": 1,
+                    "fields_comp_ind": 1,
                     "fields": {
                         "my_field": data.Field(
                             "my_field", "int", "This is a test field."
@@ -212,7 +213,7 @@ class TestParseComponentTypes(unittest.TestCase):
                 {
                     "entity": "my_simple_component",
                     "comp_ind": 0,
-                    "data_comp_ind": np.nan,
+                    "fields_comp_ind": np.nan,
                     "fields": np.nan,
                     "defined": True,
                     "unparsed_fields": np.nan,

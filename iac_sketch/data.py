@@ -137,7 +137,7 @@ class Registry:
         is correctly consistent with the component definition. It does not perform the
         level of checks that Validator does."""
 
-        comp_df = self[comp_key].copy()
+        comp_df = self[comp_key]
 
         # Get the settings according to the component definition,
         # stored in the component row
@@ -146,8 +146,9 @@ class Registry:
         # After this we check for matching with component definition, so if
         # the component definition is not valid then the component table is not valid
         if not comp_def["valid_def"]:
-            comp_def["valid"] = False
-            comp_def["valid_message"] = "Invalid component definition."
+            comp_def["valid_data"] = False
+            comp_def["valid_data_message"] = "Invalid component definition."
+            self["component"].loc[comp_key] = comp_def
             return
 
         # Validate fields
@@ -162,10 +163,17 @@ class Registry:
 
                 # Check for duplicates
                 if comp_df.index.has_duplicates:
-                    comp_def["valid"] = False
-                    comp_def["valid_message"] = (
+                    comp_def["valid_data"] = False
+                    comp_def["valid_data_message"] = (
                         "Multiplicity is 1, but there are duplicates: "
                         f"{comp_df.index.duplicated()}"
                     )
+                    self["component"].loc[comp_key] = comp_def
+                    return
             else:
                 comp_df = comp_df.set_index(["entity", "comp_ind"])
+
+        # If we got this far, the component table is valid
+        comp_def["valid_data"] = True
+        comp_def["valid_data_message"] = ""
+        self["component"].loc[comp_key] = comp_def

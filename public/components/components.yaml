@@ -21,7 +21,7 @@ component:
     multiplicity [str]:
         description: Allowed number of instances of a component per entity.
         default: "*"
-    data_comp_ind [int]: Component index for the data component
+    fields_comp_ind [int]: Component index for the data component
     unparsed_data [dict]: Field definitions in unparsed form.
     data [dict[str, field]]: Field definitions.
     valid_def [bool]: Whether or not the component has a valid definition.

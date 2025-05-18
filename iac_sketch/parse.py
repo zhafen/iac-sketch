@@ -198,7 +198,7 @@ class ParseSystem:
         # Get the entities with the data component
         data_comp = registry["fields"]
         data_comp = data_comp.rename(
-            columns={"comp_ind": "data_comp_ind", "component": "fields"}
+            columns={"comp_ind": "fields_comp_ind", "component": "fields"}
         )
 
         # Join the components with the data component
