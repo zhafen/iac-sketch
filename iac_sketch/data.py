@@ -129,9 +129,9 @@ class Registry:
 
         for comp_key in self.keys():
 
-            self.validate_component_table(comp_key)
+            self.validate_component(comp_key)
 
-    def validate_component_table(self, comp_key: str):
+    def validate_component(self, comp_key: str):
         """Validate the component table. This only validates that the data
         is correctly consistent with the component definition. It does not perform the
         level of checks that Validator does."""
@@ -142,15 +142,16 @@ class Registry:
         # stored in the component row
         comp_def: pd.Series = self["component"].loc[comp_key]
 
-        if "entity" not in comp_df.columns:
-            raise ValueError(f"Component '{comp_key}' does not have an 'entity' column.")
-        if "comp_ind" not in comp_df.columns:
-            raise ValueError(f"Component '{comp_key}' does not have a 'comp_ind' column.")
-
         # After this we check for matching with component definition, so if
         # the component definition is not valid we skip this step
         if not comp_def["valid_def"]:
-            return
+            comp_df["valid"] = False
+            comp_df["valid_message"] = "Invalid component definition."
 
-        if comp_df[["entity", "comp_ind"]].nunique() != len(comp_df):
-            raise ValueError(f"Component '{comp_key}' has duplicate entities.")
+        # Based on multiplicity, we set the index
+        if comp_def["multiplicity"] != "*":
+            comp_df["entity"]
+
+        for field_name, field in comp_def["fields"].items():
+            if field_name not in comp_df.columns:
+                comp_df[field_name] = field.default

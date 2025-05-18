@@ -150,31 +150,31 @@ class ParseSystem:
     def base_parsecomp(self, comp_key: str, registry: data.Registry) -> pd.DataFrame:
 
         # Get the data, slightly cleaned
-        comp = registry[comp_key].reset_index(drop=True)
+        comp_df = registry[comp_key].reset_index(drop=True)
 
         # Try parsing the component column
-        comp_data = pd.json_normalize(comp["component"])
+        comp_data = pd.json_normalize(comp_df["component"])
 
         # If there wasn't a dictionary to parse
         if len(comp_data.columns) == 0:
-            comp = comp.rename(columns={"component": comp_key})
-            if comp[comp_key].isna().all():
-                comp = comp.drop(columns=[comp_key])
+            comp_df = comp_df.rename(columns={"component": comp_key})
+            if comp_df[comp_key].isna().all():
+                comp_df = comp_df.drop(columns=[comp_key])
         # If the component column was parsed successfully
         else:
 
             # For the rows that were not parsed because they were not dictionaries
-            # try setting the group_key column to the component value.
+            # try setting the comp_key column to the component value.
             not_parsed = comp_data.isna().all(axis="columns")
             if comp_key not in comp_data.columns and not_parsed.any():
                 comp_data[comp_key] = pd.NA
-            comp_data.loc[not_parsed, comp_key] = comp.loc[not_parsed, "component"]
+            comp_data.loc[not_parsed, comp_key] = comp_df.loc[not_parsed, "component"]
 
             # Clean and join
-            comp = comp.drop(columns=["component"])
-            comp = comp.join(comp_data)
+            comp_df = comp_df.drop(columns=["component"])
+            comp_df = comp_df.join(comp_data)
 
-        return comp
+        return comp_df
 
     def parsecomp_component(
         self,
@@ -190,9 +190,10 @@ class ParseSystem:
 
     def build_components_dataframe(self, registry: data.Registry) -> pd.DataFrame:
 
-        # Get the entities with the components flag
-        components = registry["component"]
-        components = components[["entity", "comp_ind"]]
+        # Get the components component
+        # We drop the component column because it is not meaningful,
+        # but is added by default by the base_parsecomp method
+        comp_df = registry["component"].drop(columns=["component"])
 
         # Get the entities with the data component
         data_comp = registry["data"]
@@ -201,18 +202,18 @@ class ParseSystem:
         )
 
         # Join the components with the data component
-        components = components.set_index("entity").join(
+        comp_df = comp_df.set_index("entity").join(
             data_comp.set_index("entity"), how="outer"
         )
 
         # Identify the components that are defined vs implicitly included
-        components["defined"] = True
+        comp_df["defined"] = True
         comps_created = pd.DataFrame({"entity": registry.keys()})
-        components = components.merge(comps_created, how="outer", on="entity")
-        components.loc[components["defined"].isna(), "defined"] = False
-        components["defined"] = components["defined"].astype(bool)
+        comp_df = comp_df.merge(comps_created, how="outer", on="entity")
+        comp_df.loc[comp_df["defined"].isna(), "defined"] = False
+        comp_df["defined"] = comp_df["defined"].astype(bool)
 
-        return components
+        return comp_df
 
     def parse_fields(self, components: pd.DataFrame) -> pd.DataFrame:
 

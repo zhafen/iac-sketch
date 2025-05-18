@@ -28,6 +28,12 @@ class TestParser(unittest.TestCase):
         assert "component" in registry["metadata"]["entity"].values
         assert "link" in registry["component"]["entity"].values
 
+    def test_parsecomp_component_and_validate(self):
+
+        registry = self.parse_sys.extract(self.test_data_dir)
+        registry = self.parse_sys.base_transform(registry)
+        self.parse_sys.parsecomp_component(registry)
+        registry.validate_component("component")
 class TestParseGeneralComponents(unittest.TestCase):
 
     def setUp(self):
@@ -135,7 +141,8 @@ class TestParseComponentTypes(unittest.TestCase):
             - component
 
             my_other_component:
-            - component
+            - component:
+                multiplicity: "1"
             - data:
                 my_field [int]: This is a test field.
                 my_other_field [bool]: This is another test field.
@@ -197,6 +204,7 @@ class TestParseComponentTypes(unittest.TestCase):
                     },
                     "valid_def": True,
                     "valid_def_message": "",
+                    "multiplicity": "1",
                 },
                 {
                     "entity": "my_simple_component",
@@ -210,8 +218,8 @@ class TestParseComponentTypes(unittest.TestCase):
                 },
             ]
         ).set_index("entity")
-        actual = actual.drop(columns="data")
         expected = expected.drop(columns="data")
+        actual = actual.drop(columns="data")[expected.columns]
         assert_frame_equal(actual, expected)
 
     def test_parsecomp_links(self):
