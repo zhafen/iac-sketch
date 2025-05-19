@@ -33,11 +33,11 @@ class TestParser(unittest.TestCase):
         registry = self.parse_sys.extract(self.test_data_dir)
         registry = self.parse_sys.base_transform(registry)
         self.parse_sys.parsecomp_component(registry)
-        registry.validate_component("component")
+        comp_def, comp_df = registry.validate_component("component")
 
-        assert "valid_data" in registry["component"].columns    
-        assert registry["component"].loc["component", "valid_data"]
-        assert "valid_data_message" in registry["component"].columns
+        assert "valid_data" in comp_df.columns
+        assert "valid_data_message" in comp_df.columns
+        assert comp_def["valid_data"]
 
 class TestParseGeneralComponents(unittest.TestCase):
 
