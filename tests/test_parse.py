@@ -246,6 +246,9 @@ class TestParseComponentTypes(unittest.TestCase):
         )
 
         registry = self.parse_sys.base_transform(registry)
+        comp_def, comp_df = registry.validate_component("links")
+        assert comp_def["valid_data"]
+        registry["links"] = comp_df.set_index(["entity", "comp_ind"])
         actual = self.parse_sys.parsecomp_links(registry)
 
         expected = pd.DataFrame(
