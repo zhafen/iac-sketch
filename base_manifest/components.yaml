@@ -32,6 +32,59 @@ component:
         Whether or not the data contained in the component table is valid.
     valid_data_message [str]: Message associated with data validity.
 
+entity_creation_workflow:
+- description: >
+    How entities are defined and parsed.
+    When entities are defined, their definitions depend on existing entities.
+    We want to create all entities in order, such that their dependencies
+    are resolved first. This is the mathematical problem of topological
+    sorting, and networkx can solve this problem.
+- links:
+    links: |
+        load_entities --> create_component_dataframes
+        create_component_dataframes --> format_component_dataframes
+        format_component_dataframes --> get_component_definitions
+        get_component_definitions --> validate_data_against_definitions
+    link_type: dependency
+
+fulfills_all_requirements:
+- description: All requirements must be met.
+- requirement
+
+test_fulfills_all_requirements:
+- description: The code to test the "fulfills_all_requirements" requirement.
+    We need a method to check that a given manifest fulfills all requirements.
+
+formatted_correctly:
+- description: The manifest must be formatted correctly.
+- requirement
+
+test_formatted_correctly:
+- description: The code to test the "formatted_correctly" requirement.
+
+fully_connected:
+- description: >
+    No entities can exist in isolation. They must relate to other entities in at least
+    one or more ways.
+- requirement
+
+test_fully_connected:
+- description: The code to test the "fully_connected" requirement.
+
+tasks_implemented:
+- description: All tasks in the manifest must be implemented.
+- requirement
+
+test_tasks_implemented:
+- description: The code to test the "tasks_implemented" requirement.
+
+handles_testcases:
+- description:
+- requirement
+
+test_handles_testcases:
+- description: The code to test the "handles_testcases" requirement.
+
 field:
 - component
 - description: A single attribute or column.
