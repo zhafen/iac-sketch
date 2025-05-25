@@ -56,9 +56,8 @@ entity_creation_workflow:
         transform_entities_to_compinsts --> format_compinsts
         format_compinsts --> get_compdefs
         get_compdefs --> format_compinsts_against_compdefs
-        get_compdefs --> get_compdef_dependencies
-        format_compinsts_against_compdefs --> transform_compinsts
-        get_compdef_dependencies --> transform_compinsts
+        format_compinsts_against_compdefs --> get_transform_dependencies
+        get_transform_dependencies --> transform_compinsts
         transform_compinsts --> test_requiements
     link_type: dependency
 
