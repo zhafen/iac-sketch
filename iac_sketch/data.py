@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import re
 
 import pandas as pd
@@ -64,6 +64,8 @@ class Field:
 @dataclass
 class Registry:
     components: dict[str, pd.DataFrame]
+    # Components that have already been parsed
+    parsed_components: list[str] = field(default_factory=list)
 
     def __getitem__(self, key: str):
 
@@ -130,9 +132,7 @@ class Registry:
 
         for comp_key in self.keys():
 
-            comp_def, comp_df = self.validate_component(comp_key)
-            self["component"].loc[comp_key] = comp_def
-            self[comp_key] = comp_df
+            self.validate_component(comp_key)
 
     def validate_component(self, comp_key: str) -> tuple[pd.Series, pd.DataFrame]:
         """Validate the component table. This only validates that the data
@@ -176,4 +176,9 @@ class Registry:
         # If we got this far, the component table is valid
         comp_def["valid_data"] = True
         comp_def["valid_data_message"] = ""
+
+        # Store changes to the registry
+        self["component"].loc[comp_key] = comp_def
+        self[comp_key] = comp_df
+
         return comp_def, comp_df

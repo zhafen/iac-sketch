@@ -32,9 +32,9 @@ class TestParser(unittest.TestCase):
 
         registry = self.parse_sys.extract(self.test_data_dir)
         registry = self.parse_sys.base_transform(registry)
-        self.parse_sys.parsecomp_component(registry)
-        comp_def, comp_df = registry.validate_component("component")
 
+        comp_df = registry["component"]
+        comp_def = registry["component"].loc["component"]
         assert "valid_data" in comp_df.columns
         assert "valid_data_message" in comp_df.columns
         assert comp_def["valid_data"]
@@ -155,7 +155,6 @@ class TestParseComponentTypes(unittest.TestCase):
         )
 
         registry = self.parse_sys.base_transform(registry)
-        actual = self.parse_sys.parsecomp_component(registry)
 
         expected = pd.DataFrame(
             [
@@ -246,9 +245,7 @@ class TestParseComponentTypes(unittest.TestCase):
         )
 
         registry = self.parse_sys.base_transform(registry)
-        comp_def, comp_df = registry.validate_component("links")
-        assert comp_def["valid_data"]
-        registry["links"] = comp_df.set_index(["entity", "comp_ind"])
+        assert registry["component"].loc["links", "valid_data"]
         actual = self.parse_sys.parsecomp_links(registry)
 
         expected = pd.DataFrame(

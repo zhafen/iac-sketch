@@ -8,13 +8,6 @@ from . import data
 
 class ParseSystem:
 
-    def __init__(self):
-
-        self.ignored_components = [
-            # data is handled as part of parsecomp_component
-            "fields",
-        ]
-
     def parse(self, input_dir: str) -> data.Registry:
         """
         Parse the input directory and return a dictionary of DataFrames.
@@ -117,19 +110,10 @@ class ParseSystem:
         # Do a regular pass-through first
         registry = self.base_transform(registry)
 
-        # Parse the components component first
-        self.parsecomp_component(registry)
-        comp_def, comp_df = registry.validate_component("component")
-        comp_df.loc["component"] = comp_def
-        registry["component"] = comp_df
-        self.ignored_components.append("component")
-
-        # Now that the components component is parsed, we can validate the registry
-        registry.validate()
-
+        # Now do the customized parsing
         for comp_key in list(registry.keys()):
 
-            if comp_key in self.ignored_components:
+            if comp_key in registry.parsed_components:
                 continue
 
             # Look for the function to parse the entity
@@ -144,15 +128,23 @@ class ParseSystem:
 
     def base_transform(self, registry: data.Registry) -> data.Registry:
 
-        # Do a regular pass-through first
+        # Pass through with base_parsecomp
         registry.components = {
             comp_key: (
                 self.base_parsecomp(comp_key, registry)
-                if comp_key not in self.ignored_components
+                if comp_key not in registry.parsed_components
                 else registry[comp_key]
             )
             for comp_key in registry.keys()
         }
+
+        # Further parse the components component
+        self.parsecomp_component(registry)
+        registry.validate_component("component")
+        registry.parsed_components.append("component")
+
+        # With the components component parsed, we can validate the registry
+        registry.validate()
 
         return registry
 
