@@ -19,6 +19,17 @@ component:
     for their definition, then that entity must be a component of the component.
     Alternatively, a would-be component can be part of a parent component alongside
     the component it depends on.
+
+    A note on terms.
+    component definitions (compdef): How a component is defined.
+    component instances (compinst): An instance of a component.
+    entities: A collection of component instances.
+
+    We re-use these terms so frequently that there are shorthands for them.
+    Strictly speaking, we could just use "components" to refer to component definitions
+    and "entities" to refer to component instances, because entities are only ever
+    a collection of component instances. In practice this is confusing.
+
 - fields:
     multiplicity [str]:
         description: Allowed number of instances of a component per entity.
@@ -41,11 +52,25 @@ entity_creation_workflow:
     sorting, and networkx can solve this problem.
 - links:
     links: |
-        load_entities --> create_component_dataframes
-        create_component_dataframes --> format_component_dataframes
-        format_component_dataframes --> get_component_definitions
-        get_component_definitions --> validate_data_against_definitions
+        load_entities --> transform_entities_to_compinsts
+        transform_entities_to_compinsts --> format_compinsts
+        format_compinsts --> get_compdefs
+        get_compdefs --> format_compinsts_against_compdefs
+        get_compdefs --> get_compdef_dependencies
+        format_compinsts_against_compdefs --> transform_compinsts
+        get_compdef_dependencies --> transform_compinsts
+        transform_compinsts --> test_requiements
     link_type: dependency
+
+load_entities:
+- description: Load the entities from yaml.
+- task
+- input:
+    input_files [list[str]]: A list of yaml files containing defined entities.
+- output:
+    components [dict[str, dataframe]]: >
+        A dictionary containing one dataframe per component type, with one row
+        per component instance.
 
 fulfills_all_requirements:
 - description: All requirements must be met.
@@ -54,6 +79,7 @@ fulfills_all_requirements:
 test_fulfills_all_requirements:
 - description: The code to test the "fulfills_all_requirements" requirement.
     We need a method to check that a given manifest fulfills all requirements.
+- task
 
 formatted_correctly:
 - description: The manifest must be formatted correctly.
@@ -61,6 +87,7 @@ formatted_correctly:
 
 test_formatted_correctly:
 - description: The code to test the "formatted_correctly" requirement.
+- task
 
 fully_connected:
 - description: >
@@ -70,6 +97,7 @@ fully_connected:
 
 test_fully_connected:
 - description: The code to test the "fully_connected" requirement.
+- task
 
 tasks_implemented:
 - description: All tasks in the manifest must be implemented.
@@ -77,6 +105,7 @@ tasks_implemented:
 
 test_tasks_implemented:
 - description: The code to test the "tasks_implemented" requirement.
+- task
 
 handles_testcases:
 - description:
@@ -84,6 +113,7 @@ handles_testcases:
 
 test_handles_testcases:
 - description: The code to test the "handles_testcases" requirement.
+- task
 
 field:
 - component
