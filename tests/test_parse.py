@@ -222,6 +222,9 @@ class TestParseComponentTypes(unittest.TestCase):
                 },
             ]
         ).set_index("entity")
+
+        actual = registry["component"].copy()
+
         expected = expected.drop(columns="fields")
         actual = actual.drop(columns="fields")[expected.columns]
         assert_frame_equal(actual, expected)

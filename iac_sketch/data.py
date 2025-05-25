@@ -65,7 +65,7 @@ class Field:
 class Registry:
     components: dict[str, pd.DataFrame]
     # Components that have already been parsed
-    parsed_components: list[str] = field(default_factory=list)
+    parsed_components: list[str] = field(default_factory=lambda: ["fields", ])
 
     def __getitem__(self, key: str):
 
