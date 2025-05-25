@@ -6,6 +6,8 @@
 # However, this is impractical. First, we don't even know what this is. It's very hard
 # to measure. Second, even if we knew what this was, we would need to perform a
 # calculation to get what we wanted to know about it to accomplish our objective.
+# Accessing the data as formatted for calculation may be fundamentally why there's
+# not a single definition that's best.
 
 # Fundamental components
 component:
