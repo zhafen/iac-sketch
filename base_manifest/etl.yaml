@@ -1,4 +1,5 @@
-registry_etl:
+perform_registry_etl:
+- task
 - description: >
     How entities are defined and parsed.
     When entities are defined, their definitions depend on existing entities.
@@ -11,33 +12,27 @@ registry_etl:
         load_entities_to_registry --> apply_preprocess_transforms
         apply_preprocess_transforms --> apply_system_transforms
 
-apply_preprocess_transforms:
-- description: >
-    Applies a set of required transforms to components that must always occur
-    before any other transforms.
-- task
-- links:
-    links: |
-        format_compinsts --> extract_compdefs
-        extract_compdefs --> format_compinsts_against_compdefs
-    link_type: dependency
-
-apply_transforms:
-- task
-- links: |
-        get_transform_order --> apply_transform
-
-apply_transform:
-- task
-
 extract_entities:
-- description: Load the entities from yaml.
 - task
+- description: Load the entities from yaml files.
 - input:
     input_paths [list[str]]: A list of filename patterns that specify the yamls.
 - output:
     entities [dataframe]: >
         DataFrame containing entities, with one row per component instance.
+- loop: extract_entities_from_yaml
+
+extract_entities_from_yaml:
+- task
+- description: Read the entities from a yaml string or stream.
+- input:
+    yaml [str]: The input yaml.
+    entities [dataframe]: Entities extracted from the yaml.
+- loop: parse_components_list
+
+parse_components_list:
+- task
+- description: Convert a dictionary containing components into a list of components.
 
 load_entities_to_registry:
 - task
@@ -49,6 +44,22 @@ load_entities_to_registry:
         An object containing all the components. At the core of the registry are the
         components, a dictionary containing one dataframe per component type,
         with one row per component instance.
+
+apply_preprocess_transforms:
+- description: >
+    Applies a set of required transforms to components that must always occur
+    before any other transforms.
+- task
+- links:
+    links: |
+        format_compinsts --> extract_compdefs
+        extract_compdefs --> format_compinsts_against_compdefs
+    link_type: dependency
+
+apply_system_transforms:
+- description: >
+    Applies a set of system-defined transforms.
+- task
 
 format_compinsts:
 - task
@@ -71,9 +82,13 @@ format_compinsts_against_compdefs:
 - output:
     registry [registry]: Registry containing compinsts with compdefs applied.
 
-get_transform_dependencies:
+apply_transforms:
 - task
-- input:
-    registry [registry]: Registry containing components.
-- output:
-    registry [registry]: Registry containing compinsts with compdefs applied.
+- links: |
+      get_transform_order --> apply_transform
+
+get_transform_order:
+- task
+
+apply_transform:
+- task
