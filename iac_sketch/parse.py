@@ -33,7 +33,7 @@ class ParseSystem:
 
         return registry
 
-    def read_entities(self, input_file: str) -> data.Registry:
+    def extract_entities_from_yaml(self, input_file: str) -> data.Registry:
 
         input_file = yaml.safe_load(input_file)
 
@@ -73,7 +73,7 @@ class ParseSystem:
 
         return registry
 
-    def read_entity(self, entity: str, comps: list) -> list:
+    def parse_components_list(self, entity: str, comps: list) -> list:
 
         extracted_comps = []
         for i, entry in enumerate(comps):
