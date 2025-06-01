@@ -27,7 +27,9 @@ class ExtractSystem:
                 entities_i["metadata"]["source_file"] = filename
                 entities.append(entities_i)
 
-        return pd.concat(entities, ignore_index=True)
+        entities = pd.concat(entities, ignore_index=True)
+
+        return self.load_entities_to_registry(entities)
 
     def extract_entities_from_yaml(self, input_yaml: str) -> pd.DataFrame:
         input_yaml = yaml.safe_load(input_yaml)
@@ -111,7 +113,7 @@ class TransformSystem:
     def get_transform_order(self, dependencies: Dict[str, List[str]]) -> List[str]:
         pass
 
-    def apply_transform(self, registry: data.Registry, transform: Callable[[data.Registry], data.Registry]) -> data.Registry:
+    def apply_transform(self, registry: data.Registry, source: str, target: str, mode: str = "append") -> data.Registry:
         pass
 
 
