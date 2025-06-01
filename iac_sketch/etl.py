@@ -5,24 +5,34 @@ import yaml
 import pandas as pd
 from typing import List, Dict, Callable, Any
 from . import data
+import glob
+import os
 
 
 # Extraction system: handles reading and parsing entities from YAML
 class ExtractSystem:
-    def extract_entities(self, input_dir: str) -> data.Registry:
-        registry = data.Registry({})
-        for filename in glob.glob(f"{input_dir}/*.yaml"):
-            with open(filename, "r", encoding="utf-8") as f:
-                registry_i = self.read_entities(f)
-            # Mark the file as the source of the data
-            registry_i["metadata"]["source_file"] = filename
-            registry.update(registry_i)
-        return registry
+    def extract_entities(self, filename_patterns: List[str]) -> data.Registry:
 
-    def extract_entities_from_yaml(self, input_file: str) -> data.Registry:
-        input_file = yaml.safe_load(input_file)
+        # Always include all YAML files in the base_manifest directory (one level up from this file)
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_manifest_pattern = f"{base_dir}/base_manifest/*"
+        filename_patterns.append(base_manifest_pattern)
+
         entities = []
-        for entity, comps in input_file.items():
+        for pattern in filename_patterns:
+            for filename in glob.glob(pattern):
+                with open(filename, "r", encoding="utf-8") as f:
+                    entities_i = self.extract_entities_from_yaml(f)
+                # Mark the file as the source of the data
+                entities_i["metadata"]["source_file"] = filename
+                entities.append(entities_i)
+
+        return pd.concat(entities, ignore_index=True)
+
+    def extract_entities_from_yaml(self, input_yaml: str) -> pd.DataFrame:
+        input_yaml = yaml.safe_load(input_yaml)
+        entities = []
+        for entity, comps in input_yaml.items():
             # Check if the entity already exists
             if entity in entities:
                 raise KeyError(f"Entity {entity} is defined in multiple files.")
@@ -41,14 +51,8 @@ class ExtractSystem:
                 }
             )
             entities += entity_comps
-        # Convert to a registry
-        registry = data.Registry(
-            {
-                key: df.drop(columns="component_entity")
-                for key, df in pd.DataFrame(entities).groupby("component_entity")
-            }
-        )
-        return registry
+
+        return pd.DataFrame(entities)
 
     def parse_components_list(self, entity: str, comps: list) -> list:
         extracted_comps = []
@@ -79,7 +83,15 @@ class ExtractSystem:
         return extracted_comps
 
     def load_entities_to_registry(self, entities: pd.DataFrame) -> data.Registry:
-        pass
+
+        # Convert to a registry
+        registry = data.Registry(
+            {
+                key: df.drop(columns="component_entity")
+                for key, df in entities.groupby("component_entity")
+            }
+        )
+        return registry
 
 
 # Transform system: handles all transforms on the registry
