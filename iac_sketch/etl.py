@@ -6,24 +6,9 @@ import pandas as pd
 from typing import List, Dict, Callable, Any
 from . import data
 
-class RegistryETL:
-    def __init__(self):
-        self.preprocess_transforms: List[Callable[[data.Registry], data.Registry]] = []
-        self.system_transforms: List[Callable[[data.Registry], data.Registry]] = []
-        self.user_transforms: List[Callable[[data.Registry], data.Registry]] = []
 
-    def perform_registry_etl(self, input_paths: List[str], user_transforms: List[Callable[[data.Registry], data.Registry]] = None) -> data.Registry:
-        """
-        Main ETL workflow: extract, load, preprocess, system transforms, user transforms.
-        """
-        entities = self.extract_entities(input_paths)
-        registry = self.load_entities_to_registry(entities)
-        registry = self.apply_preprocess_transforms(registry)
-        registry = self.apply_system_transforms(registry)
-        if user_transforms:
-            registry = self.apply_transforms(registry, user_transforms)
-        return registry
-
+# Extraction system: handles reading and parsing entities from YAML
+class ExtractSystem:
     def extract_entities(self, input_paths: List[str]) -> pd.DataFrame:
         """
         Load the entities from yaml files.
@@ -67,6 +52,14 @@ class RegistryETL:
         # This is a placeholder; actual implementation may differ
         return data.Registry.from_entities_df(entities)
 
+
+# Transform system: handles all transforms on the registry
+class TransformSystem:
+    def __init__(self):
+        self.preprocess_transforms: List[Callable[[data.Registry], data.Registry]] = []
+        self.system_transforms: List[Callable[[data.Registry], data.Registry]] = []
+        self.user_transforms: List[Callable[[data.Registry], data.Registry]] = []
+
     def apply_preprocess_transforms(self, registry: data.Registry) -> data.Registry:
         """
         Applies a set of required transforms to components that must always occur before any other transforms.
@@ -105,3 +98,6 @@ class RegistryETL:
         Apply a single transform to the registry.
         """
         return transform(registry)
+
+
+
