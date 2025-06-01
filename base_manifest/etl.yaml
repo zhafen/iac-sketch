@@ -1,0 +1,79 @@
+registry_etl:
+- description: >
+    How entities are defined and parsed.
+    When entities are defined, their definitions depend on existing entities.
+    We want to create all entities in order, such that their dependencies
+    are resolved first. This is the mathematical problem of topological
+    sorting, and networkx can solve this problem.
+- links:
+    links: |
+        extract_entities --> load_entities_to_registry
+        load_entities_to_registry --> apply_preprocess_transforms
+        apply_preprocess_transforms --> apply_system_transforms
+
+apply_preprocess_transforms:
+- description: >
+    Applies a set of required transforms to components that must always occur
+    before any other transforms.
+- task
+- links:
+    links: |
+        format_compinsts --> extract_compdefs
+        extract_compdefs --> format_compinsts_against_compdefs
+    link_type: dependency
+
+apply_transforms:
+- task
+- links: |
+        get_transform_order --> apply_transform
+
+apply_transform:
+- task
+
+extract_entities:
+- description: Load the entities from yaml.
+- task
+- input:
+    input_paths [list[str]]: A list of filename patterns that specify the yamls.
+- output:
+    entities [dataframe]: >
+        DataFrame containing entities, with one row per component instance.
+
+load_entities_to_registry:
+- task
+- input:
+    entities [dataframe]: >
+        DataFrame containing entities, with one row per component instance.
+- output:
+    registry [registry]: >
+        An object containing all the components. At the core of the registry are the
+        components, a dictionary containing one dataframe per component type,
+        with one row per component instance.
+
+format_compinsts:
+- task
+- input:
+    registry [registry]: Registry containing component instances to format.
+- output:
+    registry [registry]: Registry containing formatted instances.
+
+extract_compdefs:
+- task
+- input:
+    registry [registry]: Registry containing unparsed component definitions.
+- output:
+    registry [registry]: Registry containing extracted component definitions.
+
+format_compinsts_against_compdefs:
+- task
+- input:
+    registry [registry]: Registry containing unconstrained compinsts.
+- output:
+    registry [registry]: Registry containing compinsts with compdefs applied.
+
+get_transform_dependencies:
+- task
+- input:
+    registry [registry]: Registry containing components.
+- output:
+    registry [registry]: Registry containing compinsts with compdefs applied.

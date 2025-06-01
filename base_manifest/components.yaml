@@ -43,34 +43,6 @@ component:
         Whether or not the data contained in the component table is valid.
     valid_data_message [str]: Message associated with data validity.
 
-entity_creation_workflow:
-- description: >
-    How entities are defined and parsed.
-    When entities are defined, their definitions depend on existing entities.
-    We want to create all entities in order, such that their dependencies
-    are resolved first. This is the mathematical problem of topological
-    sorting, and networkx can solve this problem.
-- links:
-    links: |
-        load_entities --> transform_entities_to_compinsts
-        transform_entities_to_compinsts --> format_compinsts
-        format_compinsts --> get_compdefs
-        get_compdefs --> format_compinsts_against_compdefs
-        format_compinsts_against_compdefs --> get_transform_dependencies
-        get_transform_dependencies --> transform_compinsts
-        transform_compinsts --> test_requiements
-    link_type: dependency
-
-load_entities:
-- description: Load the entities from yaml.
-- task
-- input:
-    input_files [list[str]]: A list of yaml files containing defined entities.
-- output:
-    components [dict[str, dataframe]]: >
-        A dictionary containing one dataframe per component type, with one row
-        per component instance.
-
 fulfills_all_requirements:
 - description: All requirements must be met.
 - requirement

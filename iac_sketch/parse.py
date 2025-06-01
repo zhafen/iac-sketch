@@ -14,26 +14,26 @@ class ParseSystem:
         """
 
         # Extract the entities from the YAML files
-        registry = self.extract(input_dir)
+        registry = self.extract_entities(input_dir)
 
         # Transform the entities into a dictionary of DataFrames
         registry = self.transform(registry)
 
         return registry
 
-    def extract(self, input_dir: str) -> data.Registry:
+    def extract_entities(self, input_dir: str) -> data.Registry:
 
         registry = data.Registry({})
         for filename in glob.glob(f"{input_dir}/*.yaml"):
             with open(filename, "r", encoding="utf-8") as f:
-                registry_i = self.extract_from_stream(f)
+                registry_i = self.read_entities(f)
             # Mark the file as the source of the data
             registry_i["metadata"]["source_file"] = filename
             registry.update(registry_i)
 
         return registry
 
-    def extract_from_stream(self, input_file: str) -> data.Registry:
+    def read_entities(self, input_file: str) -> data.Registry:
 
         input_file = yaml.safe_load(input_file)
 
@@ -45,7 +45,7 @@ class ParseSystem:
                 raise KeyError(f"Entity {entity} is defined in multiple files.")
 
             # Get a list containing each component
-            entity_comps = self.extract_entity(entity, comps)
+            entity_comps = self.read_entity(entity, comps)
 
             # Add a component indicating the file the entity was found in
             entity_comps.append(
@@ -73,7 +73,7 @@ class ParseSystem:
 
         return registry
 
-    def extract_entity(self, entity: str, comps: list) -> list:
+    def read_entity(self, entity: str, comps: list) -> list:
 
         extracted_comps = []
         for i, entry in enumerate(comps):

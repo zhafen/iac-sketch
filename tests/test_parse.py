@@ -15,13 +15,13 @@ class TestParser(unittest.TestCase):
 
     def test_extract(self):
 
-        registry = self.parse_sys.extract(self.test_data_dir)
+        registry = self.parse_sys.extract_entities(self.test_data_dir)
 
         assert "component" in registry
 
     def test_transform(self):
 
-        registry = self.parse_sys.extract(self.test_data_dir)
+        registry = self.parse_sys.extract_entities(self.test_data_dir)
         registry = self.parse_sys.transform(registry)
 
         assert "component" in registry
@@ -30,7 +30,7 @@ class TestParser(unittest.TestCase):
 
     def test_parsecomp_component_and_validate(self):
 
-        registry = self.parse_sys.extract(self.test_data_dir)
+        registry = self.parse_sys.extract_entities(self.test_data_dir)
         registry = self.parse_sys.base_transform(registry)
 
         comp_df = registry["component"]
@@ -140,7 +140,7 @@ class TestParseComponentTypes(unittest.TestCase):
 
     def test_parsecomp_component(self):
 
-        registry = self.parse_sys.extract_from_stream(
+        registry = self.parse_sys.read_entities(
             """
             my_simple_component:
             - component
@@ -231,7 +231,7 @@ class TestParseComponentTypes(unittest.TestCase):
 
     def test_parsecomp_links(self):
 
-        registry = self.parse_sys.extract_from_stream(
+        registry = self.parse_sys.read_entities(
             """
             my_workflow:
             - links:
