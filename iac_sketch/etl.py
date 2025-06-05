@@ -1,6 +1,7 @@
 """
 ETL workflow for registry processing, based on base_manifest/etl.yaml.
 """
+
 import yaml
 import pandas as pd
 from typing import List, Dict, Callable, Any
@@ -11,7 +12,10 @@ import os
 
 # Extraction system: handles reading and parsing entities from YAML
 class ExtractSystem:
-    def extract_entities(self, filename_patterns: List[str]) -> data.Registry:
+    def extract_entities(self, filename_patterns: str | List[str]) -> data.Registry:
+
+        if isinstance(filename_patterns, str):
+            filename_patterns = [filename_patterns]
 
         # Always include all YAML files in the base_manifest directory (one level up from this file)
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,7 +27,18 @@ class ExtractSystem:
             for filename in glob.glob(pattern):
                 with open(filename, "r", encoding="utf-8") as f:
                     entities_i = self.extract_entities_from_yaml(f)
-                # Mark the file as the source of the data
+                # Assemble a metadata component for each entity
+                metadata_i = entities_i["entity"].value_counts()
+                metadata_i.name = "comp_ind"
+                metadata_i = metadata_i.reset_index()
+                metadata_i["metadata"] = metadata_i.apply(
+                    lambda row: {
+                        "source_file": filename,
+                        "n_comps": row["comp_ind"] + 1,
+                    },
+                    axis="columns",
+                )
+
                 entities_i["metadata"]["source_file"] = filename
                 entities.append(entities_i)
 
@@ -40,18 +55,6 @@ class ExtractSystem:
                 raise KeyError(f"Entity {entity} is defined in multiple files.")
             # Get a list containing each component
             entity_comps = self.parse_components_list(entity, comps)
-            # Add a component indicating the file the entity was found in
-            entity_comps.append(
-                {
-                    "entity": entity,
-                    "comp_ind": len(entity_comps),
-                    "component_entity": "metadata",
-                    "component": {
-                        # Increase by one to account for the metadata component
-                        "n_comps": len(entity_comps) + 1,
-                    },
-                }
-            )
             entities += entity_comps
 
         return pd.DataFrame(entities)
@@ -107,14 +110,17 @@ class TransformSystem:
     def apply_system_transforms(self, registry: data.Registry) -> data.Registry:
         pass
 
-    def apply_transforms(self, registry: data.Registry, transforms: List[Callable[[data.Registry], data.Registry]]) -> data.Registry:
+    def apply_transforms(
+        self,
+        registry: data.Registry,
+        transforms: List[Callable[[data.Registry], data.Registry]],
+    ) -> data.Registry:
         pass
 
     def get_transform_order(self, dependencies: Dict[str, List[str]]) -> List[str]:
         pass
 
-    def apply_transform(self, registry: data.Registry, source: str, target: str, mode: str = "append") -> data.Registry:
+    def apply_transform(
+        self, registry: data.Registry, source: str, target: str, mode: str = "append"
+    ) -> data.Registry:
         pass
-
-
-
