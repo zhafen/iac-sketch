@@ -113,3 +113,9 @@ report_string_formatter:
         report.irb_rank > 1:
             file == cohort_notebook: reports/{irb_number}/cohort.py
     input: report
+
+
+assignment_workflow:
+- links:
+    links: |
+        identify_type_of_request -->|imaging, power-users, RHLCC| edw_manager_submits_for_approval
