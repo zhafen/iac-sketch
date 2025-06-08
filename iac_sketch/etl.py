@@ -19,7 +19,7 @@ class ExtractSystem:
 
         # Always include all YAML files in the base_manifest directory (one level up from this file)
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        base_manifest_pattern = f"{base_dir}/base_manifest/*"
+        base_manifest_pattern = f"{base_dir}/base_manifest/*.yaml"
         filename_patterns.append(base_manifest_pattern)
 
         entities = []

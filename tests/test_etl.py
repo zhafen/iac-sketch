@@ -10,7 +10,7 @@ from iac_sketch import data, etl
 class TestExtractSystem(unittest.TestCase):
 
     def setUp(self):
-        self.test_filename_pattern = "./public/components/*"
+        self.test_filename_pattern = "./public/components/*.yaml"
         self.extract_sys = etl.ExtractSystem()
 
     def test_extract(self):
@@ -20,6 +20,10 @@ class TestExtractSystem(unittest.TestCase):
         assert "component" in registry
 
 class TestTransformSystem(unittest.TestCase):
+
+    def setUp(self):
+        self.test_filename_pattern = "./public/components/*"
+        self.extract_sys = etl.ExtractSystem()
 
     def test_transform(self):
 
