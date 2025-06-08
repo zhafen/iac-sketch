@@ -160,12 +160,7 @@ class TransformSystem:
         transformer.fit(fit_data)
 
         # Copy registry to avoid mutation
-        new_registry = data.Registry({k: v.copy() for k, v in registry.items()})
+        new_registry = registry.copy()
         for comp in apply_components:
-            transformed = transformer.transform(registry[comp])
-            # If transformer returns DataFrame, keep it; else, wrap in DataFrame
-            if isinstance(transformed, pd.DataFrame):
-                new_registry[comp] = transformed
-            else:
-                new_registry[comp] = pd.DataFrame(transformed, index=registry[comp].index, columns=registry[comp].columns)
+            new_registry[comp] = transformer.transform(registry[comp])
         return new_registry
