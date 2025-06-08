@@ -1,4 +1,4 @@
-from . import parse, validate
+from . import etl, validate
 from .etl import ExtractSystem, TransformSystem
 import typing
 
@@ -8,16 +8,14 @@ class Architect:
     def __init__(
         self,
         input_dir: str,
-        parse_sys: parse.ParseSystem = None,
+        extract_sys: etl.ExtractSystem = None,
+        transform_sys: etl.TransformSystem = None,
         valid_sys: validate.ValidationSystem = None,
     ):
         self.input_dir = input_dir
-        self.parse_sys = parse_sys if parse_sys else parse.ParseSystem()
+        self.extract_sys = extract_sys if extract_sys else etl.ExtractSystem()
+        self.transform_sys = transform_sys if transform_sys else etl.TransformSystem()
         self.valid_sys = valid_sys if valid_sys else validate.ValidationSystem()
-
-    def parse(self):
-        self.registry = self.parse_sys.parse(self.input_dir)
-        return self.registry
 
     def perform_registry_etl(
         self,
@@ -27,12 +25,9 @@ class Architect:
         """
         Main ETL workflow: extract, load, preprocess, system transforms, user transforms.
         """
-        extract = ExtractSystem()
-        transform = TransformSystem()
-        entities = extract.extract_entities(input_paths)
-        registry = extract.load_entities_to_registry(entities)
-        registry = transform.apply_preprocess_transforms(registry)
-        registry = transform.apply_system_transforms(registry)
+        registry = self.extract_sys.extract_entities(input_paths)
+        registry = self.transform_sys.apply_preprocess_transforms(registry)
+        registry = self.transform_sys.apply_system_transforms(registry)
         if user_transforms:
-            registry = transform.apply_transforms(registry, user_transforms)
+            registry = self.transform_sys.apply_transforms(registry, user_transforms)
         return registry
