@@ -26,27 +26,18 @@ class ExtractSystem:
         for pattern in filename_patterns:
             for filename in glob.glob(pattern):
                 with open(filename, "r", encoding="utf-8") as f:
-                    entities_i = self.extract_entities_from_yaml(f)
-                # Assemble a metadata component for each entity
-                metadata_i = entities_i["entity"].value_counts()
-                metadata_i.name = "comp_ind"
-                metadata_i = metadata_i.reset_index()
-                metadata_i["metadata"] = metadata_i.apply(
-                    lambda row: {
-                        "source_file": filename,
-                        "n_comps": row["comp_ind"] + 1,
-                    },
-                    axis="columns",
-                )
-
-                entities_i["metadata"]["source_file"] = filename
+                    entities_i = self.extract_entities_from_yaml(f, source=filename)
                 entities.append(entities_i)
 
         entities = pd.concat(entities, ignore_index=True)
 
         return self.load_entities_to_registry(entities)
 
-    def extract_entities_from_yaml(self, input_yaml: str) -> pd.DataFrame:
+    def extract_entities_from_yaml(
+        self,
+        input_yaml: str,
+        source: str = None,
+    ) -> pd.DataFrame:
         input_yaml = yaml.safe_load(input_yaml)
         entities = []
         for entity, comps in input_yaml.items():
@@ -54,12 +45,14 @@ class ExtractSystem:
             if entity in entities:
                 raise KeyError(f"Entity {entity} is defined in multiple files.")
             # Get a list containing each component
-            entity_comps = self.parse_components_list(entity, comps)
+            entity_comps = self.parse_components_list(entity, comps, source=source)
             entities += entity_comps
 
         return pd.DataFrame(entities)
 
-    def parse_components_list(self, entity: str, comps: list) -> list:
+    def parse_components_list(
+        self, entity: str, comps: list, source: str = None
+    ) -> list:
         extracted_comps = []
         for i, entry in enumerate(comps):
             format_error = ValueError(
@@ -85,6 +78,19 @@ class ExtractSystem:
                 "component": comp,
             }
             extracted_comps.append(row)
+        # Metadata component
+        extracted_comps.append(
+            {
+                "entity": entity,
+                "comp_ind": len(extracted_comps),
+                "component_entity": "metadata",
+                "component": {
+                    "source": source,
+                    # Increase by one to account for the metadata component
+                    "n_comps": len(extracted_comps) + 1,
+                },
+            }
+        )
         return extracted_comps
 
     def load_entities_to_registry(self, entities: pd.DataFrame) -> data.Registry:
