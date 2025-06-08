@@ -136,6 +136,36 @@ class TransformSystem:
         pass
 
     def apply_transform(
-        self, registry: data.Registry, source: str, target: str, mode: str = "append"
+        self,
+        registry: data.Registry,
+        transformer,
+        fit_components: str | list[str],
+        apply_components: str | list[str],
     ) -> data.Registry:
-        pass
+        """
+        Apply a scikit-learn style transformer to registry components.
+        - transformer: must implement fit and transform.
+        - fit_components: str or list of str, registry keys to fit on.
+        - apply_components: str or list of str, registry keys to transform.
+        Returns a new Registry with transformed components.
+        """
+        # Ensure lists
+        if isinstance(fit_components, str):
+            fit_components = [fit_components]
+        if isinstance(apply_components, str):
+            apply_components = [apply_components]
+
+        # Fit transformer on concatenated fit_components
+        fit_data = pd.concat([registry[comp] for comp in fit_components], ignore_index=True)
+        transformer.fit(fit_data)
+
+        # Copy registry to avoid mutation
+        new_registry = data.Registry({k: v.copy() for k, v in registry.items()})
+        for comp in apply_components:
+            transformed = transformer.transform(registry[comp])
+            # If transformer returns DataFrame, keep it; else, wrap in DataFrame
+            if isinstance(transformed, pd.DataFrame):
+                new_registry[comp] = transformed
+            else:
+                new_registry[comp] = pd.DataFrame(transformed, index=registry[comp].index, columns=registry[comp].columns)
+        return new_registry
