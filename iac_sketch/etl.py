@@ -12,6 +12,15 @@ import os
 
 # Extraction system: handles reading and parsing entities from YAML
 class ExtractSystem:
+    def extract_and_load_entities(
+        self, filename_patterns: str | List[str]
+    ) -> data.Registry:
+
+        entities: pd.DataFrame = self.extract_entities(filename_patterns)
+        registry: data.Registry = self.load_entities_to_registry(entities)
+
+        return registry
+
     def extract_entities(self, filename_patterns: str | List[str]) -> data.Registry:
 
         if isinstance(filename_patterns, str):

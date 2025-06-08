@@ -19,13 +19,13 @@ class Architect:
 
     def perform_registry_etl(
         self,
-        input_paths: list[str],
+        filename_patterns: str | list[str],
         user_transforms: typing.Optional[typing.List[typing.Callable]] = None,
     ):
         """
         Main ETL workflow: extract, load, preprocess, system transforms, user transforms.
         """
-        registry = self.extract_sys.extract_entities(input_paths)
+        registry = self.extract_sys.extract_and_load_entities(filename_patterns)
         registry = self.transform_sys.apply_preprocess_transforms(registry)
         registry = self.transform_sys.apply_system_transforms(registry)
         if user_transforms:
