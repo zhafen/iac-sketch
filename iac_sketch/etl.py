@@ -139,25 +139,26 @@ class TransformSystem:
         self,
         registry: data.Registry,
         transformer,
-        fit_components: str | list[str],
         apply_components: str | list[str],
+        fit_components: str | list[str] = None,
     ) -> data.Registry:
         """
         Apply a scikit-learn style transformer to registry components.
-        - transformer: must implement fit and transform.
-        - fit_components: str or list of str, registry keys to fit on.
+        - transformer: must implement transform and, if fit_components is provided, fit methods.
         - apply_components: str or list of str, registry keys to transform.
+        - fit_components: str or list of str, registry keys to fit on.
         Returns a new Registry with transformed components.
         """
         # Ensure lists
-        if isinstance(fit_components, str):
-            fit_components = [fit_components]
         if isinstance(apply_components, str):
             apply_components = [apply_components]
+        if isinstance(fit_components, str):
+            fit_components = [fit_components]
 
         # Fit transformer on concatenated fit_components
-        fit_data = pd.concat([registry[comp] for comp in fit_components], ignore_index=True)
-        transformer.fit(fit_data)
+        if fit_components is not None:
+            fit_data = registry.view(fit_components)
+            transformer.fit(fit_data)
 
         # Copy registry to avoid mutation
         new_registry = registry.copy()
