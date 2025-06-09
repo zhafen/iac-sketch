@@ -1,3 +1,4 @@
+import copy
 from dataclasses import dataclass, field
 import re
 
@@ -64,8 +65,6 @@ class Field:
 @dataclass
 class Registry:
     components: dict[str, pd.DataFrame]
-    # Components that have already been parsed
-    parsed_components: list[str] = field(default_factory=lambda: ["fields", ])
 
     def __getitem__(self, key: str):
 
@@ -95,8 +94,11 @@ class Registry:
                 self.components[comp_key] = comp_df
             else:
                 self.components[comp_key] = pd.concat(
-                    [self.components[comp_key], comp_df], ignore_index=True
+                    [self.components[comp_key], comp_df]
                 )
+
+    def copy(self):
+        return copy.deepcopy(self)
 
     def view(self, keys: str | list[str], how="left") -> pd.DataFrame:
         """Get a component by key or list of keys."""
@@ -107,17 +109,15 @@ class Registry:
 
             for i, key in enumerate(keys):
 
-                df_i = self[key].drop(columns=["comp_ind"])
+                df_i = self[key]
 
                 if i == 0:
                     view_df = df_i
                     continue
 
-                view_df = pd.merge(
-                    view_df,
+                view_df = view_df.join(
                     df_i,
                     how=how,
-                    on="entity",
                 )
 
             return view_df
