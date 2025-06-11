@@ -1,0 +1,19 @@
+power_user:
+- description: Power Users are NU individuals
+- component
+- associated_components:
+    required:
+      - person
+      - nu_identity
+      - nm_identity
+
+support_team_member:
+- description: TODO
+- component
+- associated_components:
+    required:
+      - person
+      - nu_identity
+
+power_user_office_hours:
+- description: Held weekly by an analyst.
