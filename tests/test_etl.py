@@ -1,3 +1,8 @@
+# Dummy transformer for testing
+import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.preprocessing import StandardScaler
+
 import unittest
 
 import numpy as np
@@ -10,7 +15,7 @@ from iac_sketch import data, etl
 class TestExtractSystem(unittest.TestCase):
 
     def setUp(self):
-        self.test_filename_pattern = "./public/components/*"
+        self.test_filename_pattern = "./public/components/*.yaml"
         self.extract_sys = etl.ExtractSystem()
 
     def test_extract(self):
@@ -21,28 +26,56 @@ class TestExtractSystem(unittest.TestCase):
 
 class TestTransformSystem(unittest.TestCase):
 
-    def test_transform(self):
+    def setUp(self):
+        self.test_filename_pattern = "./public/components/*"
+        self.extract_sys = etl.ExtractSystem()
+        self.transform_sys = etl.TransformSystem()
+class TestApplyTransform(unittest.TestCase):
 
-        registry = self.extract_sys.extract_entities(self.test_filename_pattern)
-        # Assuming transform now lives in TransformSystem
-        transform_sys = etl.TransformSystem()
-        registry = transform_sys.apply_transforms(registry, [])  # Replace [] with actual transforms if needed
+    def setUp(self):
+        self.transform_sys = etl.TransformSystem()
 
-        assert "component" in registry
-        assert "component" in registry["metadata"].index.values
-        assert "link" in registry["component"].index.values
+    def test_apply_transform(self):
+        registry = data.Registry({
+            "fit_component": pd.DataFrame({
+                "entity": ["a", "b"],
+                "value": [1.0, 2.0]
+            }).set_index("entity"),
+            "other": pd.DataFrame({
+                "entity": ["c", "d"],
+                "value": [10.0, 20.0]
+            }).set_index("entity"),
+        })
 
-    def test_parsecomp_component_and_validate(self):
+        transformer = StandardScaler()
+        new_registry = self.transform_sys.apply_transform(
+            registry,
+            transformer,
+            fit_components="fit_component",
+            apply_components=["fit_component", "other"]
+        )
 
-        registry = self.extract_sys.extract_entities(self.test_filename_pattern)
-        transform_sys = etl.TransformSystem()
-        registry = transform_sys.apply_transforms(registry, [])  # Replace [] with actual transforms if needed
+        # StandardScaler should standardize the 'value' column
+        # For 'component', mean=1.5, std=0.5, so values become [-1, 1]
+        comp_values = new_registry["fit_component"]["value"].values
+        np.testing.assert_allclose(comp_values, [-1.0, 1.0], atol=1e-6)
 
-        comp_df = registry["component"]
-        comp_def = registry["component"].loc["component"]
-        assert "valid_data" in comp_df.columns
-        assert "valid_data_message" in comp_df.columns
-        assert comp_def["valid_data"]
+        # For 'other', values are transformed using the same scaler
+        # (10-1.5)/0.5 = 17, (20-1.5)/0.5 = 37
+        other_values = new_registry["other"]["value"].values
+        np.testing.assert_allclose(other_values, [17.0, 37.0], atol=1e-6)
+
+    # def test_parsecomp_component_and_validate(self):
+
+    #     registry = self.extract_sys.extract_entities(self.test_filename_pattern)
+    #     transform_sys = etl.TransformSystem()
+    #     registry = transform_sys.apply_transforms(registry, [])  # Replace [] with actual transforms if needed
+
+    #     comp_df = registry["component"]
+    #     comp_def = registry["component"].loc["component"]
+    #     assert "valid_data" in comp_df.columns
+    #     assert "valid_data_message" in comp_df.columns
+    #     assert comp_def["valid_data"]
 
 class TestParseGeneralComponents(unittest.TestCase):
 

@@ -1,0 +1,30 @@
+reality:
+- description: >
+    Our shared, empirically-grounded, existence.
+    As with other descriptions here, we look to describe enough that the reader knows
+    what we are discussing. We are not looking for a perfect and exact definition.
+
+person:
+- description: >
+    The minimal component describing a person. For this component we try to put aside
+    ship-of-theseus-like definition issues.
+- fields:
+    name [str]: A name the person goes by.
+    date_of_birth [timestamp]: The date and time the person started existing in reality.
+    date_of_death [timestamp]: The date and time a person stopped existing in reality.
+
+world_model:
+- description: >
+    A given person's mental model of the world. To be precise, the structure that
+    determines the human reaction for a given input.
+
+meaning:
+- description: What is worthwhile in life.
+
+meaning_according_to_zach:
+- description: Meaning is whatever soothes the existential dread.
+- definition:
+    defined_for: meaning
+    definition: >
+      The meaning of a given action is measured by the extent to which it decreases
+      existential dread.
