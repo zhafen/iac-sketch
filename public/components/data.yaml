@@ -92,6 +92,7 @@ report:
     inserted_datetime [timestamp]: >
         Date when the report was created, i.e. the product_id was created and we started
         tracking report status.
+    data_steward_approval [bool]: Whether or not the data has been approved for release.
 - primary_key: product_id
 - code_location_format:
     repository: ra_reports

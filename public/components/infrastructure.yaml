@@ -45,3 +45,8 @@ research_analytics_pbi_workspace:
             - dev
             - stg
             - prd
+
+get_pa_account:
+- description: >
+    All NM Azure users need PA accounts. The URL for one-off requests is attached.
+- url: https://nmhc.service-now.com/mynmi?id=sc_cat_item&sys_id=bd40d8d213d667007d59bd322244b017 

@@ -17,3 +17,15 @@ support_team_member:
 
 power_user_office_hours:
 - description: Held weekly by an analyst.
+
+power_user_jira_project:
+- description: JIRA project used for managing power user tickets.
+
+get_data_steward_approval:
+- description: Someone has to get data steward approval.
+- algorithm: >
+    if assignee_is_analyst():
+      analyst submits for approval
+    else: # E.g. power user, imaging request
+      manager submits for approval
+- task
