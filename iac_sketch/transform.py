@@ -30,19 +30,35 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+
         X = X.copy()
+
+        # Start by unpacking the 'component' column
         comp_data = pd.json_normalize(X["component"])
+
+        # If there was nothing to unpack, we just use the values in the column
         if len(comp_data.columns) == 0:
-            if not X["component"].isna().all():
+            # If there are any non-null values we rename the column to 'value'
+            if X["component"].isna().any():
                 X = X.rename(columns={"component": "value"})
+            # Otherwise, we just drop the column
             else:
                 X = X.drop(columns=["component"])
+
+        # If there was something to unpack, we need to handle it
         else:
+            # Find rows that were not parsed
             not_parsed = comp_data.isna().all(axis="columns")
             if not_parsed.any():
-                if "value" not in comp_data.columns and not_parsed.any():
+                # Ensure there's a value column to hold unparsed components
+                if "value" not in comp_data.columns:
                     comp_data["value"] = pd.NA
+
+                # Move unparsed components to the 'value' column
                 comp_data.loc[not_parsed, "value"] = X.loc[not_parsed, "component"]
+
+            # With everything unpacked, we can drop the original 'component' column
+            # and join the new columns
             X = X.drop(columns=["component"])
             X = X.join(comp_data)
         return X
