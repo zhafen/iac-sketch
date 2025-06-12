@@ -69,6 +69,21 @@ class ExtractSystem:
                 if len(entry) != 1:
                     raise format_error
                 comp_entity, comp = list(entry.items())[0]
+
+                # Format the component itself
+                # If comp is just a value, wrap it in a dictionary
+                if not isinstance(comp, dict):
+                    comp = {"value": comp}
+
+                # If the component has a key that is the same as the entity,
+                # we assume that is the value for the component.
+                if comp_entity in comp:
+                    # Can't have both though
+                    if "value" in comp:
+                        raise format_error
+                    # Rename the key to "value"
+                    comp["value"] = comp.pop(comp_entity)
+
             # We should only have dictionaries or strings
             else:
                 raise format_error
