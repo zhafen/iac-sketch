@@ -67,7 +67,7 @@ class TestTransformSystem(unittest.TestCase):
     #     assert "valid_data_message" in comp_df.columns
     #     assert comp_def["valid_data"]
 
-    def test_component_dict_normalizer(self):
+    def test_component_normalizer(self):
         registry = data.Registry(
             {
                 "description": pd.DataFrame(
@@ -106,7 +106,55 @@ class TestTransformSystem(unittest.TestCase):
         )
         assert_frame_equal(registry["description"], expected)
 
-    def test_component_dict_normalizer_component(self):
+    def test_component_normalizer_complex(self):
+        registry = data.Registry(
+            {
+                "timestamp": pd.DataFrame(
+                    [
+                        {
+                            "entity": "my_time",
+                            "comp_ind": 0,
+                            "component": "2023-10-01",
+                        },
+                        {
+                            "entity": "my_other_time",
+                            "comp_ind": 0,
+                            "component": {
+                                "value": "1970-01-01",
+                                "seconds": 0,
+                                "timezone": "UTC",
+                            },
+                        },
+                    ]
+                )
+            }
+        )
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.ComponentNormalizer(),
+        )
+        actual = registry["timestamp"]
+        expected = pd.DataFrame(
+            [
+                {
+                    "entity": "my_time",
+                    "comp_ind": 0,
+                    "value": "2023-10-01",
+                    "seconds": np.nan,
+                    "timezone": np.nan,
+                },
+                {
+                    "entity": "my_other_time",
+                    "comp_ind": 0,
+                    "value": "1970-01-01",
+                    "seconds": 0.0,
+                    "timezone": "UTC",
+                },
+            ]
+        )
+        assert_frame_equal(actual, expected)
+
+    def test_component_normalizer_for_component_def(self):
 
         registry = data.Registry(
             {
@@ -148,49 +196,6 @@ class TestTransformSystem(unittest.TestCase):
         )
         assert_frame_equal(registry["component"], expected)
 
-    def test_parse_general_component_complex(self):
-        registry = data.Registry(
-            {
-                "timestamp": pd.DataFrame(
-                    [
-                        {
-                            "entity": "my_time",
-                            "comp_ind": 0,
-                            "component": "2023-10-01",
-                        },
-                        {
-                            "entity": "my_other_time",
-                            "comp_ind": 0,
-                            "component": {
-                                "timestamp": "1970-01-01",
-                                "seconds": 0,
-                                "timezone": "UTC",
-                            },
-                        },
-                    ]
-                )
-            }
-        )
-        actual = self.transform_sys.base_parsecomp("timestamp", registry)
-        expected = pd.DataFrame(
-            [
-                {
-                    "entity": "my_time",
-                    "comp_ind": 0,
-                    "timestamp": "2023-10-01",
-                    "seconds": np.nan,
-                    "timezone": np.nan,
-                },
-                {
-                    "entity": "my_other_time",
-                    "comp_ind": 0,
-                    "timestamp": "1970-01-01",
-                    "seconds": 0.0,
-                    "timezone": "UTC",
-                },
-            ]
-        )
-        assert_frame_equal(actual, expected)
 
 
 class TestParseComponentTypes(unittest.TestCase):
