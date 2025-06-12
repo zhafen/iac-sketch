@@ -148,34 +148,7 @@ class ParseSystem:
 
         return registry
 
-    def base_parsecomp(self, comp_key: str, registry: data.Registry) -> pd.DataFrame:
-
-        # Get the data, slightly cleaned
-        comp_df = registry[comp_key].reset_index(drop=True)
-
-        # Try parsing the component column
-        comp_data = pd.json_normalize(comp_df["component"])
-
-        # If there wasn't a dictionary to parse
-        if len(comp_data.columns) == 0:
-            comp_df = comp_df.rename(columns={"component": comp_key})
-            if comp_df[comp_key].isna().all():
-                comp_df = comp_df.drop(columns=[comp_key])
-        # If the component column was parsed successfully
-        else:
-
-            # For the rows that were not parsed because they were not dictionaries
-            # try setting the comp_key column to the component value.
-            not_parsed = comp_data.isna().all(axis="columns")
-            if comp_key not in comp_data.columns and not_parsed.any():
-                comp_data[comp_key] = pd.NA
-            comp_data.loc[not_parsed, comp_key] = comp_df.loc[not_parsed, "component"]
-
-            # Clean and join
-            comp_df = comp_df.drop(columns=["component"])
-            comp_df = comp_df.join(comp_data)
-
-        return comp_df
+    # base_parsecomp removed; use ComponentColumnParser transformer instead
 
     def parsecomp_component(
         self,

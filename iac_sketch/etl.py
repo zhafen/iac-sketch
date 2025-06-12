@@ -139,7 +139,7 @@ class TransformSystem:
         self,
         registry: data.Registry,
         transformer,
-        apply_components: str | list[str] | dict[str, str | list[str]] ,
+        apply_components: None | str | list[str] | dict[str, str | list[str]] = None,
         fit_components: str | list[str] = None,
     ) -> data.Registry:
         """
@@ -151,9 +151,14 @@ class TransformSystem:
         """
 
         # Format the arguments for transformation
+        # Full form is a dictionary mapping target component keys
+        # to source component keys
         if not isinstance(apply_components, dict):
-            if isinstance(apply_components, str):
-                apply_components = [apply_components]
+            if apply_components is not None:
+                if isinstance(apply_components, str):
+                    apply_components = [apply_components]
+            else:
+                apply_components = registry.keys()
             apply_components = {comp: comp for comp in apply_components}
         if isinstance(fit_components, str):
             fit_components = [fit_components]

@@ -30,10 +30,6 @@ class TestTransformSystem(unittest.TestCase):
         self.test_filename_pattern = "./public/components/*"
         self.extract_sys = etl.ExtractSystem()
         self.transform_sys = etl.TransformSystem()
-class TestTransformSystem(unittest.TestCase):
-
-    def setUp(self):
-        self.transform_sys = etl.TransformSystem()
 
     def test_apply_transform(self):
         registry = data.Registry({
@@ -70,14 +66,7 @@ class TestTransformSystem(unittest.TestCase):
     #     assert "valid_data_message" in comp_df.columns
     #     assert comp_def["valid_data"]
 
-class TestParseGeneralComponents(unittest.TestCase):
-
-    def setUp(self):
-        self.test_filename_pattern = "./public/components"
-        self.extract_sys = etl.ExtractSystem()
-        self.transform_sys = etl.TransformSystem()
-
-    def test_parse_general_component(self):
+    def test_component_dict_normalizer(self):
         registry = data.Registry(
             {
                 "description": pd.DataFrame(
@@ -96,22 +85,26 @@ class TestParseGeneralComponents(unittest.TestCase):
                 )
             }
         )
-        actual = self.transform_sys.base_parsecomp("description", registry)
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.ComponentDictNormalizer(),
+            apply_components=None,
+        )
         expected = pd.DataFrame(
             [
                 {
                     "entity": "my_entity",
                     "comp_ind": 0,
-                    "description": "This entity is a test entity.",
+                    "value": "This entity is a test entity.",
                 },
                 {
                     "entity": "my_other_entity",
                     "comp_ind": 0,
-                    "description": "This entity is also a test entity.",
+                    "value": "This entity is also a test entity.",
                 },
             ]
         )
-        assert_frame_equal(actual, expected)
+        assert_frame_equal(registry["description"], expected)
 
     def test_parse_general_component_complex(self):
         registry = data.Registry(
