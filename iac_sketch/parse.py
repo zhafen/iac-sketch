@@ -128,16 +128,6 @@ class ParseSystem:
 
     def base_transform(self, registry: data.Registry) -> data.Registry:
 
-        # Pass through with base_parsecomp
-        registry.components = {
-            comp_key: (
-                self.base_parsecomp(comp_key, registry)
-                if comp_key not in registry.parsed_components
-                else registry[comp_key]
-            )
-            for comp_key in registry.keys()
-        }
-
         # Further parse the components component
         self.parsecomp_component(registry)
         registry.validate_component("component")
@@ -150,92 +140,6 @@ class ParseSystem:
 
     # base_parsecomp removed; use ComponentColumnParser transformer instead
 
-    def parsecomp_component(
-        self,
-        registry: data.Registry,
-    ) -> pd.DataFrame:
-
-        comps_df = self.build_components_dataframe(registry)
-        comps_df = self.parse_fields(comps_df)
-        comps_df = comps_df.set_index("entity")
-        registry["component"] = comps_df
-
-        return comps_df
-
-    def build_components_dataframe(self, registry: data.Registry) -> pd.DataFrame:
-
-        # Get the components component
-        # We drop the component column because it is not meaningful,
-        # but is added by default by the base_parsecomp method
-        comp_df = registry["component"].drop(columns=["component"])
-
-        # Get the entities with the data component
-        data_comp = registry["fields"]
-        data_comp = data_comp.rename(
-            columns={"comp_ind": "fields_comp_ind", "component": "fields"}
-        )
-
-        # Join the components with the data component
-        comp_df = comp_df.set_index("entity").join(
-            data_comp.set_index("entity"), how="outer"
-        )
-
-        # Identify the components that are defined vs implicitly included
-        comp_df["defined"] = True
-        comps_created = pd.DataFrame({"entity": registry.keys()})
-        comp_df = comp_df.merge(comps_created, how="outer", on="entity")
-        comp_df.loc[comp_df["defined"].isna(), "defined"] = False
-        comp_df["defined"] = comp_df["defined"].astype(bool)
-
-        return comp_df
-
-    def parse_fields(self, components: pd.DataFrame) -> pd.DataFrame:
-
-        # Make a copy of the data column so we can refer to the unparsed data as well
-        components["unparsed_fields"] = components["fields"]
-
-        valids = []
-        valid_messages = []
-        fields = []
-        for _, comp in components.query("defined").iterrows():
-            fields_i = {}
-
-            if comp.notna()["fields"]:
-
-                # Parse the fields
-                valid_fields = True
-                valid_message = ""
-                for field_key, field_value in comp["fields"].items():
-                    try:
-                        field = data.Field.from_kv_pair(field_key, field_value)
-                        fields_i[field.name] = field
-                    except ValueError:
-                        valid_fields = False
-                        valid_message = (
-                            f"field {field_key} is incorrectly formatted: {field_value}"
-                        )
-                        break
-
-                if not valid_fields:
-                    valids.append(False)
-                    valid_messages.append(valid_message)
-                    fields.append(pd.NA)
-                    continue
-
-            # If we got this far the component is valid
-            fields.append(fields_i)
-            valids.append(True)
-            valid_messages.append("")
-
-        # Defaults
-        components["valid_def"] = False
-        components["valid_def_message"] = "undefined"
-        # Then override
-        components.loc[components["defined"], "valid_def"] = valids
-        components.loc[components["defined"], "valid_def_message"] = valid_messages
-        components.loc[components["defined"], "fields"] = fields
-
-        return components
 
     def parsecomp_links(
         self,

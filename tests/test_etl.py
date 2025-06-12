@@ -87,7 +87,7 @@ class TestTransformSystem(unittest.TestCase):
         )
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.ComponentDictNormalizer(),
+            transform.ComponentNormalizer(),
             apply_components=None,
         )
         expected = pd.DataFrame(
