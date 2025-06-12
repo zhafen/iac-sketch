@@ -1,5 +1,7 @@
 import unittest
 
+import pandas as pd
+
 from iac_sketch import data
 
 
@@ -62,3 +64,22 @@ class TestField(unittest.TestCase):
         assert field.type == "str"
         assert field.description == "This is my field"
         assert field.default == "0..*"
+
+class TestRegistry(unittest.TestCase):
+    def test_view_multiple_simple(self):
+        components = {
+            "comp1": pd.DataFrame({
+                "entity": ["entity1", "entity2"],
+                "comp_ind": [0, 0],
+                "field1": [1, 2],
+            }),
+            "comp2": pd.DataFrame({
+                "entity": ["entity1"],
+                "comp_ind": [1],
+                "field2": ["a"],
+            }),
+        }
+        registry = data.Registry(components)
+        assert len(registry.components) == 2
+        assert "comp1" in registry.components
+        assert "comp2" in registry.components

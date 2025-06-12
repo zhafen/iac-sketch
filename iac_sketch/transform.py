@@ -64,9 +64,6 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
             X = X.drop(columns=["component"])
             X = X.join(comp_data)
 
-        # After all the above is sorted, we set the index to 'entity' and 'comp_ind'
-        X = X.set_index(["entity", "comp_ind"])
-
         return X
 
 # Transformer to extract and validate component definitions (bottom of file)

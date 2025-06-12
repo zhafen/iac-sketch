@@ -100,7 +100,9 @@ class Registry:
     def copy(self):
         return copy.deepcopy(self)
 
-    def view(self, keys: str | list[str], how="left") -> pd.DataFrame:
+    def view(
+        self, keys: str | list[str],  join_on: str = None, join_how: str = "left",
+    ) -> pd.DataFrame:
         """Get a component by key or list of keys."""
 
         if isinstance(keys, str):
@@ -115,12 +117,32 @@ class Registry:
                     view_df = df_i
                     continue
 
-                view_df = view_df.join(
-                    df_i,
-                    how=how,
-                    rsuffix = f".{key}",
-                    on="entity",
-                )
+                if join_on is None:
+                    # If join_on is not specified we join on the entity
+
+                    if df_i.index.name != "entity" and df_i.index.name != [
+                        "entity",
+                        "comp_ind",
+                    ]:
+                        raise ValueError(
+                            f"Component {key} is not indexed by 'entity' or "
+                            "['entity', 'comp_ind']."
+                        )
+
+                    view_df = view_df.join(
+                        df_i,
+                        how=join_how,
+                        rsuffix=f".{key}",
+                        on="entity",
+                    )
+                else:
+                    view_df = view_df.merge(
+                        df_i,
+                        how=join_how,
+                        left_on=join_on,
+                        right_on=join_on,
+                        suffixes=("", f".{key}"),
+                    )
 
             return view_df
 
