@@ -186,11 +186,13 @@ class TestTransformSystem(unittest.TestCase):
                     "entity": "my_component",
                     "comp_ind": 0,
                     "multiplicity": "1",
+                    "value": pd.NA,
                 },
                 {
-                    "entity": "my_component",
+                    "entity": "my_other_component",
                     "comp_ind": 0,
                     "multiplicity": pd.NA,
+                    "value": pd.NA,
                 }
             ]
         )
