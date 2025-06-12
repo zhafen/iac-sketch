@@ -8,7 +8,7 @@ class AddErrorTrackingTransformer(BaseEstimator, TransformerMixin):
     - 'errors': for tracking errors on a per-row basis (default: empty string)
     - 'valid': for indicating if a row is valid (default: True)
     """
-    def fit(self, X, y=None):
+    def fit(self, _X, _y=None):
         # Stateless transformer, nothing to fit
         return self
 
