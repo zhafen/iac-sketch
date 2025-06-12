@@ -62,7 +62,7 @@ class Field:
         return cls(**kwargs)
 
 
-@dataclass
+@dataclass(repr=False)
 class Registry:
     components: dict[str, pd.DataFrame]
 

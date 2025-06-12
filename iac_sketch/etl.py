@@ -12,14 +12,6 @@ import os
 
 # Extraction system: handles reading and parsing entities from YAML
 class ExtractSystem:
-    def extract_and_load_entities(
-        self, filename_patterns: str | List[str]
-    ) -> data.Registry:
-
-        entities: pd.DataFrame = self.extract_entities(filename_patterns)
-        registry: data.Registry = self.load_entities_to_registry(entities)
-
-        return registry
 
     def extract_entities(self, filename_patterns: str | List[str]) -> data.Registry:
 
@@ -172,5 +164,11 @@ class TransformSystem:
         new_registry = registry.copy()
         for target_comp, source_comp in apply_components.items():
             input_data = registry.view(source_comp)
-            new_registry[target_comp] = transformer.transform(input_data)
+            try:
+                new_registry[target_comp] = transformer.transform(input_data)
+            except AssertionError as e:
+                raise ValueError(
+                    f"Transformer {transformer} failed to transform component "
+                    f"'{target_comp}' with source '{source_comp}'"
+                ) from e
         return new_registry
