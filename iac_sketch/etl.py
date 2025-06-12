@@ -114,7 +114,10 @@ class ExtractSystem:
         # Convert to a registry
         registry = data.Registry(
             {
-                key: df.drop(columns="component_entity")
+                # We don't want the component_entity column in the final registry
+                # since it was just used to group the components.
+                # We also don't care about the index, so reset it.
+                key: df.drop(columns="component_entity").reset_index(drop=True)
                 for key, df in entities.groupby("component_entity")
             }
         )
