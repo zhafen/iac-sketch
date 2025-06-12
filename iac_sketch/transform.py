@@ -2,7 +2,7 @@
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-class AddErrorTrackingTransformer(BaseEstimator, TransformerMixin):
+class LogPrepper(BaseEstimator, TransformerMixin):
     """
     Transformer that adds two columns to a DataFrame:
     - 'errors': for tracking errors on a per-row basis (default: empty string)
@@ -12,7 +12,7 @@ class AddErrorTrackingTransformer(BaseEstimator, TransformerMixin):
         # Stateless transformer, nothing to fit
         return self
 
-    def transform(self, X):
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         X = X.copy()
         if 'errors' not in X.columns:
             X['errors'] = ""

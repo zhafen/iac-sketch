@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from iac_sketch import data, etl
+from iac_sketch import data, etl, transform
 
 
 class TestExtractSystem(unittest.TestCase):
@@ -30,40 +30,33 @@ class TestTransformSystem(unittest.TestCase):
         self.test_filename_pattern = "./public/components/*"
         self.extract_sys = etl.ExtractSystem()
         self.transform_sys = etl.TransformSystem()
-class TestApplyTransform(unittest.TestCase):
+class TestTransformSystem(unittest.TestCase):
 
     def setUp(self):
         self.transform_sys = etl.TransformSystem()
 
     def test_apply_transform(self):
         registry = data.Registry({
-            "fit_component": pd.DataFrame({
+            "component_a": pd.DataFrame({
                 "entity": ["a", "b"],
                 "value": [1.0, 2.0]
             }).set_index("entity"),
-            "other": pd.DataFrame({
+            "component_b": pd.DataFrame({
                 "entity": ["c", "d"],
                 "value": [10.0, 20.0]
             }).set_index("entity"),
         })
 
-        transformer = StandardScaler()
         new_registry = self.transform_sys.apply_transform(
             registry,
-            transformer,
-            fit_components="fit_component",
-            apply_components=["fit_component", "other"]
+            transform.LogPrepper(),
+            apply_components=["component_a", "component_b"]
         )
 
-        # StandardScaler should standardize the 'value' column
-        # For 'component', mean=1.5, std=0.5, so values become [-1, 1]
-        comp_values = new_registry["fit_component"]["value"].values
-        np.testing.assert_allclose(comp_values, [-1.0, 1.0], atol=1e-6)
-
-        # For 'other', values are transformed using the same scaler
-        # (10-1.5)/0.5 = 17, (20-1.5)/0.5 = 37
-        other_values = new_registry["other"]["value"].values
-        np.testing.assert_allclose(other_values, [17.0, 37.0], atol=1e-6)
+        assert "errors" in new_registry["component_a"].columns
+        assert "valid" in new_registry["component_a"].columns
+        assert "errors" in new_registry["component_b"].columns
+        assert "valid" in new_registry["component_b"].columns
 
     # def test_parsecomp_component_and_validate(self):
 

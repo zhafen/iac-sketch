@@ -139,7 +139,7 @@ class TransformSystem:
         self,
         registry: data.Registry,
         transformer,
-        apply_components: str | list[str],
+        apply_components: str | list[str] | dict[str, str | list[str]] ,
         fit_components: str | list[str] = None,
     ) -> data.Registry:
         """
@@ -149,9 +149,12 @@ class TransformSystem:
         - fit_components: str or list of str, registry keys to fit on.
         Returns a new Registry with transformed components.
         """
-        # Ensure lists
-        if isinstance(apply_components, str):
-            apply_components = [apply_components]
+
+        # Format the arguments for transformation
+        if not isinstance(apply_components, dict):
+            if isinstance(apply_components, str):
+                apply_components = [apply_components]
+            apply_components = {comp: comp for comp in apply_components}
         if isinstance(fit_components, str):
             fit_components = [fit_components]
 
@@ -162,6 +165,7 @@ class TransformSystem:
 
         # Copy registry to avoid mutation
         new_registry = registry.copy()
-        for comp in apply_components:
-            new_registry[comp] = transformer.transform(registry[comp])
+        for target_comp, source_comp in apply_components.items():
+            input_data = registry.view(source_comp)
+            new_registry[target_comp] = transformer.transform(input_data)
         return new_registry
