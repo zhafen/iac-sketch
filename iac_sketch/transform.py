@@ -55,35 +55,28 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
     def fit(self, _X, _y=None):
         return self
 
-    def transform(self, registry):
-        comps_df = self._build_components_dataframe(registry)
+    def transform(self, X):
+
+        X = X.copy()
+
         comps_df = self._parse_fields(comps_df)
         comps_df = comps_df.set_index("entity")
-        registry["component"] = comps_df
-        return registry
+        X["component"] = comps_df
+        return X
 
-    def _build_components_dataframe(self, registry: data.Registry) -> pd.DataFrame:
-        comp_df = registry["component"].drop(columns=["component"])
-        data_comp = registry["fields"]
-        data_comp = data_comp.rename(
-            columns={"comp_ind": "fields_comp_ind", "component": "fields"}
-        )
-        comp_df = comp_df.set_index("entity").join(
-            data_comp.set_index("entity"), how="outer"
-        )
-        comp_df["defined"] = True
-        comps_created = pd.DataFrame({"entity": registry.keys()})
-        comp_df = comp_df.merge(comps_created, how="outer", on="entity")
-        comp_df.loc[comp_df["defined"].isna(), "defined"] = False
-        comp_df["defined"] = comp_df["defined"].astype(bool)
-        return comp_df
+    def _parse_fields(self, X: pd.DataFrame) -> pd.DataFrame:
 
-    def _parse_fields(self, components: pd.DataFrame) -> pd.DataFrame:
-        components["unparsed_fields"] = components["fields"]
+        X["defined"] = True
+        comps_created = pd.DataFrame({"entity": X.keys()})
+        X = X.merge(comps_created, how="outer", on="entity")
+        X.loc[X["defined"].isna(), "defined"] = False
+        X["defined"] = X["defined"].astype(bool)
+
+        X["unparsed_fields"] = X["fields"]
         valids = []
         valid_messages = []
         fields = []
-        for _, comp in components.query("defined").iterrows():
+        for _, comp in X.query("defined").iterrows():
             fields_i = {}
             if comp.notna()["fields"]:
                 valid_fields = True
@@ -106,9 +99,9 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
             fields.append(fields_i)
             valids.append(True)
             valid_messages.append("")
-        components["valid_def"] = False
-        components["valid_def_message"] = "undefined"
-        components.loc[components["defined"], "valid_def"] = valids
-        components.loc[components["defined"], "valid_def_message"] = valid_messages
-        components.loc[components["defined"], "fields"] = fields
-        return components
+        X["valid_def"] = False
+        X["valid_def_message"] = "undefined"
+        X.loc[X["defined"], "valid_def"] = valids
+        X.loc[X["defined"], "valid_def_message"] = valid_messages
+        X.loc[X["defined"], "fields"] = fields
+        return X

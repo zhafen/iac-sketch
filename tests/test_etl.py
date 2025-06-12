@@ -23,6 +23,7 @@ class TestExtractSystem(unittest.TestCase):
         registry = self.extract_sys.extract_entities(self.test_filename_pattern)
 
         assert "component" in registry
+        assert "component" in registry.keys()
 
 class TestTransformSystem(unittest.TestCase):
 
@@ -88,7 +89,6 @@ class TestTransformSystem(unittest.TestCase):
         registry = self.transform_sys.apply_transform(
             registry,
             transform.ComponentNormalizer(),
-            apply_components=None,
         )
         expected = pd.DataFrame(
             [
@@ -105,6 +105,48 @@ class TestTransformSystem(unittest.TestCase):
             ]
         )
         assert_frame_equal(registry["description"], expected)
+
+    def test_component_dict_normalizer_component(self):
+
+        registry = data.Registry(
+            {
+                "component": pd.DataFrame(
+                    [
+                        {
+                            "entity": "my_component",
+                            "comp_ind": 0,
+                            "component": {
+                                "multiplicity": "1",
+                            },
+                        },
+                        {
+                            "entity": "my_other_component",
+                            "comp_ind": 0,
+                            "component": pd.NA,
+                        }
+                    ]
+                )
+            }
+        )
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.ComponentNormalizer(),
+        )
+        expected = pd.DataFrame(
+            [
+                {
+                    "entity": "my_component",
+                    "comp_ind": 0,
+                    "multiplicity": "1",
+                },
+                {
+                    "entity": "my_component",
+                    "comp_ind": 0,
+                    "multiplicity": pd.NA,
+                }
+            ]
+        )
+        assert_frame_equal(registry["component"], expected)
 
     def test_parse_general_component_complex(self):
         registry = data.Registry(
