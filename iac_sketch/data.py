@@ -118,6 +118,8 @@ class Registry:
                 view_df = view_df.join(
                     df_i,
                     how=how,
+                    rsuffix = f".{key}",
+                    on="entity",
                 )
 
             return view_df
