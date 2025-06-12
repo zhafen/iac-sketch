@@ -49,7 +49,9 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
         else:
             # Find rows that were not parsed
             not_parsed = comp_data.isna().all(axis="columns")
-            if not_parsed.any():
+            # If we both have unparsed rows and non-null values in the same rows,
+            # we add them to a value column
+            if not_parsed.any() and X.loc[not_parsed, "component"].notna().any():
                 # Ensure there's a value column to hold unparsed components
                 if "value" not in comp_data.columns:
                     comp_data["value"] = pd.NA
