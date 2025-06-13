@@ -1,27 +1,14 @@
-from typing import Optional, Union
 
-# Encapsulates the specification for a registry view
-class View:
-    def __init__(
-        self,
-        keys: Union[str, list[str]],
-        join_on: Optional[str] = None,
-        join_how: str = "left",
-    ):
-        self.keys = keys
-        self.join_on = join_on
-        self.join_how = join_how
-
-    def __repr__(self):
-        return (
-            f"View(keys={self.keys!r}, join_on={self.join_on!r}, join_how={self.join_how!r})"
-        )
 
 import copy
-from dataclasses import dataclass, field
 import re
-
+from dataclasses import dataclass
+from typing import Optional, Union
 import pandas as pd
+
+
+
+# --- Registry class ---
 
 
 class Entity(str):
@@ -81,6 +68,23 @@ class Field:
         return cls(**kwargs)
 
 
+class View:
+    """Encapsulates the specification for a registry view."""
+    def __init__(
+        self,
+        keys: Union[str, list[str]],
+        join_on: Optional[str] = None,
+        join_how: str = "left",
+    ):
+        self.keys = keys
+        self.join_on = join_on
+        self.join_how = join_how
+
+    def __repr__(self):
+        return (
+            f"View(keys={self.keys!r}, join_on={self.join_on!r}, join_how={self.join_how!r})"
+        )
+
 @dataclass(repr=False)
 class Registry:
     components: dict[str, pd.DataFrame]
@@ -122,7 +126,7 @@ class Registry:
 
     def view(
         self,
-        view: Union["View", str, list[str]],
+        view: Union[View, str, list[str]],
         join_on: Optional[str] = None,
         join_how: str = "left",
     ) -> pd.DataFrame:
@@ -199,9 +203,9 @@ class Registry:
             return comp_def, comp_df
 
         # Validate fields
-        for field_name, field in comp_def["fields"].items():
+        for field_name, field_obj in comp_def["fields"].items():
             if field_name not in comp_df.columns:
-                comp_df[field_name] = field.default
+                comp_df[field_name] = field_obj.default
 
         # If the index is not set, we check the multiplicity and set the index
         if comp_df.index.name != "entity":
