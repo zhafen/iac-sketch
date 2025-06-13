@@ -1,3 +1,22 @@
+from typing import Optional, Union
+
+# Encapsulates the specification for a registry view
+class View:
+    def __init__(
+        self,
+        keys: Union[str, list[str]],
+        join_on: Optional[str] = None,
+        join_how: str = "left",
+    ):
+        self.keys = keys
+        self.join_on = join_on
+        self.join_how = join_how
+
+    def __repr__(self):
+        return (
+            f"View(keys={self.keys!r}, join_on={self.join_on!r}, join_how={self.join_how!r})"
+        )
+
 import copy
 from dataclasses import dataclass, field
 import re
@@ -100,35 +119,40 @@ class Registry:
     def copy(self):
         return copy.deepcopy(self)
 
-    def view(
-        self, keys: str | list[str],  join_on: str = None, join_how: str = "left",
-    ) -> pd.DataFrame:
-        """Get a component by key or list of keys."""
 
+    def view(
+        self,
+        view: Union["View", str, list[str]],
+        join_on: Optional[str] = None,
+        join_how: str = "left",
+    ) -> pd.DataFrame:
+        """Get a component or view of components. Accepts a View instance or legacy arguments."""
+        # If a View instance is provided, use its attributes
+        if isinstance(view, View):
+            keys = view.keys
+            join_on = view.join_on
+            join_how = view.join_how
+        else:
+            keys = view
+        # Legacy behavior for string or list
         if isinstance(keys, str):
             return self[keys]
         if isinstance(keys, list):
-
             for i, key in enumerate(keys):
-
                 df_i = self[key]
-
                 if i == 0:
                     view_df = df_i
                     continue
-
                 if join_on is None:
                     # If join_on is not specified we join on the entity
-
                     if df_i.index.name != "entity" and df_i.index.name != [
                         "entity",
                         "comp_ind",
                     ]:
                         raise ValueError(
                             f"Component {key} is not indexed by 'entity' or "
-                            "['entity', 'comp_ind']."
+                            "['entity', 'comp_ind']. Must provide join_on."
                         )
-
                     view_df = view_df.join(
                         df_i,
                         how=join_how,
@@ -143,11 +167,9 @@ class Registry:
                         right_on=join_on,
                         suffixes=("", f".{key}"),
                     )
-
             return view_df
-
         # If we got here, keys is not a string or a list of strings
-        raise TypeError("keys must be a string or a list of strings.")
+        raise TypeError("view must be a View, string, or list of strings.")
 
     def validate(self):
         """Validate the data in the registry. This only validates that the data

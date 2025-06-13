@@ -149,7 +149,7 @@ class TransformSystem:
         self,
         registry: data.Registry,
         transformer,
-        apply_components: None | str | list[str] | dict[str, str | list[str]] = None,
+        apply_components: None | str | list[str] | dict[str, str | list[str] | dict] = None,
         fit_components: str | list[str] = None,
     ) -> data.Registry:
         """
