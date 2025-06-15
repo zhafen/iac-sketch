@@ -123,7 +123,7 @@ class Registry:
     def copy(self):
         return copy.deepcopy(self)
 
-    def view_from_spec(
+    def resolve_view(
         self,
         view: View,
     ) -> pd.DataFrame:
@@ -171,7 +171,7 @@ class Registry:
     ) -> pd.DataFrame:
         """Get a component or view of components. Accepts arguments to construct a View, then delegates to view_from_spec."""
         view = View(*args, **kwargs)
-        return self.view_from_spec(view)
+        return self.resolve_view(view)
 
     def validate(self):
         """Validate the data in the registry. This only validates that the data
