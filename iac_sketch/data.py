@@ -1,11 +1,8 @@
-
-
 import copy
 import re
 from dataclasses import dataclass
 from typing import Optional, Union
 import pandas as pd
-
 
 
 # --- Registry class ---
@@ -68,22 +65,14 @@ class Field:
         return cls(**kwargs)
 
 
+@dataclass
 class View:
     """Encapsulates the specification for a registry view."""
-    def __init__(
-        self,
-        keys: Union[str, list[str]],
-        join_on: Optional[str] = None,
-        join_how: str = "left",
-    ):
-        self.keys = keys
-        self.join_on = join_on
-        self.join_how = join_how
 
-    def __repr__(self):
-        return (
-            f"View(keys={self.keys!r}, join_on={self.join_on!r}, join_how={self.join_how!r})"
-        )
+    components: str | list[str]
+    join_on: str = None
+    join_how: str = "left"
+
 
 @dataclass(repr=False)
 class Registry:
@@ -129,10 +118,10 @@ class Registry:
     ) -> pd.DataFrame:
         """Get a component or view of components, using a View instance only."""
 
-        if isinstance(view.keys, str):
-            return self[view.keys]
-        if isinstance(view.keys, list):
-            for i, key in enumerate(view.keys):
+        if isinstance(view.components, str):
+            return self[view.components]
+        if isinstance(view.components, list):
+            for i, key in enumerate(view.components):
                 df_i = self[key]
                 if i == 0:
                     view_df = df_i
@@ -164,12 +153,9 @@ class Registry:
             return view_df
         raise TypeError("View.keys must be a string or a list of strings.")
 
-    def view(
-        self,
-        *args,
-        **kwargs
-    ) -> pd.DataFrame:
-        """Get a component or view of components. Accepts arguments to construct a View, then delegates to view_from_spec."""
+    def view(self, *args, **kwargs) -> pd.DataFrame:
+        """Get a component or view of components. Accepts arguments to
+        construct a View, then delegates to resolve_view."""
         view = View(*args, **kwargs)
         return self.resolve_view(view)
 

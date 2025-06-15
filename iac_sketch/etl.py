@@ -149,39 +149,19 @@ class TransformSystem:
         self,
         registry: data.Registry,
         transformer,
-        apply_components: None | str | list[str] | dict[str, str | list[str] | dict] = None,
-        fit_components: str | list[str] = None,
+        apply_components: dict[str, data.View],
+        fit_components: data.View = None,
     ) -> data.Registry:
-        """
-        Apply a scikit-learn style transformer to registry components.
-        - transformer: must implement transform and, if fit_components is provided, fit methods.
-        - apply_components: str or list of str, registry keys to transform.
-        - fit_components: str or list of str, registry keys to fit on.
-        Returns a new Registry with transformed components.
-        """
-
-        # Format the arguments for transformation
-        # Full form is a dictionary mapping target component keys
-        # to source component keys
-        if not isinstance(apply_components, dict):
-            if apply_components is not None:
-                if isinstance(apply_components, str):
-                    apply_components = [apply_components]
-            else:
-                apply_components = registry.keys()
-            apply_components = {comp: comp for comp in apply_components}
-        if isinstance(fit_components, str):
-            fit_components = [fit_components]
 
         # Fit transformer on concatenated fit_components
         if fit_components is not None:
-            fit_data = registry.view(fit_components)
+            fit_data = registry.resolve_view(fit_components)
             transformer.fit(fit_data)
 
         # Copy registry to avoid mutation
         new_registry = registry.copy()
         for target_comp, source_comp in apply_components.items():
-            input_data = registry.view(source_comp)
+            input_data = registry.resolve_view(source_comp)
             try:
                 new_registry[target_comp] = transformer.transform(input_data)
             except AssertionError as e:
