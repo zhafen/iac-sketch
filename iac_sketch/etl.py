@@ -4,7 +4,7 @@ ETL workflow for registry processing, based on base_manifest/etl.yaml.
 
 import yaml
 import pandas as pd
-from typing import List, Dict, Callable, Any
+from typing import List, Dict, Callable
 from . import data
 import glob
 import os
@@ -13,7 +13,9 @@ import os
 # Extraction system: handles reading and parsing entities from YAML
 class ExtractSystem:
 
-    def extract_entities(self, filename_patterns: str | List[str]) -> data.Registry:
+    def extract_entities(
+        self, filename_patterns: str | List[str] = [], input: str = None
+    ) -> data.Registry:
 
         if isinstance(filename_patterns, str):
             filename_patterns = [filename_patterns]
@@ -23,12 +25,18 @@ class ExtractSystem:
         base_manifest_pattern = f"{base_dir}/base_manifest/*.yaml"
         filename_patterns.append(base_manifest_pattern)
 
+        # Iterate over the files
         entities = []
         for pattern in filename_patterns:
             for filename in glob.glob(pattern):
                 with open(filename, "r", encoding="utf-8") as f:
                     entities_i = self.extract_entities_from_yaml(f, source=filename)
                 entities.append(entities_i)
+
+        # Add direct input YAML if provided
+        if input is not None:
+            entities_i = self.extract_entities_from_yaml(input, source="input")
+            entities.append(entities_i)
 
         entities = pd.concat(entities, ignore_index=True)
 

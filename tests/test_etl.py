@@ -203,15 +203,7 @@ class TestTransformSystem(unittest.TestCase):
         )
         assert_frame_equal(registry["component"], expected)
 
-
-class TestParseComponentTypes(unittest.TestCase):
-
-    def setUp(self):
-        self.test_filename_pattern = "./public/components"
-        self.extract_sys = etl.ExtractSystem()
-        self.transform_sys = etl.TransformSystem()
-
-    def test_parsecomp_component(self):
+    def test_component_def_extractor(self):
         yaml_str = """
             my_simple_component:
             - component
@@ -223,8 +215,15 @@ class TestParseComponentTypes(unittest.TestCase):
                 my_field [int]: This is a test field.
                 my_other_field [bool]: This is another test field.
         """
-        registry = self.extract_sys.extract_entities_from_yaml(yaml_str)
-        registry = self.transform_sys.base_transform(registry)
+        registry = self.extract_sys.extract_entities(input=yaml_str)
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.ComponentNormalizer(),
+            components_mapping={
+                comp: data.View(comp) for comp in registry.keys()
+                if comp != "fields"
+            },
+        )
         expected = pd.DataFrame(
             [
                 # the component and data entities are defined by use
