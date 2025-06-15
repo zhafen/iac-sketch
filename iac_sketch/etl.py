@@ -170,3 +170,24 @@ class TransformSystem:
                     f"'{target_comp}' with source '{source_comp}'"
                 ) from e
         return new_registry
+
+    def apply_one_to_one_transform(
+        self,
+        registry: data.Registry,
+        transformer,
+        apply_components: str | list[str] = None,
+    ) -> data.Registry:
+
+        # Format the arguments to then call apply_transform
+        if apply_components is None:
+            apply_components = registry.keys()
+        elif isinstance(apply_components, str):
+            apply_components = [apply_components]
+
+        apply_components = {comp: data.View(comp) for comp in apply_components}
+
+        return self.apply_transform(
+            registry,
+            transformer,
+            apply_components=apply_components,
+        )
