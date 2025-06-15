@@ -79,12 +79,12 @@ class TestTransformSystem(unittest.TestCase):
                         {
                             "entity": "my_entity",
                             "comp_ind": 0,
-                            "component": "This entity is a test entity.",
+                            "component": {"value": "This entity is a test entity."},
                         },
                         {
                             "entity": "my_other_entity",
                             "comp_ind": 0,
-                            "component": "This entity is also a test entity.",
+                            "component": {"value": "This entity is also a test entity."},
                         },
                     ]
                 )
@@ -119,7 +119,7 @@ class TestTransformSystem(unittest.TestCase):
                         {
                             "entity": "my_time",
                             "comp_ind": 0,
-                            "component": "2023-10-01",
+                            "component": {"value": "2023-10-01"},
                         },
                         {
                             "entity": "my_other_time",
@@ -137,6 +137,7 @@ class TestTransformSystem(unittest.TestCase):
         registry = self.transform_sys.apply_transform(
             registry,
             transform.ComponentNormalizer(),
+            components_mapping={"timestamp": data.View("timestamp")},
         )
         actual = registry["timestamp"]
         expected = pd.DataFrame(
@@ -184,6 +185,7 @@ class TestTransformSystem(unittest.TestCase):
         registry = self.transform_sys.apply_transform(
             registry,
             transform.ComponentNormalizer(),
+            components_mapping={"component": data.View("component")},
         )
         expected = pd.DataFrame(
             [
@@ -191,13 +193,11 @@ class TestTransformSystem(unittest.TestCase):
                     "entity": "my_component",
                     "comp_ind": 0,
                     "multiplicity": "1",
-                    "value": pd.NA,
                 },
                 {
                     "entity": "my_other_component",
                     "comp_ind": 0,
                     "multiplicity": pd.NA,
-                    "value": pd.NA,
                 },
             ]
         )

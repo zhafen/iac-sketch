@@ -78,9 +78,9 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
 
         X = X.copy()
 
-        comps_df = self._parse_fields(comps_df)
-        comps_df = comps_df.set_index("entity")
-        X["component"] = comps_df
+        X = self._parse_fields(X)
+        X = X.set_index("entity")
+        X["component"] = X
         return X
 
     def _parse_fields(self, X: pd.DataFrame) -> pd.DataFrame:
