@@ -47,7 +47,7 @@ class TestTransformSystem(unittest.TestCase):
         new_registry = self.transform_sys.apply_transform(
             registry,
             transform.LogPrepper(),
-            apply_components=["component_a", "component_b"]
+            components_mapping=["component_a", "component_b"]
         )
 
         assert "errors" in new_registry["component_a"].columns

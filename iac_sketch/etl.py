@@ -149,7 +149,7 @@ class TransformSystem:
         self,
         registry: data.Registry,
         transformer,
-        apply_components: dict[str, data.View],
+        components_mapping: dict[str, data.View],
         fit_components: data.View = None,
     ) -> data.Registry:
 
@@ -160,7 +160,7 @@ class TransformSystem:
 
         # Copy registry to avoid mutation
         new_registry = registry.copy()
-        for target_comp, source_comp in apply_components.items():
+        for target_comp, source_comp in components_mapping.items():
             input_data = registry.resolve_view(source_comp)
             try:
                 new_registry[target_comp] = transformer.transform(input_data)
@@ -171,23 +171,27 @@ class TransformSystem:
                 ) from e
         return new_registry
 
-    def apply_one_to_one_transform(
+    def generate_one_to_one_mapping(
         self,
         registry: data.Registry,
-        transformer,
-        apply_components: str | list[str] = None,
-    ) -> data.Registry:
+        components: str | list[str] = None,
+        excluded_components: str | list[str] = None,
+    ) -> dict[str, data.View]:
 
-        # Format the arguments to then call apply_transform
-        if apply_components is None:
-            apply_components = registry.keys()
-        elif isinstance(apply_components, str):
-            apply_components = [apply_components]
+        if components is None:
+            components = registry.keys()
+        elif isinstance(components, str):
+            components = [components]
 
-        apply_components = {comp: data.View(comp) for comp in apply_components}
+        if excluded_components is None:
+            excluded_components = []
+        elif isinstance(excluded_components, str):
+            excluded_components = [excluded_components]
 
-        return self.apply_transform(
-            registry,
-            transformer,
-            apply_components=apply_components,
-        )
+        components = {
+            comp: data.View(comp)
+            for comp in components
+            if comp not in excluded_components
+        }
+
+        return components
