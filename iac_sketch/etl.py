@@ -170,28 +170,3 @@ class TransformSystem:
                     f"'{target_comp}' with source '{source_comp}'"
                 ) from e
         return new_registry
-
-    def generate_one_to_one_mapping(
-        self,
-        registry: data.Registry,
-        components: str | list[str] = None,
-        excluded_components: str | list[str] = None,
-    ) -> dict[str, data.View]:
-
-        if components is None:
-            components = registry.keys()
-        elif isinstance(components, str):
-            components = [components]
-
-        if excluded_components is None:
-            excluded_components = []
-        elif isinstance(excluded_components, str):
-            excluded_components = [excluded_components]
-
-        components = {
-            comp: data.View(comp)
-            for comp in components
-            if comp not in excluded_components
-        }
-
-        return components

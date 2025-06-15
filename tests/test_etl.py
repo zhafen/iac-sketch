@@ -25,6 +25,7 @@ class TestExtractSystem(unittest.TestCase):
         assert "component" in registry
         assert "component" in registry.keys()
 
+
 class TestTransformSystem(unittest.TestCase):
 
     def setUp(self):
@@ -33,21 +34,24 @@ class TestTransformSystem(unittest.TestCase):
         self.transform_sys = etl.TransformSystem()
 
     def test_apply_transform(self):
-        registry = data.Registry({
-            "component_a": pd.DataFrame({
-                "entity": ["a", "b"],
-                "value": [1.0, 2.0]
-            }).set_index("entity"),
-            "component_b": pd.DataFrame({
-                "entity": ["c", "d"],
-                "value": [10.0, 20.0]
-            }).set_index("entity"),
-        })
+        registry = data.Registry(
+            {
+                "component_a": pd.DataFrame(
+                    {"entity": ["a", "b"], "value": [1.0, 2.0]}
+                ).set_index("entity"),
+                "component_b": pd.DataFrame(
+                    {"entity": ["c", "d"], "value": [10.0, 20.0]}
+                ).set_index("entity"),
+            }
+        )
 
         new_registry = self.transform_sys.apply_transform(
             registry,
             transform.LogPrepper(),
-            components_mapping=["component_a", "component_b"]
+            components_mapping={
+                "component_a": data.View("component_a"),
+                "component_b": data.View("component_b"),
+            },
         )
 
         assert "errors" in new_registry["component_a"].columns
@@ -89,6 +93,7 @@ class TestTransformSystem(unittest.TestCase):
         registry = self.transform_sys.apply_transform(
             registry,
             transform.ComponentNormalizer(),
+            components_mapping={"description": data.View("description")},
         )
         expected = pd.DataFrame(
             [
@@ -171,7 +176,7 @@ class TestTransformSystem(unittest.TestCase):
                             "entity": "my_other_component",
                             "comp_ind": 0,
                             "component": pd.NA,
-                        }
+                        },
                     ]
                 )
             }
@@ -193,11 +198,10 @@ class TestTransformSystem(unittest.TestCase):
                     "comp_ind": 0,
                     "multiplicity": pd.NA,
                     "value": pd.NA,
-                }
+                },
             ]
         )
         assert_frame_equal(registry["component"], expected)
-
 
 
 class TestParseComponentTypes(unittest.TestCase):
