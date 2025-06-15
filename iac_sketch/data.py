@@ -123,31 +123,21 @@ class Registry:
     def copy(self):
         return copy.deepcopy(self)
 
-
-    def view(
+    def view_from_spec(
         self,
-        view: Union[View, str, list[str]],
-        join_on: Optional[str] = None,
-        join_how: str = "left",
+        view: View,
     ) -> pd.DataFrame:
-        """Get a component or view of components. Accepts a View instance or legacy arguments."""
-        # If a View instance is provided, use its attributes
-        if isinstance(view, View):
-            keys = view.keys
-            join_on = view.join_on
-            join_how = view.join_how
-        else:
-            keys = view
-        # Legacy behavior for string or list
-        if isinstance(keys, str):
-            return self[keys]
-        if isinstance(keys, list):
-            for i, key in enumerate(keys):
+        """Get a component or view of components, using a View instance only."""
+
+        if isinstance(view.keys, str):
+            return self[view.keys]
+        if isinstance(view.keys, list):
+            for i, key in enumerate(view.keys):
                 df_i = self[key]
                 if i == 0:
                     view_df = df_i
                     continue
-                if join_on is None:
+                if view.join_on is None:
                     # If join_on is not specified we join on the entity
                     if df_i.index.name != "entity" and df_i.index.name != [
                         "entity",
@@ -159,21 +149,29 @@ class Registry:
                         )
                     view_df = view_df.join(
                         df_i,
-                        how=join_how,
+                        how=view.join_how,
                         rsuffix=f".{key}",
                         on="entity",
                     )
                 else:
                     view_df = view_df.merge(
                         df_i,
-                        how=join_how,
-                        left_on=join_on,
-                        right_on=join_on,
+                        how=view.join_how,
+                        left_on=view.join_on,
+                        right_on=view.join_on,
                         suffixes=("", f".{key}"),
                     )
             return view_df
-        # If we got here, keys is not a string or a list of strings
-        raise TypeError("view must be a View, string, or list of strings.")
+        raise TypeError("View.keys must be a string or a list of strings.")
+
+    def view(
+        self,
+        *args,
+        **kwargs
+    ) -> pd.DataFrame:
+        """Get a component or view of components. Accepts arguments to construct a View, then delegates to view_from_spec."""
+        view = View(*args, **kwargs)
+        return self.view_from_spec(view)
 
     def validate(self):
         """Validate the data in the registry. This only validates that the data
