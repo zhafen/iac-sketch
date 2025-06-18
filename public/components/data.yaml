@@ -93,11 +93,20 @@ report:
         Date when the report was created, i.e. the product_id was created and we started
         tracking report status.
     data_steward_approval [bool]: Whether or not the data has been approved for release.
+    description [str]: Description for the report.
 - primary_key: product_id
 - code_location_format:
     repository: ra_reports
     branch: reports/{irb_number}
     parent_path: reports/{irb_number}_{human_readable_label}
+
+pbi_report:
+- fields:
+    description [str]: This description will show up in the portal.
+
+pbi_app_homepage:
+- description: >
+    Very helpful if this exists for each app for deployment purposes.
 
 request:
 - description: The data submitted via the intake form.

@@ -46,10 +46,11 @@ research_analytics_pbi_workspace:
             - stg
             - prd
 
-get_pa_account:
+create_pa_account:
 - description: >
     All NM Azure users need PA accounts. The URL for one-off requests is attached.
 - url: https://nmhc.service-now.com/mynmi?id=sc_cat_item&sys_id=bd40d8d213d667007d59bd322244b017 
+- task
 
 check_study_status:
 - description: Get the status of a study, including if it's approved.
@@ -58,3 +59,11 @@ check_study_status:
     SELECT TOP 10 *
     FROM FSM_Admin.fsm_eirb_dm.studies s
     WHERE s.irb_study_id = 'STU00223585'
+
+nm_data_portal:
+- description: The main new portal to access NM data.
+- website
+
+edw_portal:
+- description: The old portal.
+- website
