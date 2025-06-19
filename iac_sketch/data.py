@@ -1,8 +1,9 @@
 import copy
 import re
 from dataclasses import dataclass
-from typing import Optional, Union
+
 import pandas as pd
+import pandera.pandas as pa
 
 
 # --- Registry class ---
@@ -12,16 +13,91 @@ class Entity(str):
     """Subclass of str to represent entities."""
 
 
-@dataclass
-class Field:
-    name: str
-    type: str
-    description: str = ""
-    multiplicity: str = "0..*"
-    default: str = ""
-    categories: list[str] = None
+class Field(pa.Column):
+    """
+    Field extends pandera's Column to represent a DataFrame column with additional metadata.
 
-    field_def_order = ["type", "multiplicity"]
+    Parameters
+    ----------
+    dtype : str, type, DataType, Type, ExtensionDtype, or numpy.dtype, optional
+        Datatype of the column for type-checking.
+    checks : Check, List[Check | Hypothesis], or None, optional
+        Checks to verify validity of the column.
+    parsers : Parser, List[Parser], or None, optional
+        Parsers to preprocess or validate the column.
+    nullable : bool, default False
+        Whether the column can contain null values.
+    unique : bool, default False
+        Whether column values should be unique.
+    report_duplicates : {'exclude_first', 'exclude_last', 'all'}, default 'all'
+        How to report unique errors.
+    coerce : bool, default False
+        If True, coerce the column to the specified dtype during validation.
+    required : bool, default True
+        Whether the column must be present in the DataFrame.
+    name : str, tuple of str, or None, optional
+        Name of the column in the DataFrame.
+    regex : bool, default False
+        Whether the name should be treated as a regex pattern.
+    title : str, optional
+        Human-readable label for the column.
+    description : str, optional
+        Textual description of the column.
+    default : Any, optional
+        Default value for missing values in the column.
+    metadata : dict, optional
+        Optional key-value metadata for the column.
+    drop_invalid_rows : bool, default False
+        If True, drop invalid rows during validation.
+    multiplicity : str, default "0..*"
+        Custom field for additional multiplicity metadata.
+    *args, **kwargs :
+        Additional positional and keyword arguments passed to pa.Column.
+    """
+    field_def_order = [
+        "dtype", "nullable", "default", "description", "multiplicity"
+    ]
+    def __init__(
+        self,
+        *args,
+        dtype=None,
+        checks=None,
+        parsers=None,
+        nullable=False,
+        unique=False,
+        report_duplicates="all",
+        coerce=False,
+        required=True,
+        name=None,
+        regex=False,
+        title=None,
+        description=None,
+        default=None,
+        metadata=None,
+        drop_invalid_rows=False,
+        multiplicity: str = "0..*",
+        **kwargs,
+    ):
+        super().__init__(
+            *args,
+            dtype=dtype,
+            checks=checks,
+            parsers=parsers,
+            nullable=nullable,
+            unique=unique,
+            report_duplicates=report_duplicates,
+            coerce=coerce,
+            required=required,
+            name=name,
+            regex=regex,
+            title=title,
+            description=description,
+            default=default,
+            metadata=metadata,
+            drop_invalid_rows=drop_invalid_rows,
+            **kwargs,
+        )
+        self.multiplicity = multiplicity
 
     @classmethod
     def from_kv_pair(cls, field_key: str, field_value: str | dict[str, str]) -> "Field":
