@@ -5,6 +5,10 @@ power_user_office_hours:
 power_user_jira_project:
 - description: JIRA project used for managing power user tickets.
 
+power_user_sharepoint:
+- description: Sharepoint site for information Power Users can refer to.
+- url: https://nuwildcat.sharepoint.com/:u:/r/sites/FSM-FSMITResearchPowerUsers/SitePages/Home(1).aspx?csf=1&web=1&e=dncaUQ
+
 get_data_steward_approval:
 - description: Someone has to get data steward approval.
 - algorithm: >
