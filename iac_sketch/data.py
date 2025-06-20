@@ -55,7 +55,7 @@ class Field(pa.Column):
         Additional positional and keyword arguments passed to pa.Column.
     """
     field_def_order = [
-        "dtype", "nullable", "default", "description", "multiplicity"
+        "dtype", "multiplicity",
     ]
     def __init__(
         self,
