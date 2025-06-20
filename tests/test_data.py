@@ -2,6 +2,7 @@ import unittest
 
 import pandas as pd
 from pandera import dtypes
+from pandera.engines import pandas_engine
 
 from iac_sketch import data
 
@@ -15,7 +16,7 @@ class TestField(unittest.TestCase):
 
         field = data.Field.from_kv_pair(field_key, field_value)
         assert field.name == "my_field"
-        assert field.dtype == dtypes.Int()
+        assert dtypes.Int().check(field.dtype)
         assert field.description == "This is my field"
         assert field.multiplicity == "0..*"
 
@@ -29,7 +30,7 @@ class TestField(unittest.TestCase):
 
         field = data.Field.from_kv_pair(field_key, field_value)
         assert field.name == "my_field"
-        assert field.dtype == dtypes.Int()
+        assert dtypes.Int().check(field.dtype)
         assert field.description == "This is my field"
         assert field.multiplicity == "0..1"
 
@@ -40,7 +41,7 @@ class TestField(unittest.TestCase):
 
         field = data.Field.from_kv_pair(field_key, field_value)
         assert field.name == "my_field"
-        assert field.dtype == dtypes.Int()
+        assert dtypes.Int().check(field.dtype)
         assert field.description == "This is my field"
         assert field.multiplicity == "1..1"
 
@@ -63,7 +64,7 @@ class TestField(unittest.TestCase):
 
         field = data.Field.from_kv_pair(field_key, field_value)
         assert field.name == "my_field"
-        assert field.dtype == "str"
+        assert pandas_engine.Engine.dtype(str).check(field.dtype)
         assert field.description == "This is my field"
         assert field.default == "0..*"
 

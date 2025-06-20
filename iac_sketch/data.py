@@ -84,7 +84,7 @@ class Field(pa.Column):
         # This is likely to change if we want to do something with entity data types.
         self.dtype_str = dtype
         try:
-            dtype = pandas_engine.dtypes(dtype)
+            dtype = pandas_engine.Engine.dtype(dtype)
         except TypeError:
             dtype = None
 
