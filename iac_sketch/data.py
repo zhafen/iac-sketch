@@ -77,6 +77,7 @@ class Field(pa.Column):
         metadata=None,
         drop_invalid_rows=False,
         multiplicity: str = "0..*",
+        categories: list[str] = None,
         **kwargs,
     ):
 
@@ -108,6 +109,7 @@ class Field(pa.Column):
             **kwargs,
         )
         self.multiplicity = multiplicity
+        self.categories = categories
 
     @classmethod
     def from_kv_pair(cls, field_key: str, field_value: str | dict[str, str]) -> "Field":
