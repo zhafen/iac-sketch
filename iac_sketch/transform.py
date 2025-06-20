@@ -90,6 +90,11 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         # Parse the fields
         X = X.apply(self._parse_fields, axis="columns")
 
+        # Rename
+        X = X.rename({"component": "unparsed_fields"}, axis="columns")
+
+        return X
+
 
     def _parse_fields(self, row):
         # If not given any fields then this is just a flag component
@@ -105,12 +110,12 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
             try:
                 field = data.Field.from_kv_pair(field_key, field_value)
                 fields_i[field.name] = field
-            except ValueError:
+            except (ValueError, TypeError) as e:
                 valid_fields = False
-                valid_message = (
+                valid_message += (
                     f"Field {field_key} is incorrectly formatted: {field_value}. "
+                    f"Error: {e}"
                 )
-                break
 
         row["fields"] = fields_i
         row["valid"] = valid_fields

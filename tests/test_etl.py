@@ -221,16 +221,16 @@ class TestTransformSystem(unittest.TestCase):
         registry = self.transform_sys.apply_transform(
             registry,
             transform.ComponentNormalizer(),
-            components_mapping={comp: data.View(comp) for comp in registry.keys()},
+            components_mapping={
+                comp: data.View(comp) for comp in registry.keys() if comp != "fields"
+            },
         )
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.ComponentDefExtractor(),
+            transform.ComponentDefExtractor(registry),
             components_mapping={
                 "component": data.View(
-                    ["component", "fields"],
-                    join_on="entity",
-                    join_how="outer"
+                    ["component", "fields"], join_on="entity", join_how="outer"
                 )
             },
         )
@@ -240,43 +240,47 @@ class TestTransformSystem(unittest.TestCase):
                 {
                     "entity": "component",
                     "comp_ind": np.nan,
-                    "fields_comp_ind": np.nan,
+                    "comp_ind.fields": np.nan,
                     "fields": np.nan,
                     "defined": False,
                     "unparsed_fields": np.nan,
-                    "valid_def": False,
-                    "valid_def_message": "undefined",
+                    "valid": False,
+                    "errors": "undefined",
                 },
                 {
                     "entity": "fields",
                     "comp_ind": np.nan,
-                    "fields_comp_ind": np.nan,
+                    "comp_ind.fields": np.nan,
                     "fields": np.nan,
                     "defined": False,
                     "unparsed_fields": np.nan,
-                    "valid_def": False,
-                    "valid_def_message": "undefined",
+                    "valid": False,
+                    "errors": "undefined",
                 },
                 {
                     "entity": "metadata",
                     "comp_ind": np.nan,
-                    "fields_comp_ind": np.nan,
+                    "comp_ind.fields": np.nan,
                     "fields": np.nan,
                     "defined": False,
                     "unparsed_fields": np.nan,
-                    "valid_def": False,
-                    "valid_def_message": "undefined",
+                    "valid": False,
+                    "errors": "undefined",
                 },
                 {
                     "entity": "my_other_component",
                     "comp_ind": 0,
-                    "fields_comp_ind": 1,
+                    "comp_ind.fields": 1,
                     "fields": {
                         "my_field": data.Field(
-                            "my_field", "int", "This is a test field."
+                            name="my_field",
+                            dtype="int",
+                            description="This is a test field.",
                         ),
                         "my_other_field": data.Field(
-                            "my_other_field", "bool", "This is another test field."
+                            name="my_other_field",
+                            dtype="bool",
+                            description="This is another test field.",
                         ),
                     },
                     "defined": True,
@@ -284,25 +288,25 @@ class TestTransformSystem(unittest.TestCase):
                         "my_field [int]": "This is a test field.",
                         "my_other_field [bool]": "This is another test field.",
                     },
-                    "valid_def": True,
-                    "valid_def_message": "",
+                    "valid": True,
+                    "errors": "",
                     "multiplicity": "1",
                 },
                 {
                     "entity": "my_simple_component",
                     "comp_ind": 0,
-                    "fields_comp_ind": np.nan,
+                    "comp_ind.fields": np.nan,
                     "fields": np.nan,
                     "defined": True,
                     "unparsed_fields": np.nan,
-                    "valid_def": True,
-                    "valid_def_message": "",
+                    "valid": True,
+                    "errors": "",
                 },
             ]
         ).set_index("entity")
-        actual = registry["component"].copy()
+        actual = registry["component"].copy().set_index("entity")
         expected = expected.drop(columns="fields")
-        actual = actual.drop(columns="fields")[expected.columns]
+        actual = actual.drop(columns="fields").loc[expected.index, expected.columns]
         assert_frame_equal(actual, expected)
 
     def test_parsecomp_links(self):
