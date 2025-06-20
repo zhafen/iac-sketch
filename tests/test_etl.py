@@ -84,7 +84,9 @@ class TestTransformSystem(unittest.TestCase):
                         {
                             "entity": "my_other_entity",
                             "comp_ind": 0,
-                            "component": {"value": "This entity is also a test entity."},
+                            "component": {
+                                "value": "This entity is also a test entity."
+                            },
                         },
                     ]
                 )
@@ -219,9 +221,17 @@ class TestTransformSystem(unittest.TestCase):
         registry = self.transform_sys.apply_transform(
             registry,
             transform.ComponentNormalizer(),
+            components_mapping={comp: data.View(comp) for comp in registry.keys()},
+        )
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.ComponentDefExtractor(),
             components_mapping={
-                comp: data.View(comp) for comp in registry.keys()
-                if comp != "fields"
+                "component": data.View(
+                    ["component", "fields"],
+                    join_on="entity",
+                    join_how="outer"
+                )
             },
         )
         expected = pd.DataFrame(

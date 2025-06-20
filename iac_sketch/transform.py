@@ -68,9 +68,10 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
 
 # Transformer to extract and validate component definitions (bottom of file)
 class ComponentDefExtractor(BaseEstimator, TransformerMixin):
-    """
-    Extracts and validates component definitions from a registry, mimicking parsecomp_component.
-    """
+
+    def __init__(self, registry: data.Registry):
+        self.registry = registry
+
     def fit(self, _X, _y=None):
         return self
 
@@ -78,49 +79,41 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
 
         X = X.copy()
 
-        X = self._parse_fields(X)
-        X = X.set_index("entity")
-        X["component"] = X
-        return X
-
-    def _parse_fields(self, X: pd.DataFrame) -> pd.DataFrame:
-
+        # Add in all components defined in the registry
+        # and mark the ones that are not defined
         X["defined"] = True
-        comps_created = pd.DataFrame({"entity": X.keys()})
-        X = X.merge(comps_created, how="outer", on="entity")
+        registry_comps = pd.DataFrame({"entity": self.registry.keys()})
+        X = X.merge(registry_comps, how="outer", on="entity")
         X.loc[X["defined"].isna(), "defined"] = False
         X["defined"] = X["defined"].astype(bool)
 
-        X["unparsed_fields"] = X["fields"]
-        valids = []
-        valid_messages = []
-        fields = []
-        for _, comp in X.query("defined").iterrows():
-            fields_i = {}
-            if comp.notna()["fields"]:
-                valid_fields = True
-                valid_message = ""
-                for field_key, field_value in comp["fields"].items():
-                    try:
-                        field = data.Field.from_kv_pair(field_key, field_value)
-                        fields_i[field.name] = field
-                    except ValueError:
-                        valid_fields = False
-                        valid_message = (
-                            f"field {field_key} is incorrectly formatted: {field_value}"
-                        )
-                        break
-                if not valid_fields:
-                    valids.append(False)
-                    valid_messages.append(valid_message)
-                    fields.append(pd.NA)
-                    continue
-            fields.append(fields_i)
-            valids.append(True)
-            valid_messages.append("")
-        X["valid_def"] = False
-        X["valid_def_message"] = "undefined"
-        X.loc[X["defined"], "valid_def"] = valids
-        X.loc[X["defined"], "valid_def_message"] = valid_messages
-        X.loc[X["defined"], "fields"] = fields
-        return X
+        # Parse the fields
+        X = X.apply(self._parse_fields, axis="columns")
+
+
+    def _parse_fields(self, row):
+        # If not given any fields then this is just a flag component
+        if pd.isna(row["component"]):
+            row["valid"] = True
+            row["errors"] = ""
+            return row
+
+        fields_i = {}
+        valid_fields = True
+        valid_message = ""
+        for field_key, field_value in row["component"].items():
+            try:
+                field = data.Field.from_kv_pair(field_key, field_value)
+                fields_i[field.name] = field
+            except ValueError:
+                valid_fields = False
+                valid_message = (
+                    f"Field {field_key} is incorrectly formatted: {field_value}. "
+                )
+                break
+
+        row["fields"] = fields_i
+        row["valid"] = valid_fields
+        row["errors"] = valid_message
+
+        return row

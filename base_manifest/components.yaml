@@ -193,8 +193,6 @@ tag:
     describes information on how the owning entity should be treated.
 
 task:
-- component:
-    flag: True
 - description: If owned, the entity is a task to complete.
 
 input:
