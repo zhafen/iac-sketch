@@ -79,7 +79,9 @@ export_pbi_to_excel:
 - description: >
     Exporting a PBI dashboard to excel is something our users often want to do.
     There is a built-in functionality "Analyze in Excel", but it doesn't seem to work
-    for B2B. Instead, the steps are as suggested below.
+    for B2B. Instead, the steps are as suggested below. This is something that
+    the "Domain and Email Services" NM team helped us out with, and was first tested
+    with the FSM Finance team.
 - task
 - procedure:
     - Go into Excel.
