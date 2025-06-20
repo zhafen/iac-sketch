@@ -51,7 +51,8 @@ class TestField(unittest.TestCase):
 
         field = data.Field.from_kv_pair(field_key, field_value)
         assert field.name == "my_field"
-        assert field.dtype == "dict[str, str]"
+        assert field.dtype is None
+        assert field.dtype_str == "dict[str, str]"
         assert field.description == "This is my field"
         assert field.multiplicity == "0..*"
 

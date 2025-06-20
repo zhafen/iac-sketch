@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 import pandera.pandas as pa
+from pandera.engines import pandas_engine
 
 
 # --- Registry class ---
@@ -78,6 +79,15 @@ class Field(pa.Column):
         multiplicity: str = "0..*",
         **kwargs,
     ):
+
+        # Try to parse the dtype as a known dtype, and if not set it to None.
+        # This is likely to change if we want to do something with entity data types.
+        self.dtype_str = dtype
+        try:
+            dtype = pandas_engine.dtypes(dtype)
+        except TypeError:
+            dtype = None
+
         super().__init__(
             *args,
             dtype=dtype,
