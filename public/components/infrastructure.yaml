@@ -50,6 +50,13 @@ create_pa_account:
 - description: >
     All NM Azure users need PA accounts. The URL for one-off requests is attached.
 - url: https://nmhc.service-now.com/mynmi?id=sc_cat_item&sys_id=bd40d8d213d667007d59bd322244b017 
+- text: |
+    This is a request for a PA account for an FSM Power User. FSM Power Users are
+    selected researchers who work with Research Analytics and Data Stewards to export
+    data from the Northwestern Medicine Enterprise Data Warehouse for use in approved
+    studies. As part of the EDW cloud migration all users who need to continue
+    accessing the EDW need to do so using the Azure portal and a PA account,
+    which is the reason for this request.
 - task
 
 check_study_status:
@@ -67,3 +74,18 @@ nm_data_portal:
 edw_portal:
 - description: The old portal.
 - website
+
+export_pbi_to_excel:
+- description: >
+    Exporting a PBI dashboard to excel is something our users often want to do.
+    There is a built-in functionality "Analyze in Excel", but it doesn't seem to work
+    for B2B. Instead, the steps are as suggested below.
+- task
+- procedure:
+    - Go into Excel.
+    - Click on "Data" in the Ribbon. 
+    - Select “From Database”
+    - Select “From Analysis Services”
+    - 'Put in the following as the server name: powerbi://api.powerbi.com/v1.0/nmhealth.onmicrosoft.com/FSM%20Finance%20PRD'
+    - Leave log-on credentials blank (authentication is handled externally)
+    - Select the data you want to connect to.
