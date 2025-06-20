@@ -10,5 +10,14 @@ description = "A sketch for infrastructure as code."
 authors = [
     {name = "Zachary Hafen-Saavedra", email = "z.hafen.saavedra@gmail.com"},
 ]
-requires-python = ">=3.14"
-dependencies = []
+requires-python = ">=3.13"
+dependencies = [
+    "jupyterlab>=4.4.3",
+    "networkx>=3.5",
+    "pandas>=2.3.0",
+    "pandera>=0.24.0",
+    "pyyaml>=6.0.2",
+    "scikit-learn>=1.7.0",
+    "scipy>=1.15.3",
+    "seaborn>=0.13.2",
+]
