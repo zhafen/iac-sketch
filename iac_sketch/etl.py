@@ -153,24 +153,22 @@ class TransformSystem:
         registry: data.Registry,
         transformer,
         components_mapping: dict[str, data.View],
-        fit_components: data.View = None,
+        transform_kwargs: dict = {},
     ) -> data.Registry:
-
-        # Fit transformer on concatenated fit_components
-        if fit_components is not None:
-            fit_data = registry.resolve_view(fit_components)
-            transformer.fit(fit_data)
 
         # Copy registry to avoid mutation
         new_registry = registry.copy()
-        for target_comp, source_comp in components_mapping.items():
-            input_data = registry.resolve_view(source_comp)
+        for target_comp, source_view in components_mapping.items():
+            # We make a kwargs dictionary so we can easily include the registry
             try:
-                new_registry[target_comp] = transformer.transform(input_data)
+                new_registry[target_comp] = transformer.transform(
+                    registry.resolve_view(source_view),
+                    **transform_kwargs,
+                )
             except AssertionError as e:
                 raise ValueError(
                     f"Transformer {transformer} failed to transform component "
-                    f"'{target_comp}' with source '{source_comp}'"
+                    f"'{target_comp}' with source '{source_view}'"
                 ) from e
         return new_registry
 
@@ -185,6 +183,9 @@ class TransformSystem:
         return self.apply_transform(
             registry,
             transform.ComponentNormalizer(),
+            # The components are transformed individually,
+            # but we leave out the "fields" component
+            # because it will be handled during the component definition extraction.
             components_mapping={
                 comp: data.View(comp) for comp in registry.keys() if comp != "fields"
             },
@@ -194,12 +195,16 @@ class TransformSystem:
 
         return self.apply_transform(
             registry,
-            transform.ComponentDefExtractor(registry),
+            transform.ComponentDefExtractor(),
+            # We only transform a single component, "component",
+            # and it receives a view that joins the "component" and "fields"
+            # components.
             components_mapping={
                 "component": data.View(
                     ["component", "fields"], join_on="entity", join_how="outer"
                 )
             },
+            transform_kwargs={"registry_keys": list(registry.keys())},
         )
 
     def validate_components(self, registry: data.Registry) -> data.Registry:

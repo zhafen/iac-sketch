@@ -22,10 +22,7 @@ class LogPrepper(BaseEstimator, TransformerMixin):
         return X
 
 class ComponentNormalizer(BaseEstimator, TransformerMixin):
-    """
-    Expands a 'component' column in a DataFrame into separate columns using pandas.json_normalize.
-    If the component is not a dict, the value is placed in a column named after the component key.
-    """
+
     def fit(self, _X, _y=None):
         return self
 
@@ -69,20 +66,18 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
 # Transformer to extract and validate component definitions (bottom of file)
 class ComponentDefExtractor(BaseEstimator, TransformerMixin):
 
-    def __init__(self, registry: data.Registry):
+    def fit(self, _X, _y=None, registry: data.Registry = None):
         self.registry = registry
-
-    def fit(self, _X, _y=None):
         return self
 
-    def transform(self, X):
+    def transform(self, X, registry_keys: list[str]):
 
         X = X.copy()
 
         # Add in all components defined in the registry
         # and mark the ones that are not defined
         X["defined"] = True
-        registry_comps = pd.DataFrame({"entity": self.registry.keys()})
+        registry_comps = pd.DataFrame({"entity": registry_keys})
         X = X.merge(registry_comps, how="outer", on="entity")
         X.loc[X["defined"].isna(), "defined"] = False
         X["defined"] = X["defined"].astype(bool)
@@ -130,3 +125,14 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         row["errors"] = valid_message
 
         return row
+
+class ComponentValidator(BaseEstimator, TransformerMixin):
+
+    def fit(self, _X, _y=None):
+        return self
+
+    def transform(self, X):
+
+        X = X.copy()
+
+        assert False

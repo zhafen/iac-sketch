@@ -315,10 +315,30 @@ class TestTransformSystem(unittest.TestCase):
                     "entity": "my_other_entity",
                     "comp_ind": 1.0,
                     "my_field": -1,
-                    "my_other_field": False,
+                    "my_other_field": 0,
                 },
             ]
         )
+
+        registry = self.transform_sys.validate_components(registry)
+        expected = pd.DataFrame(
+            [
+                {
+                    "entity": "my_entity",
+                    "comp_ind": 0,
+                    "my_field": 42,
+                    "my_other_field": True,
+                },
+                {
+                    "entity": "my_other_entity",
+                    "comp_ind": 1,
+                    "my_field": -1,
+                    "my_other_field": False,
+                },
+            ]
+        ).set_index("entity", drop=False)
+        actual = registry["my_component"].copy()
+        assert_frame_equal(actual, expected)
 
     def test_parsecomp_links(self):
         yaml_str = """
