@@ -284,10 +284,59 @@ class TestTransformSystem(unittest.TestCase):
                 },
             ]
         ).set_index("entity")
-        actual = registry["component"].copy().set_index("entity")
+        actual = registry["component"].copy()
         expected = expected.drop(columns="fields")
         actual = actual.drop(columns="fields").loc[expected.index, expected.columns]
         assert_frame_equal(actual, expected)
+
+    def test_component_validator(self):
+
+        registry = data.Registry({})
+        registry["component"] = pd.DataFrame(
+            [
+                {
+                    "entity": "my_component",
+                    "comp_ind": 0.0,
+                    "comp_ind.fields": 1.0,
+                    "fields": {
+                        "my_field": data.Field(
+                            name="my_field",
+                            dtype="int",
+                            description="This is a test field.",
+                        ),
+                        "my_other_field": data.Field(
+                            name="my_other_field",
+                            dtype="bool",
+                            description="This is another test field.",
+                        ),
+                    },
+                    "defined": True,
+                    "unparsed_fields": {
+                        "my_field [int]": "This is a test field.",
+                        "my_other_field [bool]": "This is another test field.",
+                    },
+                    "valid": True,
+                    "errors": "",
+                    "multiplicity": "0..1",
+                },
+            ]
+        )
+        registry["my_component"] = pd.DataFrame(
+            [
+                {
+                    "entity": "my_entity",
+                    "comp_ind": 0.0,
+                    "my_field": 42,
+                    "my_other_field": True,
+                },
+                {
+                    "entity": "my_other_entity",
+                    "comp_ind": 1.0,
+                    "my_field": 42,
+                    "my_other_field": True,
+                },
+            ]
+        )
 
     def test_parsecomp_links(self):
         yaml_str = """

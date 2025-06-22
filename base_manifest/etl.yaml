@@ -52,8 +52,8 @@ apply_preprocess_transforms:
 - task
 - links:
     links: |
-        format_compinsts --> extract_compdefs
-        extract_compdefs --> format_compinsts_against_compdefs
+        normalize_compinsts --> extract_compdefs
+        extract_compdefs --> validate_compinsts
     link_type: dependency
 
 apply_system_transforms:
@@ -61,7 +61,7 @@ apply_system_transforms:
     Applies a set of system-defined transforms.
 - task
 
-format_compinsts:
+normalize_compinsts:
 - task
 - input:
     registry [registry]: Registry containing component instances to format.
@@ -75,7 +75,7 @@ extract_compdefs:
 - output:
     registry [registry]: Registry containing extracted component definitions.
 
-format_compinsts_against_compdefs:
+validate_compinsts:
 - task
 - input:
     registry [registry]: Registry containing unconstrained compinsts.

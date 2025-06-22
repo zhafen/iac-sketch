@@ -97,7 +97,11 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         X.loc[~X["defined"], "valid"] = False
         X.loc[~X["defined"], "errors"] += "Component definition does not exist. "
 
-        return X
+        # We set the index to the entity column now, even though for most components
+        # this will be done later, during component validation.
+        # This is because we want to have a mostly valid component definition
+        # dataframe to use for the component validation step.
+        return X.set_index("entity", drop=False)
 
 
     def _parse_fields(self, row):
