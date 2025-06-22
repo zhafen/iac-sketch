@@ -236,41 +236,10 @@ class TestTransformSystem(unittest.TestCase):
         )
         expected = pd.DataFrame(
             [
-                # the component and data entities are defined by use
-                {
-                    "entity": "component",
-                    "comp_ind": np.nan,
-                    "comp_ind.fields": np.nan,
-                    "fields": np.nan,
-                    "defined": False,
-                    "unparsed_fields": np.nan,
-                    "valid": False,
-                    "errors": "undefined",
-                },
-                {
-                    "entity": "fields",
-                    "comp_ind": np.nan,
-                    "comp_ind.fields": np.nan,
-                    "fields": np.nan,
-                    "defined": False,
-                    "unparsed_fields": np.nan,
-                    "valid": False,
-                    "errors": "undefined",
-                },
-                {
-                    "entity": "metadata",
-                    "comp_ind": np.nan,
-                    "comp_ind.fields": np.nan,
-                    "fields": np.nan,
-                    "defined": False,
-                    "unparsed_fields": np.nan,
-                    "valid": False,
-                    "errors": "undefined",
-                },
                 {
                     "entity": "my_other_component",
-                    "comp_ind": 0,
-                    "comp_ind.fields": 1,
+                    "comp_ind": 0.0,
+                    "comp_ind.fields": 1.0,
                     "fields": {
                         "my_field": data.Field(
                             name="my_field",
@@ -294,7 +263,7 @@ class TestTransformSystem(unittest.TestCase):
                 },
                 {
                     "entity": "my_simple_component",
-                    "comp_ind": 0,
+                    "comp_ind": 0.0,
                     "comp_ind.fields": np.nan,
                     "fields": np.nan,
                     "defined": True,
