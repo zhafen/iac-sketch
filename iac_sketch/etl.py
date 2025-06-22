@@ -9,6 +9,8 @@ from . import data
 import glob
 import os
 
+from . import transform
+
 
 # Extraction system: handles reading and parsing entities from YAML
 class ExtractSystem:
@@ -135,14 +137,6 @@ class ExtractSystem:
 
 # Transform system: handles all transforms on the registry
 class TransformSystem:
-    def __init__(self):
-        pass
-
-    def apply_preprocess_transforms(self, registry: data.Registry) -> data.Registry:
-        pass
-
-    def apply_system_transforms(self, registry: data.Registry) -> data.Registry:
-        pass
 
     def apply_transforms(
         self,
@@ -179,3 +173,45 @@ class TransformSystem:
                     f"'{target_comp}' with source '{source_comp}'"
                 ) from e
         return new_registry
+
+    def apply_preprocess_transforms(self, registry: data.Registry) -> data.Registry:
+
+        registry = self.normalize_components(registry)
+        registry = self.extract_component_definitions(registry)
+        registry = self.validate_components(registry)
+
+    def normalize_components(self, registry: data.Registry) -> data.Registry:
+
+        return self.apply_transform(
+            registry,
+            transform.ComponentNormalizer(),
+            components_mapping={
+                comp: data.View(comp) for comp in registry.keys() if comp != "fields"
+            },
+        )
+
+    def extract_component_definitions(self, registry: data.Registry) -> data.Registry:
+
+        return self.apply_transform(
+            registry,
+            transform.ComponentDefExtractor(registry),
+            components_mapping={
+                "component": data.View(
+                    ["component", "fields"], join_on="entity", join_how="outer"
+                )
+            },
+        )
+
+    def validate_components(self, registry: data.Registry) -> data.Registry:
+
+        return self.apply_transform(
+            registry,
+            transform.ComponentValidator(),
+            components_mapping={
+                comp: data.View(comp) for comp in registry.keys()
+            },
+        )
+
+    def apply_system_transforms(self, registry: data.Registry) -> data.Registry:
+        pass
+

@@ -184,11 +184,7 @@ class TestTransformSystem(unittest.TestCase):
                 )
             }
         )
-        registry = self.transform_sys.apply_transform(
-            registry,
-            transform.ComponentNormalizer(),
-            components_mapping={"component": data.View("component")},
-        )
+        registry = self.transform_sys.normalize_components(registry)
         expected = pd.DataFrame(
             [
                 {
@@ -219,22 +215,8 @@ class TestTransformSystem(unittest.TestCase):
             - this_is_a_fictional_component
         """
         registry = self.extract_sys.extract_entities(input=yaml_str)
-        registry = self.transform_sys.apply_transform(
-            registry,
-            transform.ComponentNormalizer(),
-            components_mapping={
-                comp: data.View(comp) for comp in registry.keys() if comp != "fields"
-            },
-        )
-        registry = self.transform_sys.apply_transform(
-            registry,
-            transform.ComponentDefExtractor(registry),
-            components_mapping={
-                "component": data.View(
-                    ["component", "fields"], join_on="entity", join_how="outer"
-                )
-            },
-        )
+        registry = self.transform_sys.normalize_components(registry)
+        registry = self.transform_sys.extract_component_definitions(registry)
         expected = pd.DataFrame(
             [
                 {
@@ -320,7 +302,7 @@ class TestTransformSystem(unittest.TestCase):
                     "multiplicity": "0..1",
                 },
             ]
-        )
+        ).set_index("entity", drop=False)
         registry["my_component"] = pd.DataFrame(
             [
                 {
@@ -332,8 +314,8 @@ class TestTransformSystem(unittest.TestCase):
                 {
                     "entity": "my_other_entity",
                     "comp_ind": 1.0,
-                    "my_field": 42,
-                    "my_other_field": True,
+                    "my_field": -1,
+                    "my_other_field": False,
                 },
             ]
         )
