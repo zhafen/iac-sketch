@@ -216,6 +216,7 @@ class TestTransformSystem(unittest.TestCase):
             - fields:
                 my_field [int]: This is a test field.
                 my_other_field [bool]: This is another test field.
+            - this_is_a_fictional_component
         """
         registry = self.extract_sys.extract_entities(input=yaml_str)
         registry = self.transform_sys.apply_transform(
@@ -270,6 +271,16 @@ class TestTransformSystem(unittest.TestCase):
                     "unparsed_fields": np.nan,
                     "valid": True,
                     "errors": "",
+                },
+                {
+                    "entity": "this_is_a_fictional_component",
+                    "comp_ind": np.nan,
+                    "comp_ind.fields": np.nan,
+                    "fields": np.nan,
+                    "defined": False,
+                    "unparsed_fields": np.nan,
+                    "valid": False,
+                    "errors": "Component definition does not exist. ",
                 },
             ]
         ).set_index("entity")

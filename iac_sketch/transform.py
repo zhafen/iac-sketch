@@ -93,6 +93,10 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         # Rename
         X = X.rename({"component": "unparsed_fields"}, axis="columns")
 
+        # Update validity with whether or not the component is defined
+        X.loc[~X["defined"], "valid"] = False
+        X.loc[~X["defined"], "errors"] += "Component definition does not exist. "
+
         return X
 
 
