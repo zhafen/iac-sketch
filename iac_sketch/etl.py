@@ -215,6 +215,7 @@ class TransformSystem:
             components_mapping={
                 comp: data.View(comp) for comp in registry.keys()
             },
+            transform_kwargs={"component_defs": registry.view("component")},
         )
 
     def apply_system_transforms(self, registry: data.Registry) -> data.Registry:

@@ -238,6 +238,8 @@ class Registry:
                         right_on=view.join_on,
                         suffixes=("", f".{key}"),
                     )
+            # Store the view components in the DataFrame attributes
+            view_df.attrs["view_components"] = view.components
             return view_df
         raise TypeError("View.keys must be a string or a list of strings.")
 

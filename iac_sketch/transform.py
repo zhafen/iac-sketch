@@ -1,4 +1,5 @@
 import pandas as pd
+import pandera.pandas as pa
 from sklearn.base import BaseEstimator, TransformerMixin
 from . import data
 
@@ -131,8 +132,19 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
     def fit(self, _X, _y=None):
         return self
 
-    def transform(self, X):
+    def transform(self, X, component_defs: pd.DataFrame):
 
         X = X.copy()
 
-        assert False
+        # Get the component definition
+        # Since X is the input view, which is what we're validating,
+        # we can use the view_components attribute to get the name of the component
+        component_def = component_defs.loc[X.attrs["view_components"]]
+
+        # The fields in the component definition are the schema for the DataFrame
+        dataframe_schema = pa.DataFrameSchema(component_def["fields"])
+
+        assert False, "I need to play around with this interactively before implementation."
+
+
+
