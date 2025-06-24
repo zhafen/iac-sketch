@@ -50,3 +50,15 @@ pbi_workspace_role:
     user [person]: The user for the role.
     workspace [workspace]: The PBI workspace in question.
     role [categorical]: The PBI role.
+
+AzNPDResearchAnalyticsTeam:
+- description: Azure non-PRD security group for RA team members.
+
+AzPRDResearchAnalyticsTeam:
+- description: Azure PRD security group for RA team members.
+
+AzNPDFSMPowerUserTeam:
+- description: Azure non-PRD security group for power users.
+
+AzPRDFSMPowerUserTeam:
+- description: Azure PRD security group for power users.
