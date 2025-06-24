@@ -91,3 +91,10 @@ export_pbi_to_excel:
     - 'Put in the following as the server name: powerbi://api.powerbi.com/v1.0/nmhealth.onmicrosoft.com/FSM%20Finance%20PRD'
     - Leave log-on credentials blank (authentication is handled externally)
     - Select the data you want to connect to.
+
+analyst_laptop:
+- description: Each analyst has an NM-provided laptop.
+- software:
+    - NM Enterprise Image
+    - Duo Desktop
+    - VS Code
