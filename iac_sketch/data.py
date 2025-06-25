@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 import pandera.pandas as pa
+from pandera.backends.pandas.components import ColumnBackend
 from pandera.engines import pandas_engine
 
 
@@ -64,7 +65,7 @@ class Field(pa.Column):
         dtype=None,
         checks=None,
         parsers=None,
-        nullable=False,
+        nullable=True,
         unique=False,
         report_duplicates="all",
         coerce=False,
@@ -110,6 +111,11 @@ class Field(pa.Column):
         )
         self.multiplicity = multiplicity
         self.categories = categories
+
+    @classmethod
+    def get_backend(cls, check_obj, check_type=None, **kwargs):
+        """Override to use pandas backend for Field instances."""
+        return ColumnBackend()
 
     @classmethod
     def from_kv_pair(cls, field_key: str, field_value: str | dict[str, str]) -> "Field":
@@ -227,7 +233,7 @@ class Registry:
                     view_df = view_df.join(
                         df_i,
                         how=view.join_how,
-                        rsuffix=f".{key}",
+                        rsuffix=f"_{key}",
                         on="entity",
                     )
                 else:
@@ -236,7 +242,7 @@ class Registry:
                         how=view.join_how,
                         left_on=view.join_on,
                         right_on=view.join_on,
-                        suffixes=("", f".{key}"),
+                        suffixes=("", f"_{key}"),
                     )
             # Store the view components in the DataFrame attributes
             view_df.attrs["view_components"] = view.components
