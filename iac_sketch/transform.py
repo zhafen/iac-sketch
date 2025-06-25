@@ -103,6 +103,8 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
     def _parse_fields(self, row):
         # If not given any fields then this is just a flag component
         if pd.isna(row["component"]):
+            row["component"] = {}
+            row["fields"] = {}
             row["valid"] = True
             row["errors"] = ""
             return row

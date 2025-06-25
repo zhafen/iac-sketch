@@ -31,7 +31,9 @@ component:
     a collection of component instances. In practice this is confusing.
 
 - fields:
-    comp_ind_fields [int]: Component index for the data component
+    comp_ind_fields [Int64]: 
+        description: Component index for the data component
+        coerce: True
     fields [dict[str, field]]: Field definitions.
     unparsed_fields [dict]: Field definitions in unparsed form.
     defined [bool]: Whether or not the component is defined.
