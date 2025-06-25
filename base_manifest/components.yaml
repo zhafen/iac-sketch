@@ -12,7 +12,7 @@
 # Fundamental components
 component:
 - component:
-    multiplicity: "1"
+    multiplicity: "0..1"
 - description: >
     If an entity has a "component" component, then it can be a component itself.
     A requirement for components is that if they require another entity
@@ -31,17 +31,15 @@ component:
     a collection of component instances. In practice this is confusing.
 
 - fields:
+    comp_ind_fields [int]: Component index for the data component
+    fields [dict[str, field]]: Field definitions.
+    unparsed_fields [dict]: Field definitions in unparsed form.
+    defined [bool]: Whether or not the component is defined.
+    valid [bool]: Whether or not the component definition is valid.
+    errors [str]: Message associated with the validity of the definition.
     multiplicity [str]:
         description: Allowed number of instances of a component per entity.
-        default: "*"
-    fields_comp_ind [int]: Component index for the data component
-    unparsed_data [dict]: Field definitions in unparsed form.
-    data [dict[str, field]]: Field definitions.
-    valid_def [bool]: Whether or not the component has a valid definition.
-    valid_def_message [str]: Message associated with the validity of the definition.
-    valid_data [bool]: >
-        Whether or not the data contained in the component table is valid.
-    valid_data_message [str]: Message associated with data validity.
+        default: "0..*"
 
 fulfills_all_requirements:
 - description: All requirements must be met.
