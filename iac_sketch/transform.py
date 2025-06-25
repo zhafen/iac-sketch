@@ -3,6 +3,7 @@ import pandera.pandas as pa
 from sklearn.base import BaseEstimator, TransformerMixin
 from . import data
 
+
 # Custom transformer for adding error and validity metadata columns
 class LogPrepper(BaseEstimator, TransformerMixin):
     """
@@ -10,17 +11,19 @@ class LogPrepper(BaseEstimator, TransformerMixin):
     - 'errors': for tracking errors on a per-row basis (default: empty string)
     - 'valid': for indicating if a row is valid (default: True)
     """
+
     def fit(self, _X, _y=None):
         # Stateless transformer, nothing to fit
         return self
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         X = X.copy()
-        if 'errors' not in X.columns:
-            X['errors'] = ""
-        if 'valid' not in X.columns:
-            X['valid'] = True
+        if "errors" not in X.columns:
+            X["errors"] = ""
+        if "valid" not in X.columns:
+            X["valid"] = True
         return X
+
 
 class ComponentNormalizer(BaseEstimator, TransformerMixin):
 
@@ -64,6 +67,7 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
 
         return X
 
+
 # Transformer to extract and validate component definitions (bottom of file)
 class ComponentDefExtractor(BaseEstimator, TransformerMixin):
 
@@ -83,24 +87,36 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         X.loc[X["defined"].isna(), "defined"] = False
         X["defined"] = X["defined"].astype(bool)
 
+        # We set the index to the entity column in this function, even though for
+        # most components this will be done later, during component validation.
+        # This is because we want to have a mostly valid component definition
+        # dataframe to use for the component validation step.
+        X = X.set_index("entity", drop=False)
+
         # Parse the fields
         X = X.apply(self._parse_fields, axis="columns")
 
         # Rename
         X = X.rename({"component": "unparsed_fields"}, axis="columns")
 
+        # All component definitions include an "entity" column and a "comp_ind" column
+        # We pull the definitions from the entity and comp_ind columns defined
+        # for the "component" component.
+        default_fields = {
+            key: X.loc["component", "fields"][key] for key in ["entity", "comp_ind"]
+        }
+        X["fields"] = X["fields"].apply(lambda d: {**default_fields, **d})
+
         # Update validity with whether or not the component is defined
         X.loc[~X["defined"], "valid"] = False
         X.loc[~X["defined"], "errors"] += "Component definition does not exist. "
 
-        # We set the index to the entity column now, even though for most components
-        # this will be done later, during component validation.
-        # This is because we want to have a mostly valid component definition
-        # dataframe to use for the component validation step.
-        return X.set_index("entity", drop=False)
+        return X
 
-
-    def _parse_fields(self, row):
+    def _parse_fields(
+        self,
+        row,
+    ) -> pd.Series:
         # If not given any fields then this is just a flag component
         if pd.isna(row["component"]):
             row["component"] = {}
@@ -129,6 +145,7 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
 
         return row
 
+
 class ComponentValidator(BaseEstimator, TransformerMixin):
 
     def fit(self, _X, _y=None):
@@ -146,7 +163,6 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         # The fields in the component definition are the schema for the DataFrame
         dataframe_schema = pa.DataFrameSchema(component_def["fields"])
 
-        assert False, "I need to play around with this interactively before implementation."
-
-
-
+        assert (
+            False
+        ), "I need to play around with this interactively before implementation."

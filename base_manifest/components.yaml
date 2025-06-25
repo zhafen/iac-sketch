@@ -31,6 +31,11 @@ component:
     a collection of component instances. In practice this is confusing.
 
 - fields:
+    entity [str]: The entity associated with the component.
+    comp_ind [Int64]:
+        description: >
+            The index of the component, amongst the components that define the entity.
+        coerce: True
     comp_ind_fields [Int64]: 
         description: Component index for the data component
         coerce: True
