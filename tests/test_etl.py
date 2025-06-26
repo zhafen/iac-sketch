@@ -222,7 +222,7 @@ class TestTransformSystem(unittest.TestCase):
                 {
                     "entity": "my_other_component",
                     "comp_ind": 0.0,
-                    "comp_ind.fields": 1.0,
+                    "comp_ind_fields": 1.0,
                     "fields": {
                         "my_field": data.Field(
                             name="my_field",
@@ -247,20 +247,20 @@ class TestTransformSystem(unittest.TestCase):
                 {
                     "entity": "my_simple_component",
                     "comp_ind": 0.0,
-                    "comp_ind.fields": np.nan,
-                    "fields": np.nan,
+                    "comp_ind_fields": np.nan,
+                    "fields": {},
                     "defined": True,
-                    "unparsed_fields": np.nan,
+                    "unparsed_fields": {},
                     "valid": True,
                     "errors": "",
                 },
                 {
                     "entity": "this_is_a_fictional_component",
                     "comp_ind": np.nan,
-                    "comp_ind.fields": np.nan,
-                    "fields": np.nan,
+                    "comp_ind_fields": np.nan,
+                    "fields": {},
                     "defined": False,
-                    "unparsed_fields": np.nan,
+                    "unparsed_fields": {},
                     "valid": False,
                     "errors": "Component definition does not exist. ",
                 },
@@ -279,7 +279,7 @@ class TestTransformSystem(unittest.TestCase):
                 {
                     "entity": "my_component",
                     "comp_ind": 0.0,
-                    "comp_ind.fields": 1.0,
+                    "comp_ind_fields": 1.0,
                     "fields": {
                         "my_field": data.Field(
                             name="my_field",
