@@ -160,6 +160,11 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         # The fields in the component definition are the schema for the DataFrame
         dataframe_schema = pa.DataFrameSchema(component_def["fields"])
 
-        assert (
-            False
-        ), "I need to play around with this interactively before implementation."
+        # Validate X against the schema
+        try:
+            X = dataframe_schema.validate(X)
+        except pa.errors.SchemaError as exc:
+            component_def["valid"] = False
+            component_def["errors"] += str(exc)
+
+        return X

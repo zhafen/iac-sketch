@@ -59,18 +59,6 @@ class TestTransformSystem(unittest.TestCase):
         assert "errors" in new_registry["component_b"].columns
         assert "valid" in new_registry["component_b"].columns
 
-    # def test_parsecomp_component_and_validate(self):
-
-    #     registry = self.extract_sys.extract_entities(self.test_filename_pattern)
-    #     transform_sys = etl.TransformSystem()
-    #     registry = transform_sys.apply_transforms(registry, [])  # Replace [] with actual transforms if needed
-
-    #     comp_df = registry["component"]
-    #     comp_def = registry["component"].loc["component"]
-    #     assert "valid_data" in comp_df.columns
-    #     assert "valid_data_message" in comp_df.columns
-    #     assert comp_def["valid_data"]
-
     def test_component_normalizer(self):
         registry = data.Registry(
             {
@@ -320,7 +308,14 @@ class TestTransformSystem(unittest.TestCase):
             ]
         )
 
-        registry = self.transform_sys.validate_components(registry)
+        # We don't use TransformSystem.normalize_components here because
+        # we want to test the ComponentValidator directly for one definition.
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.ComponentValidator(),
+            components_mapping={"my_component": data.View("my_component")},
+            transform_kwargs={"component_defs": registry.view("component")},
+        )
         expected = pd.DataFrame(
             [
                 {
