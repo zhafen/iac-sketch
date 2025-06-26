@@ -1,6 +1,7 @@
 import copy
 import re
 from dataclasses import dataclass
+from typing import Optional, Any, Type
 
 import pandas as pd
 import pandera.pandas as pa
@@ -113,7 +114,7 @@ class Field(pa.Column):
         self.categories = categories
 
     @classmethod
-    def get_backend(cls, check_obj, check_type=None, **kwargs):
+    def get_backend(cls, check_obj: Optional[Any] = None, check_type: Optional[Type] = None):
         """Override to use pandas backend for Field instances."""
         return ColumnBackend()
 
