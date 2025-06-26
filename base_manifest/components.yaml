@@ -31,7 +31,9 @@ component:
     a collection of component instances. In practice this is confusing.
 
 - fields:
-    entity [str]: The entity associated with the component.
+    entity [str]:
+        description: The entity associated with the component.
+        nullable: False
     comp_ind [Int64]:
         description: >
             The index of the component, amongst the components that define the entity.
@@ -47,6 +49,18 @@ component:
     multiplicity [str]:
         description: Allowed number of instances of a component per entity.
         default: "0..*"
+
+default_fields:
+- description: This entity contains the default fields that exist for components.
+- fields:
+    entity [str]:
+        description: The entity associated with the component.
+        nullable: False
+    comp_ind [int]:
+        description: >
+            The index of the component, amongst the components that define the entity.
+        nullable: False
+        coerce: True
 
 fulfills_all_requirements:
 - description: All requirements must be met.

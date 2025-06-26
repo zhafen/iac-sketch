@@ -100,11 +100,8 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         X = X.rename({"component": "unparsed_fields"}, axis="columns")
 
         # All component definitions include an "entity" column and a "comp_ind" column
-        # We pull the definitions from the entity and comp_ind columns defined
-        # for the "component" component.
-        default_fields = {
-            key: X.loc["component", "fields"][key] for key in ["entity", "comp_ind"]
-        }
+        # We pull the definitions from a "default_fields" component.
+        default_fields = X.loc["default_fields", "fields"]
         X["fields"] = X["fields"].apply(lambda d: {**default_fields, **d})
 
         # Update validity with whether or not the component is defined
