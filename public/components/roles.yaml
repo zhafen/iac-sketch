@@ -62,3 +62,7 @@ AzNPDFSMPowerUserTeam:
 
 AzPRDFSMPowerUserTeam:
 - description: Azure PRD security group for power users.
+
+fsm_finance_nm_security_group:
+- name: NU FSM Finance Team - PBI Access
+- url: https://myaccount.microsoft.com/groups/ff883225-fd42-46dc-8e7c-2082a0ddb70c
