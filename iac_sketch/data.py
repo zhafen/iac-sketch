@@ -1,7 +1,6 @@
 import copy
 import re
 from dataclasses import dataclass
-from typing import Optional, Any, Type
 
 import pandas as pd
 import pandera.pandas as pa
@@ -114,7 +113,7 @@ class Field(pa.Column):
         self.categories = categories
 
     @classmethod
-    def get_backend(cls, check_obj: Optional[Any] = None, check_type: Optional[Type] = None):
+    def get_backend(cls, check_obj, check_type, **kwargs):
         """Override to use pandas backend for Field instances."""
         return ColumnBackend()
 
@@ -214,8 +213,8 @@ class Registry:
         """Get a component or view of components, using a View instance only."""
 
         if isinstance(view.components, str):
-            return self[view.components]
-        if isinstance(view.components, list):
+            view_df = self[view.components].copy()
+        elif isinstance(view.components, list):
             for i, key in enumerate(view.components):
                 df_i = self[key]
                 if i == 0:
@@ -245,10 +244,12 @@ class Registry:
                         right_on=view.join_on,
                         suffixes=("", f"_{key}"),
                     )
-            # Store the view components in the DataFrame attributes
-            view_df.attrs["view_components"] = view.components
-            return view_df
-        raise TypeError("View.keys must be a string or a list of strings.")
+        else:
+            raise TypeError("View.keys must be a string or a list of strings.")
+
+        # Store the view components in the DataFrame attributes
+        view_df.attrs["view_components"] = view.components
+        return view_df
 
     def view(self, *args, **kwargs) -> pd.DataFrame:
         """Get a component or view of components. Accepts arguments to
