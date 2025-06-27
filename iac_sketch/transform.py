@@ -157,6 +157,10 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         # we can use the view_components attribute to get the name of the component
         component_def = component_defs.loc[X.attrs["view_components"]]
 
+        # Set the attributes for validity and errors
+        X.attrs["valid"] = component_def["valid"]
+        X.attrs["errors"] = component_def["errors"]
+
         # The fields in the component definition are the schema for the DataFrame
         dataframe_schema = pa.DataFrameSchema(component_def["fields"])
 
@@ -165,16 +169,26 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
             X = dataframe_schema.validate(X)
         except pa.errors.SchemaError as exc:
             X.attrs["valid"] = False
-            X.attrs["errors"] = component_def["errors"] + str(exc)
+            X.attrs["errors"] += str(exc) + " "
 
         # Set the index based on the multiplicity of the component
-        if component_def["multiplicity"] == "0..1":
-            X = X.set_index("entity", drop=False)
-        elif component_def["multiplicity"] == "0..*":
-            X = X.set_index(["entity", "comp_ind"], drop=False)
-        else:
-            raise ValueError(
-                f"Multiplicity {component_def['multiplicity']} is not supported."
-            )
+        multiplicity = component_def["multiplicity"]
+        try:
+            if multiplicity[-1] == "1":
+                X = X.set_index("entity", drop=False)
+            elif multiplicity[-1] == "*":
+                X = X.set_index(["entity", "comp_ind"], drop=False)
+            # TODO: This validates only the upper end of the multiplicity,
+            #       we should also validate the lower end.
+            else:
+                X.attrs["valid"] = False
+                X.attrs[
+                    "errors"
+                ] += f"Failed to set index based on multiplicity, {multiplicity}. "
+        except TypeError:
+            X.attrs["valid"] = False
+            X.attrs[
+                "errors"
+            ] += f"Failed to set index based on multiplicity, {multiplicity}. "
 
         return X

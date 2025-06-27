@@ -143,9 +143,11 @@ class TransformSystem:
         registry: data.Registry,
         transforms: List[Callable[[data.Registry], data.Registry]],
     ) -> data.Registry:
+        # TODO: Delete?
         pass
 
     def get_transform_order(self, dependencies: Dict[str, List[str]]) -> List[str]:
+        # TODO: Delete?
         pass
 
     def apply_transform(
@@ -178,6 +180,8 @@ class TransformSystem:
         registry = self.extract_component_definitions(registry)
         registry = self.validate_components(registry)
 
+        return registry
+
     def normalize_components(self, registry: data.Registry) -> data.Registry:
 
         return self.apply_transform(
@@ -209,11 +213,22 @@ class TransformSystem:
 
     def validate_components(self, registry: data.Registry) -> data.Registry:
 
+        # First we validate the component definitions, since they'll be used
+        # to validate the components themselves.
+        registry = self.apply_transform(
+            registry,
+            transform.ComponentValidator(),
+            components_mapping={
+                "component": data.View("component")
+            },
+            transform_kwargs={"component_defs": registry.view("component")},
+        )
+
         return self.apply_transform(
             registry,
             transform.ComponentValidator(),
             components_mapping={
-                comp: data.View(comp) for comp in registry.keys()
+                comp: data.View(comp) for comp in registry.keys() if comp != "component"
             },
             transform_kwargs={"component_defs": registry.view("component")},
         )

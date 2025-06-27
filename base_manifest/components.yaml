@@ -49,6 +49,12 @@ component:
     multiplicity [str]:
         description: Allowed number of instances of a component per entity.
         default: "0..*"
+        coerce: True
+        categories:
+            - "0..1"
+            - "0..*"
+            - "1..1"
+            - "1..*"
 
 default_fields:
 - description: This entity contains the default fields that exist for components.

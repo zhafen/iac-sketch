@@ -91,6 +91,10 @@ class Field(pa.Column):
         except TypeError:
             dtype = None
 
+        # Override the dtype if provided categories
+        if categories is not None:
+            dtype = pd.CategoricalDtype(categories=categories)
+
         super().__init__(
             *args,
             dtype=dtype,
@@ -111,7 +115,6 @@ class Field(pa.Column):
             **kwargs,
         )
         self.multiplicity = multiplicity
-        self.categories = categories
 
     @classmethod
     def get_backend(cls, check_obj: Optional[Any] = None, check_type: Optional[Type] = None):
