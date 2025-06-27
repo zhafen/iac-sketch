@@ -345,6 +345,14 @@ class TestTransformSystem(unittest.TestCase):
         actual = registry["my_component"].copy()
         assert_frame_equal(actual, expected)
 
+    def test_apply_preprocess_transforms(self):
+
+        registry = self.extract_sys.extract_entities()
+        registry = self.transform_sys.apply_preprocess_transforms(registry)
+        assert registry["component"].attrs["valid"], registry["component"].attrs[
+            "errors"
+        ]
+
     def test_parsecomp_links(self):
         yaml_str = """
             my_workflow:
