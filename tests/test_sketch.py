@@ -9,8 +9,8 @@ class TestArchitect(unittest.TestCase):
         self.test_data_dir = "./public/components"
         self.architect = sketch.Architect(self.test_data_dir)
 
-    def test_parse(self):
-        registry = self.architect.parse()
+    def test_etl(self):
+        registry = self.architect.perform_registry_etl()
 
         assert "component" in registry.components
         assert "link" in registry.components["component"]["entity"].values
