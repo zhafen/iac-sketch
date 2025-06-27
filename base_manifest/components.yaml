@@ -135,7 +135,7 @@ description:
 
 metadata:
 - component:
-    multiplicity: "1"
+    multiplicity: "1..1"
 - description: Component that describes metadata about an entity.
 - fields:
     n_comps [int]: >
