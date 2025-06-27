@@ -167,4 +167,14 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
             X.attrs["valid"] = False
             X.attrs["errors"] = component_def["errors"] + str(exc)
 
+        # Set the index based on the multiplicity of the component
+        if component_def["multiplicity"] == "0..1":
+            X = X.set_index("entity", drop=False)
+        elif component_def["multiplicity"] == "0..*":
+            X = X.set_index(["entity", "comp_ind"], drop=False)
+        else:
+            raise ValueError(
+                f"Multiplicity {component_def['multiplicity']} is not supported."
+            )
+
         return X
