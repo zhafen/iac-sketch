@@ -269,6 +269,15 @@ class TestTransformSystem(unittest.TestCase):
                     "comp_ind": 0.0,
                     "comp_ind_fields": 1.0,
                     "fields": {
+                        "entity": data.Field(
+                            name="entity",
+                            dtype="str",
+                        ),
+                        "comp_ind": data.Field(
+                            name="comp_ind",
+                            dtype="int",
+                            coerce=True,
+                        ),
                         "my_field": data.Field(
                             name="my_field",
                             dtype="int",
@@ -278,6 +287,7 @@ class TestTransformSystem(unittest.TestCase):
                             name="my_other_field",
                             dtype="bool",
                             description="This is another test field.",
+                            coerce=True,
                         ),
                     },
                     "defined": True,

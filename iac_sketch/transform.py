@@ -164,7 +164,7 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         try:
             X = dataframe_schema.validate(X)
         except pa.errors.SchemaError as exc:
-            component_def["valid"] = False
-            component_def["errors"] += str(exc)
+            X.attrs["valid"] = False
+            X.attrs["errors"] = component_def["errors"] + str(exc)
 
         return X
