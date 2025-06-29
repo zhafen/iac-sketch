@@ -234,5 +234,6 @@ class TransformSystem:
         )
 
     def apply_system_transforms(self, registry: data.Registry) -> data.Registry:
-        pass
+
+        return registry
 
