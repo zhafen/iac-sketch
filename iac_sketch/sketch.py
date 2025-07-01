@@ -27,7 +27,7 @@ class Architect:
         filename_patterns = (
             filename_patterns if filename_patterns else self.filename_patterns
         )
-        registry = self.extract_sys.extract_entities(filename_patterns)
-        registry = self.transform_sys.apply_preprocess_transforms(registry)
-        registry = self.transform_sys.apply_system_transforms(registry)
-        return registry
+        self.registry = self.extract_sys.extract_entities(filename_patterns)
+        self.registry = self.transform_sys.apply_preprocess_transforms(self.registry)
+        self.registry = self.transform_sys.apply_system_transforms(self.registry)
+        return self.registry
