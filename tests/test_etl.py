@@ -59,6 +59,21 @@ class TestTransformSystem(unittest.TestCase):
         assert "errors" in new_registry["component_b"].columns
         assert "valid" in new_registry["component_b"].columns
 
+    def test_apply_preprocess_transforms(self):
+
+        registry = self.extract_sys.extract_entities()
+        registry = self.transform_sys.apply_preprocess_transforms(registry)
+        assert registry["component"].attrs["valid"], registry["component"].attrs[
+            "errors"
+        ]
+
+class TestPreprocessTransformers(unittest.TestCase):
+
+    def setUp(self):
+        self.test_filename_pattern = "./public/components/*"
+        self.extract_sys = etl.ExtractSystem()
+        self.transform_sys = etl.TransformSystem()
+
     def test_component_normalizer(self):
         registry = data.Registry(
             {
@@ -345,13 +360,13 @@ class TestTransformSystem(unittest.TestCase):
         actual = registry["my_component"].copy()
         assert_frame_equal(actual, expected)
 
-    def test_apply_preprocess_transforms(self):
+class TestSystemTransformers(unittest.TestCase):
 
-        registry = self.extract_sys.extract_entities()
-        registry = self.transform_sys.apply_preprocess_transforms(registry)
-        assert registry["component"].attrs["valid"], registry["component"].attrs[
-            "errors"
-        ]
+    def setUp(self):
+        self.test_filename_pattern = "./public/components/*"
+        self.extract_sys = etl.ExtractSystem()
+        self.transform_sys = etl.TransformSystem()
+
 
     def test_parsecomp_links(self):
         yaml_str = """
@@ -367,10 +382,35 @@ class TestTransformSystem(unittest.TestCase):
                     my_first_task --> my_third_task
                 link_type: dependency
         """
-        registry = self.extract_sys.extract_entities_from_yaml(yaml_str)
-        registry = self.transform_sys.base_transform(registry)
-        assert registry["component"].loc["links", "valid_data"]
-        actual = self.transform_sys.parsecomp_links(registry)
+
+        registry = data.Registry({
+            "links": pd.DataFrame(
+                [
+                    {
+                        "entity": "my_workflow",
+                        "comp_ind": 0,
+                        "links": "my_first_task --> my_second_task\nmy_second_task --> my_third_task",
+                        "link_type": "dependency",
+                    },
+                    {
+                        "entity": "my_other_workflow",
+                        "comp_ind": 0,
+                        "links": "my_first_task --> my_third_task",
+                        "link_type": "dependency",
+                    },
+                ]
+            )
+
+        })
+
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.LinksParser(),
+            components_mapping={"link": data.View("links")},
+            mode="append",
+        )
+
+        actual = registry["link"]
         expected = pd.DataFrame(
             [
                 {

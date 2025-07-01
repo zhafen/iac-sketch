@@ -192,3 +192,17 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
             ] += f"Failed to set index based on multiplicity, {multiplicity}. "
 
         return X
+
+class LinksParser(BaseEstimator, TransformerMixin):
+    """
+    Transformer to parse links from a DataFrame.
+    It expects a 'links' column with JSON-like structures.
+    """
+
+    def fit(self, _X, _y=None):
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        X = X.copy()
+
+        return X
