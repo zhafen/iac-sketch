@@ -197,14 +197,24 @@ class Registry:
     def items(self):
         return self.components.items()
 
-    def update(self, other: "Registry"):
+    def update(self, other: "Registry", mode: str = "append"):
 
-        for comp_key, comp_df in other.items():
-            if comp_key not in self.components:
-                self.components[comp_key] = comp_df
+        for key, comp_df in other.items():
+            self.update_component(key, comp_df, mode)
+
+    def update_component(self, key: str, comp_df: pd.DataFrame, mode: str = "append"):
+        """Update or add a component DataFrame to the registry."""
+
+        if key not in self.components:
+            self.components[key] = comp_df
+        else:
+            if mode == "overwrite":
+                self.components[key] = comp_df
+            elif mode == "append":
+                self.components[key] = pd.concat([self.components[key], comp_df])
             else:
-                self.components[comp_key] = pd.concat(
-                    [self.components[comp_key], comp_df]
+                raise ValueError(
+                    f"Invalid mode '{mode}'. Use 'overwrite' or 'append'."
                 )
 
     def copy(self):
@@ -260,61 +270,3 @@ class Registry:
         construct a View, then delegates to resolve_view."""
         view = View(*args, **kwargs)
         return self.resolve_view(view)
-
-    def validate(self):
-        """Validate the data in the registry. This only validates that the data
-        is correctly consistent with the component definition. It does not perform the
-        level of checks that Validator does."""
-
-        for comp_key in self.keys():
-
-            self.validate_component(comp_key)
-
-    def validate_component(self, comp_key: str) -> tuple[pd.Series, pd.DataFrame]:
-        """Validate the component table. This only validates that the data
-        is correctly consistent with the component definition. It does not perform the
-        level of checks that Validator does."""
-
-        comp_df = self[comp_key].copy()
-
-        # Get the settings according to the component definition,
-        # stored in the component row
-        comp_def: pd.Series = self["component"].loc[comp_key].copy()
-
-        # After this we check for matching with component definition, so if
-        # the component definition is not valid then the component table is not valid
-        if not comp_def["valid_def"]:
-            comp_def["valid_data"] = False
-            comp_def["valid_data_message"] = "Invalid component definition."
-            return comp_def, comp_df
-
-        # Validate fields
-        for field_name, field_obj in comp_def["fields"].items():
-            if field_name not in comp_df.columns:
-                comp_df[field_name] = field_obj.default
-
-        # If the index is not set, we check the multiplicity and set the index
-        if comp_df.index.name != "entity":
-            if comp_def["multiplicity"] == "1":
-                comp_df = comp_df.set_index("entity")
-
-                # Check for duplicates
-                if comp_df.index.has_duplicates:
-                    comp_def["valid_data"] = False
-                    comp_def["valid_data_message"] = (
-                        "Multiplicity is 1, but there are duplicates: "
-                        f"{list(comp_df.index[comp_df.index.duplicated()].values)}"
-                    )
-                    return comp_def, comp_df
-            else:
-                comp_df = comp_df.set_index(["entity", "comp_ind"])
-
-        # If we got this far, the component table is valid
-        comp_def["valid_data"] = True
-        comp_def["valid_data_message"] = ""
-
-        # Store changes to the registry
-        self["component"].loc[comp_key] = comp_def
-        self[comp_key] = comp_df
-
-        return comp_def, comp_df

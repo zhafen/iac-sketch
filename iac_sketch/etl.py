@@ -155,7 +155,7 @@ class TransformSystem:
         registry: data.Registry,
         transformer,
         components_mapping: dict[str, data.View],
-        transform_kwargs: dict = {},
+        mode: str = "overwrite",
     ) -> data.Registry:
 
         # Copy registry to avoid mutation
@@ -163,9 +163,14 @@ class TransformSystem:
         for target_comp, source_view in components_mapping.items():
             # We make a kwargs dictionary so we can easily include the registry
             try:
-                new_registry[target_comp] = transformer.transform(
+                result = transformer.transform(
                     registry.resolve_view(source_view),
-                    **transform_kwargs,
+                    registry,
+                )
+                new_registry.update_component(
+                    target_comp,
+                    result,
+                    mode=mode,
                 )
             except AssertionError as e:
                 raise ValueError(
@@ -208,7 +213,6 @@ class TransformSystem:
                     ["component", "fields"], join_on="entity", join_how="outer"
                 )
             },
-            transform_kwargs={"registry_keys": list(registry.keys())},
         )
 
     def validate_components(self, registry: data.Registry) -> data.Registry:
@@ -221,7 +225,6 @@ class TransformSystem:
             components_mapping={
                 "component": data.View("component")
             },
-            transform_kwargs={"component_defs": registry.view("component")},
         )
 
         return self.apply_transform(
@@ -230,7 +233,6 @@ class TransformSystem:
             components_mapping={
                 comp: data.View(comp) for comp in registry.keys() if comp != "component"
             },
-            transform_kwargs={"component_defs": registry.view("component")},
         )
 
     def apply_system_transforms(self, registry: data.Registry) -> data.Registry:

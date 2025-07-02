@@ -16,7 +16,7 @@ class LogPrepper(BaseEstimator, TransformerMixin):
         # Stateless transformer, nothing to fit
         return self
 
-    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    def transform(self, X: pd.DataFrame, _registry: data.Registry = None) -> pd.DataFrame:
         X = X.copy()
         if "errors" not in X.columns:
             X["errors"] = ""
@@ -30,7 +30,7 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
     def fit(self, _X, _y=None):
         return self
 
-    def transform(self, X):
+    def transform(self, X, _registry: data.Registry = None):
 
         X = X.copy()
 
@@ -75,14 +75,14 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         self.registry = registry
         return self
 
-    def transform(self, X, registry_keys: list[str]):
+    def transform(self, X, registry: data.Registry = None):
 
         X = X.copy()
 
         # Add in all components defined in the registry
         # and mark the ones that are not defined
         X["defined"] = True
-        registry_comps = pd.DataFrame({"entity": registry_keys})
+        registry_comps = pd.DataFrame({"entity": registry.keys()})
         X = X.merge(registry_comps, how="outer", on="entity")
         X.loc[X["defined"].isna(), "defined"] = False
         X["defined"] = X["defined"].astype(bool)
@@ -148,14 +148,14 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
     def fit(self, _X, _y=None):
         return self
 
-    def transform(self, X, component_defs: pd.DataFrame):
+    def transform(self, X, registry: data.Registry = None):
 
         X = X.copy()
 
         # Get the component definition
         # Since X is the input view, which is what we're validating,
         # we can use the view_components attribute to get the name of the component
-        component_def = component_defs.loc[X.attrs["view_components"]]
+        component_def = registry["component"].loc[X.attrs["view_components"]]
 
         # Set the attributes for validity and errors
         X.attrs["valid"] = component_def["valid"]
@@ -202,7 +202,7 @@ class LinksParser(BaseEstimator, TransformerMixin):
     def fit(self, _X, _y=None):
         return self
 
-    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    def transform(self, X: pd.DataFrame, registry: data.Registry = None) -> pd.DataFrame:
         X = X.copy()
 
         return X

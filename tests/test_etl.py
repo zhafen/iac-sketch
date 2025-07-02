@@ -339,7 +339,6 @@ class TestPreprocessTransformers(unittest.TestCase):
             registry,
             transform.ComponentValidator(),
             components_mapping={"my_component": data.View("my_component")},
-            transform_kwargs={"component_defs": registry.view("component")},
         )
         expected = pd.DataFrame(
             [
@@ -369,20 +368,6 @@ class TestSystemTransformers(unittest.TestCase):
 
 
     def test_parsecomp_links(self):
-        yaml_str = """
-            my_workflow:
-            - links:
-                links: |
-                    my_first_task --> my_second_task
-                    my_second_task --> my_third_task
-                link_type: dependency
-            my_other_workflow:
-            - links:
-                links: |
-                    my_first_task --> my_third_task
-                link_type: dependency
-        """
-
         registry = data.Registry({
             "links": pd.DataFrame(
                 [
