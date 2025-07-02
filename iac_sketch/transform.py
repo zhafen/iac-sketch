@@ -194,15 +194,53 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         return X
 
 class LinksParser(BaseEstimator, TransformerMixin):
-    """
-    Transformer to parse links from a DataFrame.
-    It expects a 'links' column with JSON-like structures.
+    """TODO: Facing an instance of the newest problem with the framework, which is: how to handle comp_inds when we're generating new components post-yaml?
     """
 
     def fit(self, _X, _y=None):
         return self
 
-    def transform(self, X: pd.DataFrame, registry: data.Registry = None) -> pd.DataFrame:
+    def transform(self, X: pd.DataFrame, _registry: data.Registry = None) -> pd.DataFrame:
         X = X.copy()
 
-        return X
+        # Parse the links column
+        exploded_links = (
+            X["links"]
+            # Split on newlines
+            .str.strip()
+            .str.split("\n")
+            .explode()
+            # Split on arrows
+            .str.strip()
+            .str.split("-->", expand=True)
+            # Rename columns
+            .rename(columns={0: "source", 1: "target"})
+        )
+        # Strip whitespace
+        for col in exploded_links.columns:
+            exploded_links[col] = exploded_links[col].str.strip()
+        if len(exploded_links.columns) > 2:
+            raise ValueError(
+                "Links column is not formatted correctly. Did you use a pipe, |? "
+            )
+        # Add the parsed results back to the original DataFrame
+        X_out = (
+            X.join(exploded_links).drop(columns=["links"]).reset_index(drop=True)
+        )
+
+        # # Get the new comp index, using the metadata
+        # X_out["comp_ind"] = X_out.groupby("entity").cumcount()
+        # merged_links = X_out.merge(registry["metadata"], on="entity", how="left")
+        # X_out["comp_ind"] += merged_links["n_comps"]
+
+        # # Also update the metadata
+        # n_new_comps = X_out.reset_index()["entity"].value_counts()
+        # metadata_df = registry["metadata"].set_index("entity")
+        # metadata_df.loc[n_new_comps.index, "n_comps"] += n_new_comps
+        # registry["metadata"] = metadata_df.reset_index()
+
+        # # Add these links to the link component
+        # link_comp = registry.components.get("link", pd.DataFrame())
+        # registry["link"] = pd.concat([link_comp, X_out], ignore_index=True)
+
+        return X_out

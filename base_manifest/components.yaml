@@ -63,8 +63,24 @@ default_fields:
         description: The entity associated with the component.
         nullable: False
     comp_ind [int]:
-        description: >
+        description: |
             The index of the component, amongst the components that define the entity.
+
+            This is straightforward to define when pulling straight from the yaml, as all components should be together.
+            It's less-straightforward to define when we're generating new components, e.g. as part of transforms.
+
+            One approach is to use a metadata component that includes n_comps. However, this has to be updated every time.
+
+            Another approach is to use a "component instances" component, which is a long mapping of the entity, comp_ind, and type of component. Ultimately, this seems much more useful. We still need to think about how to update it though.
+
+            One approach is to set comp_ind to nan for the moment
+            and then update the component_instances component
+            as part of a separate operation that's routinely executed.
+            We could also have the operation executed after every transform.
+            While we're not worrying about computational costs, that's probably the safe thing to do.
+            After modifying a component then we pass the modified component to a method that identifies nans and assigns component_inds.
+            This actually should be part of update_component.
+
         nullable: False
         coerce: True
 

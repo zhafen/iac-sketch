@@ -217,6 +217,11 @@ class Registry:
                     f"Invalid mode '{mode}'. Use 'overwrite' or 'append'."
                 )
 
+        self.update_component_instances(key, comp_df)
+
+    def update_component_instances(self, key: str, comp_df: pd.DataFrame):
+        """Assign missing comp_inds and update the component_instances component."""
+
     def copy(self):
         return copy.deepcopy(self)
 

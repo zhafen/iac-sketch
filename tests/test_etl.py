@@ -384,8 +384,7 @@ class TestSystemTransformers(unittest.TestCase):
                         "link_type": "dependency",
                     },
                 ]
-            )
-
+            ).set_index(["entity", "comp_ind"], drop=False)
         })
 
         registry = self.transform_sys.apply_transform(
@@ -420,6 +419,6 @@ class TestSystemTransformers(unittest.TestCase):
                     "target": "my_third_task",
                 },
             ]
-        )
+        ).set_index("entity", drop=False)
         assert_frame_equal(actual, expected)
         assert registry["metadata"]["n_comps"].max() == 4
