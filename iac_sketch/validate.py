@@ -6,7 +6,7 @@ class ValidationSystem:
 
     def validate_components(self, registry: data.Registry) -> pd.DataFrame:
 
-        component_defs = registry["component"]
+        component_defs = registry["compdef"]
         invalid_components = component_defs[~component_defs["valid"]]
 
         return invalid_components

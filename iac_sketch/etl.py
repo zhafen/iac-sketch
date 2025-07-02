@@ -132,6 +132,11 @@ class ExtractSystem:
                 for key, df in entities.groupby("component_entity")
             }
         )
+
+        # We also record the mapping of components to entities
+        # in the "compinst" component.
+        registry["compinst"] = entities[["entity", "comp_ind", "component_entity"]].copy()
+
         return registry
 
 
@@ -183,7 +188,7 @@ class TransformSystem:
 
         registry = self.normalize_components(registry)
         registry = self.extract_component_definitions(registry)
-        registry = self.validate_components(registry)
+        registry = self.validate_component_definitions(registry)
 
         return registry
 
@@ -209,13 +214,13 @@ class TransformSystem:
             # and it receives a view that joins the "component" and "fields"
             # components.
             components_mapping={
-                "component": data.View(
+                "compdef": data.View(
                     ["component", "fields"], join_on="entity", join_how="outer"
                 )
             },
         )
 
-    def validate_components(self, registry: data.Registry) -> data.Registry:
+    def validate_component_definitions(self, registry: data.Registry) -> data.Registry:
 
         # First we validate the component definitions, since they'll be used
         # to validate the components themselves.
@@ -223,7 +228,7 @@ class TransformSystem:
             registry,
             transform.ComponentValidator(),
             components_mapping={
-                "component": data.View("component")
+                "compdef": data.View("compdef")
             },
         )
 
@@ -231,7 +236,7 @@ class TransformSystem:
             registry,
             transform.ComponentValidator(),
             components_mapping={
-                comp: data.View(comp) for comp in registry.keys() if comp != "component"
+                comp: data.View(comp) for comp in registry.keys() if comp != "compdef"
             },
         )
 

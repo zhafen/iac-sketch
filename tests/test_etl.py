@@ -63,7 +63,7 @@ class TestTransformSystem(unittest.TestCase):
 
         registry = self.extract_sys.extract_entities()
         registry = self.transform_sys.apply_preprocess_transforms(registry)
-        assert registry["component"].attrs["valid"], registry["component"].attrs[
+        assert registry["compdef"].attrs["valid"], registry["compdef"].attrs[
             "errors"
         ]
 
@@ -202,7 +202,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                 },
             ]
         )
-        assert_frame_equal(registry["component"], expected)
+        assert_frame_equal(registry["compdef"], expected)
 
     def test_component_def_extractor(self):
         yaml_str = """
@@ -219,7 +219,7 @@ class TestPreprocessTransformers(unittest.TestCase):
         """
         registry = self.extract_sys.extract_entities(input=yaml_str)
         registry = self.transform_sys.normalize_components(registry)
-        registry = self.transform_sys.extract_component_definitions(registry)
+        registry = self.transform_sys.extract_compdefs(registry)
         expected = pd.DataFrame(
             [
                 {
@@ -269,7 +269,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                 },
             ]
         ).set_index("entity")
-        actual = registry["component"].copy()
+        actual = registry["compdef"].copy()
         expected = expected.drop(columns="fields")
         actual = actual.drop(columns="fields").loc[expected.index, expected.columns]
         assert_frame_equal(actual, expected)
@@ -277,7 +277,7 @@ class TestPreprocessTransformers(unittest.TestCase):
     def test_component_validator(self):
 
         registry = data.Registry({})
-        registry["component"] = pd.DataFrame(
+        registry["compdef"] = pd.DataFrame(
             [
                 {
                     "entity": "my_component",

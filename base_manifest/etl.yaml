@@ -61,7 +61,7 @@ apply_system_transforms:
     Applies a set of system-defined transforms.
 - task
 
-normalize_compinsts:
+normalize_components:
 - task
 - input:
     registry [registry]: Registry containing component instances to format.

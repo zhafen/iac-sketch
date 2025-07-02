@@ -155,7 +155,7 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         # Get the component definition
         # Since X is the input view, which is what we're validating,
         # we can use the view_components attribute to get the name of the component
-        component_def = registry["component"].loc[X.attrs["view_components"]]
+        component_def = registry["compdef"].loc[X.attrs["view_components"]]
 
         # Set the attributes for validity and errors
         X.attrs["valid"] = component_def["valid"]
