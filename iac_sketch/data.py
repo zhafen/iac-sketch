@@ -222,6 +222,8 @@ class Registry:
     def update_component_instances(self, key: str, comp_df: pd.DataFrame):
         """Assign missing comp_inds and update the component_instances component."""
 
+        # TODO: Check if comp_df has duplicate non-nan comp_inds
+
     def copy(self):
         return copy.deepcopy(self)
 
