@@ -114,8 +114,13 @@ report_string_formatter:
             file == cohort_notebook: reports/{irb_number}/cohort.py
     input: report
 
-
 assignment_workflow:
 - links:
     links: |
         identify_type_of_request -->|imaging, power-users, RHLCC| edw_manager_submits_for_approval
+
+turn_on_pbi_refresh:
+- description: >
+    Needs to be done as part of deployment. Currently only can be done by workspace 
+    members, which is a bottleneck.
+- task
