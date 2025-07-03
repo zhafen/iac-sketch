@@ -30,6 +30,9 @@ component:
     and "entities" to refer to component instances, because entities are only ever
     a collection of component instances. In practice this is confusing.
 
+compdef:
+- description: >
+    Definitions for a component. Derived from the components "component" and "fields".
 - fields:
     entity [str]:
         description: The entity associated with the component.
@@ -55,6 +58,14 @@ component:
             - "0..*"
             - "1..1"
             - "1..*"
+
+compinst:
+- description: >
+    We derive the compinst component from every single component. It's the simplest
+    possible mapping between entities and components. This is very helpful as a catalog
+    of what components exist.
+- fields:
+    component_type [str]: The type of the component.
 
 default_fields:
 - description: This entity contains the default fields that exist for components.

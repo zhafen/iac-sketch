@@ -101,7 +101,7 @@ class ExtractSystem:
             row = {
                 "entity": entity,
                 "comp_ind": i,
-                "component_entity": comp_entity,
+                "component_type": comp_entity,
                 "component": comp,
             }
             extracted_comps.append(row)
@@ -110,7 +110,7 @@ class ExtractSystem:
             {
                 "entity": entity,
                 "comp_ind": len(extracted_comps),
-                "component_entity": "metadata",
+                "component_type": "metadata",
                 "component": {
                     "source": source,
                     # Increase by one to account for the metadata component
@@ -125,21 +125,21 @@ class ExtractSystem:
         # Convert to a registry
         registry = data.Registry(
             {
-                # We don't want the component_entity column in the final registry
+                # We don't want the component_type column in the final registry
                 # since it was just used to group the components.
                 # We also don't care about the index, so reset it.
-                key: df.drop(columns="component_entity").reset_index(drop=True)
-                for key, df in entities.groupby("component_entity")
+                key: df.drop(columns="component_type").reset_index(drop=True)
+                for key, df in entities.groupby("component_type")
             }
         )
 
         # We also record the mapping of components to entities in the "compinst"
         # component. We take the time to use the same format as the other components.
-        compinst = entities[["entity", "comp_ind", "component_entity"]].copy()
-        compinst["component"] = compinst["component_entity"].apply(
-            lambda x: {"component_entity": x}
+        compinst = entities[["entity", "comp_ind", "component_type"]].copy()
+        compinst["component"] = compinst["component_type"].apply(
+            lambda x: {"component_type": x}
         )
-        compinst = compinst.drop(columns=["component_entity"])
+        compinst = compinst.drop(columns=["component_type"])
         registry["compinst"] = compinst
 
         return registry

@@ -165,11 +165,11 @@ class TestPreprocessTransformers(unittest.TestCase):
         )
         assert_frame_equal(actual, expected)
 
-    def test_component_normalizer_for_component_def(self):
+    def test_component_normalizer_for_component_component(self):
 
         registry = data.Registry(
             {
-                "compdef": pd.DataFrame(
+                "component": pd.DataFrame(
                     [
                         {
                             "entity": "my_component",
@@ -202,7 +202,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                 },
             ]
         )
-        assert_frame_equal(registry["compdef"], expected)
+        assert_frame_equal(registry["component"], expected)
 
     def test_component_def_extractor(self):
         yaml_str = """
