@@ -177,7 +177,7 @@ class TransformSystem:
                     registry.resolve_view(source_view),
                     registry,
                 )
-                new_registry.update_component(
+                new_registry.set(
                     target_comp,
                     result,
                     mode=mode,

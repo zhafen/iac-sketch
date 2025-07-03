@@ -391,7 +391,7 @@ class TestSystemTransformers(unittest.TestCase):
             registry,
             transform.LinksParser(),
             components_mapping={"link": data.View("links")},
-            mode="append",
+            mode="upsert",
         )
 
         actual = registry["link"]

@@ -111,7 +111,7 @@ default_fields:
             We could also have the operation executed after every transform.
             While we're not worrying about computational costs, that's probably the safe thing to do.
             After modifying a component then we pass the modified component to a method that identifies nans and assigns component_inds.
-            This actually should be part of update_component.
+            This actually should be part of set.
 
         nullable: False
         coerce: True

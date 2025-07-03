@@ -87,7 +87,7 @@ class TestRegistry(unittest.TestCase):
         assert "comp1" in registry.components
         assert "comp2" in registry.components
 
-    def test_update_component(self):
+    def test_set(self):
         components = {
             "comp_a": pd.DataFrame({
                 "entity": ["entity1", "entity2"],
@@ -108,14 +108,14 @@ class TestRegistry(unittest.TestCase):
             "field_1": [1, -2],
         })
         
-        registry.update_component("comp_a", new_component, mode="overwrite")
+        registry.set("comp_a", new_component, mode="overwrite")
 
         assert "comp_a" in registry.components
         assert len(registry["comp_a"]) == 2
         assert registry["comp_a"]["field_1"].tolist() == [1, -2]
         assert registry["compinst"].sort_index()["entity"].tolist() == ["entity1", "entity3"]
 
-    def test_update_component_upsert_mode(self):
+    def test_set_upsert_mode(self):
         components = {
             "comp_a": pd.DataFrame({
                 "entity": ["entity1", "entity2"],
@@ -136,7 +136,7 @@ class TestRegistry(unittest.TestCase):
             "field_1": [-1, -2],
         })
 
-        registry.update_component("comp_a", new_component, mode="upsert")
+        registry.set("comp_a", new_component, mode="upsert")
 
         assert "comp_a" in registry.components
         assert len(registry["comp_a"]) == 3

@@ -184,9 +184,7 @@ class Registry:
         return self.components[key]
 
     def __setitem__(self, key: str, value: pd.DataFrame):
-        if not isinstance(value, pd.DataFrame):
-            raise TypeError("Value must be a pandas DataFrame.")
-        self.components[key] = value
+        self.set(key, value, mode="overwrite")
 
     def __contains__(self, key: str) -> bool:
         return key in self.components
@@ -197,31 +195,33 @@ class Registry:
     def items(self):
         return self.components.items()
 
-    def update(self, other: "Registry", mode: str = "append"):
+    def update(self, other: "Registry", mode: str = "upsert"):
 
         for key, comp_df in other.items():
-            self.update_component(key, comp_df, mode)
+            self.set(key, comp_df, mode)
 
-    def update_component(self, key: str, comp_df: pd.DataFrame, mode: str = "append"):
+    def set(self, key: str, value: pd.DataFrame, mode: str = "upsert"):
         """Update or add a component DataFrame to the registry."""
+        if not isinstance(value, pd.DataFrame):
+            raise TypeError("Value must be a pandas DataFrame.")
 
         if key not in self.components:
-            self.components[key] = comp_df
+            self.components[key] = value
         else:
             if mode == "overwrite":
-                self.components[key] = comp_df
+                self.components[key] = value
             elif mode == "upsert":
                 self.components[key] = pd.concat(
-                    [self.components[key], comp_df]
+                    [self.components[key], value]
                 ).drop_duplicates(subset=["entity", "comp_ind"], keep="last")
             else:
                 raise ValueError(
                     f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'."
                 )
 
-        self.update_component_instances(key, comp_df, mode=mode)
+        self.update_compinsts(key, value, mode=mode)
 
-    def update_component_instances(self, key: str, comp_df: pd.DataFrame, mode: str = "append"):
+    def update_compinsts(self, key: str, comp_df: pd.DataFrame, mode: str = "upsert"):
         """Assign missing comp_inds and update the component_instances component."""
 
         compinst = self["compinst"].copy()
