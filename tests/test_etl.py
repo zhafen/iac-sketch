@@ -169,7 +169,7 @@ class TestPreprocessTransformers(unittest.TestCase):
 
         registry = data.Registry(
             {
-                "component": pd.DataFrame(
+                "compdef": pd.DataFrame(
                     [
                         {
                             "entity": "my_component",

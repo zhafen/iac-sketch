@@ -133,9 +133,14 @@ class ExtractSystem:
             }
         )
 
-        # We also record the mapping of components to entities
-        # in the "compinst" component.
-        registry["compinst"] = entities[["entity", "comp_ind", "component_entity"]].copy()
+        # We also record the mapping of components to entities in the "compinst"
+        # component. We take the time to use the same format as the other components.
+        compinst = entities[["entity", "comp_ind", "component_entity"]].copy()
+        compinst["component"] = compinst["component_entity"].apply(
+            lambda x: {"component_entity": x}
+        )
+        compinst = compinst.drop(columns=["component_entity"])
+        registry["compinst"] = compinst
 
         return registry
 
@@ -187,8 +192,8 @@ class TransformSystem:
     def apply_preprocess_transforms(self, registry: data.Registry) -> data.Registry:
 
         registry = self.normalize_components(registry)
-        registry = self.extract_component_definitions(registry)
-        registry = self.validate_component_definitions(registry)
+        registry = self.extract_compdefs(registry)
+        registry = self.validate_compdefs(registry)
 
         return registry
 
@@ -205,7 +210,7 @@ class TransformSystem:
             },
         )
 
-    def extract_component_definitions(self, registry: data.Registry) -> data.Registry:
+    def extract_compdefs(self, registry: data.Registry) -> data.Registry:
 
         return self.apply_transform(
             registry,
@@ -220,16 +225,14 @@ class TransformSystem:
             },
         )
 
-    def validate_component_definitions(self, registry: data.Registry) -> data.Registry:
+    def validate_compdefs(self, registry: data.Registry) -> data.Registry:
 
         # First we validate the component definitions, since they'll be used
         # to validate the components themselves.
         registry = self.apply_transform(
             registry,
             transform.ComponentValidator(),
-            components_mapping={
-                "compdef": data.View("compdef")
-            },
+            components_mapping={"compdef": data.View("compdef")},
         )
 
         return self.apply_transform(
@@ -243,4 +246,3 @@ class TransformSystem:
     def apply_system_transforms(self, registry: data.Registry) -> data.Registry:
 
         return registry
-
