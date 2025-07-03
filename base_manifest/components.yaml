@@ -11,8 +11,6 @@
 
 # Fundamental components
 component:
-- component:
-    multiplicity: "0..1"
 - description: >
     If an entity has a "component" component, then it can be a component itself.
     A requirement for components is that if they require another entity
@@ -29,10 +27,31 @@ component:
     Strictly speaking, we could just use "components" to refer to component definitions
     and "entities" to refer to component instances, because entities are only ever
     a collection of component instances. In practice this is confusing.
+- component:
+    multiplicity: "0..1"
+- fields:
+    multiplicity [str]:
+        description: Allowed number of instances of a component per entity.
+        default: "0..*"
+        coerce: True
+        categories:
+            - "0..1"
+            - "0..*"
+            - "1..1"
+            - "1..*"
+
+fields:
+- description: >
+    The fields component shows up when we are creating a component, and is used to
+    define columns.
+- component:
+    multiplicity: "0..1"
 
 compdef:
 - description: >
     Definitions for a component. Derived from the components "component" and "fields".
+- component:
+    multiplicity: "0..1"
 - fields:
     entity [str]:
         description: The entity associated with the component.
@@ -64,6 +83,8 @@ compinst:
     We derive the compinst component from every single component. It's the simplest
     possible mapping between entities and components. This is very helpful as a catalog
     of what components exist.
+- component:
+    - multiplicity: "0..*"
 - fields:
     component_type [str]: The type of the component.
 
