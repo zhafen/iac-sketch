@@ -210,19 +210,44 @@ class Registry:
         else:
             if mode == "overwrite":
                 self.components[key] = comp_df
-            elif mode == "append":
-                self.components[key] = pd.concat([self.components[key], comp_df])
+            elif mode == "upsert":
+                self.components[key] = pd.concat(
+                    [self.components[key], comp_df]
+                ).drop_duplicates(subset=["entity", "comp_ind"], keep="last")
             else:
                 raise ValueError(
-                    f"Invalid mode '{mode}'. Use 'overwrite' or 'append'."
+                    f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'."
                 )
 
-        self.update_component_instances(key, comp_df)
+        self.update_component_instances(key, comp_df, mode=mode)
 
-    def update_component_instances(self, key: str, comp_df: pd.DataFrame):
+    def update_component_instances(self, key: str, comp_df: pd.DataFrame, mode: str = "append"):
         """Assign missing comp_inds and update the component_instances component."""
 
+        compinst = self["compinst"].copy()
+
+        # Prepare new rows from comp_df for compinst
+        # Assume comp_df has columns 'entity' and 'comp_ind'
+        new_rows = comp_df[["entity", "comp_ind"]].copy()
+        new_rows["component_type"] = key
+        new_rows = new_rows.set_index(["entity", "comp_ind"], drop=False)
+
+        # Update compinst based on the mode
+        if mode == "overwrite":
+            compinst = compinst[~(compinst["component_type"] == key)]
+            compinst = pd.concat([compinst, new_rows])
+        elif mode == "upsert":
+            compinst = pd.concat([compinst, new_rows])
+            compinst = compinst[~compinst.index.duplicated(keep="last")]
+        else:
+            raise ValueError(
+                f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'."
+            )
+
         # TODO: Check if comp_df has duplicate non-nan comp_inds
+
+        # Store
+        self["compinst"] = compinst
 
     def copy(self):
         return copy.deepcopy(self)

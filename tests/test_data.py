@@ -86,3 +86,60 @@ class TestRegistry(unittest.TestCase):
         assert len(registry.components) == 2
         assert "comp1" in registry.components
         assert "comp2" in registry.components
+
+    def test_update_component(self):
+        components = {
+            "comp_a": pd.DataFrame({
+                "entity": ["entity1", "entity2"],
+                "comp_ind": [0, 0],
+                "field_1": [1, 2],
+            }),
+            "compinst": pd.DataFrame({
+                "entity": ["entity1", "entity2"],
+                "comp_ind": [0, 0],
+                "component_type": ["comp_a", "comp_a"],
+            }).set_index(["entity", "comp_ind"], drop=False),
+        }
+        registry = data.Registry(components)
+        
+        new_component = pd.DataFrame({
+            "entity": ["entity1", "entity3"],
+            "comp_ind": [0, 0],
+            "field_1": [1, -2],
+        })
+        
+        registry.update_component("comp_a", new_component, mode="overwrite")
+
+        assert "comp_a" in registry.components
+        assert len(registry["comp_a"]) == 2
+        assert registry["comp_a"]["field_1"].tolist() == [1, -2]
+        assert registry["compinst"].sort_index()["entity"].tolist() == ["entity1", "entity3"]
+
+    def test_update_component_upsert_mode(self):
+        components = {
+            "comp_a": pd.DataFrame({
+                "entity": ["entity1", "entity2"],
+                "comp_ind": [0, 0],
+                "field_1": [1, 2],
+            }),
+            "compinst": pd.DataFrame({
+                "entity": ["entity1", "entity2"],
+                "comp_ind": [0, 0],
+                "component_type": ["comp_a", "comp_a"],
+            }).set_index(["entity", "comp_ind"], drop=False),
+        }
+        registry = data.Registry(components)
+        
+        new_component = pd.DataFrame({
+            "entity": ["entity1", "entity3"],
+            "comp_ind": [0, 0],
+            "field_1": [-1, -2],
+        })
+
+        registry.update_component("comp_a", new_component, mode="upsert")
+
+        assert "comp_a" in registry.components
+        assert len(registry["comp_a"]) == 3
+        assert registry["comp_a"].sort_index()["field_1"].tolist() == [-1, 2, -2]
+        assert registry["compinst"].sort_index()["entity"].tolist() == ["entity1", "entity2", "entity3"]
+
