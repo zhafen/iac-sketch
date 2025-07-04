@@ -219,7 +219,8 @@ class Registry:
                     f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'."
                 )
 
-        self.update_compinsts(key, value, mode=mode)
+        if "compinst" in self.components:
+            self.update_compinsts(key, value, mode=mode)
 
     def update_compinsts(self, key: str, comp_df: pd.DataFrame, mode: str = "upsert"):
         """Assign missing comp_inds and update the component_instances component."""
@@ -247,7 +248,7 @@ class Registry:
         # TODO: Check if comp_df has duplicate non-nan comp_inds
 
         # Store
-        self["compinst"] = compinst
+        self.components["compinst"] = compinst
 
     def copy(self):
         return copy.deepcopy(self)

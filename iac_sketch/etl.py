@@ -51,6 +51,10 @@ class ExtractSystem:
         source: str = None,
     ) -> pd.DataFrame:
         input_yaml = yaml.safe_load(input_yaml)
+
+        if input_yaml is None:
+            return pd.DataFrame()
+
         entities = []
         for entity, comps in input_yaml.items():
             # Check if the entity already exists
@@ -135,12 +139,9 @@ class ExtractSystem:
 
         # We also record the mapping of components to entities in the "compinst"
         # component. We take the time to use the same format as the other components.
-        compinst = entities[["entity", "comp_ind", "component_type"]].copy()
-        compinst["component"] = compinst["component_type"].apply(
-            lambda x: {"component_type": x}
-        )
-        compinst = compinst.drop(columns=["component_type"])
-        registry["compinst"] = compinst
+        registry["compinst"] = entities[
+            ["entity", "comp_ind", "component_type"]
+        ].set_index(["entity", "comp_ind"], drop=False)
 
         return registry
 
@@ -202,11 +203,11 @@ class TransformSystem:
         return self.apply_transform(
             registry,
             transform.ComponentNormalizer(),
-            # The components are transformed individually,
-            # but we leave out the "fields" component
-            # because it will be handled during the component definition extraction.
+            # The components are transformed individually, with a few exceptions.
             components_mapping={
-                comp: data.View(comp) for comp in registry.keys() if comp != "fields"
+                comp: data.View(comp)
+                for comp in registry.keys()
+                if comp not in ["compinst", "fields"]
             },
         )
 
