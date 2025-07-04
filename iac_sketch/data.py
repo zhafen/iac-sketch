@@ -246,6 +246,7 @@ class Registry:
             )
 
         # TODO: Check if comp_df has duplicate non-nan comp_inds
+        # TODO: We also need to check on the indices of comp_df and update them.
 
         # Store
         self.components["compinst"] = compinst
