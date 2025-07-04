@@ -367,7 +367,7 @@ class TestSystemTransformers(unittest.TestCase):
         self.transform_sys = etl.TransformSystem()
 
 
-    def test_parsecomp_links(self):
+    def test_linkparser(self):
         registry = data.Registry({
             "links": pd.DataFrame(
                 [
@@ -399,26 +399,26 @@ class TestSystemTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_workflow",
-                    "comp_ind": 2,
+                    "comp_ind": 0,
                     "link_type": "dependency",
                     "source": "my_first_task",
                     "target": "my_second_task",
                 },
                 {
                     "entity": "my_workflow",
-                    "comp_ind": 3,
+                    "comp_ind": 1,
                     "link_type": "dependency",
                     "source": "my_second_task",
                     "target": "my_third_task",
                 },
                 {
                     "entity": "my_other_workflow",
-                    "comp_ind": 2,
+                    "comp_ind": 0,
                     "link_type": "dependency",
                     "source": "my_first_task",
                     "target": "my_third_task",
                 },
             ]
-        ).set_index("entity", drop=False)
+        ).set_index(["entity", "comp_ind"], drop=False)
         assert_frame_equal(actual, expected)
         assert registry["metadata"]["n_comps"].max() == 4

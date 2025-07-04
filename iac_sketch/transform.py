@@ -228,19 +228,7 @@ class LinksParser(BaseEstimator, TransformerMixin):
             X.join(exploded_links).drop(columns=["links"]).reset_index(drop=True)
         )
 
-        # # Get the new comp index, using the metadata
-        # X_out["comp_ind"] = X_out.groupby("entity").cumcount()
-        # merged_links = X_out.merge(registry["metadata"], on="entity", how="left")
-        # X_out["comp_ind"] += merged_links["n_comps"]
-
-        # # Also update the metadata
-        # n_new_comps = X_out.reset_index()["entity"].value_counts()
-        # metadata_df = registry["metadata"].set_index("entity")
-        # metadata_df.loc[n_new_comps.index, "n_comps"] += n_new_comps
-        # registry["metadata"] = metadata_df.reset_index()
-
-        # # Add these links to the link component
-        # link_comp = registry.components.get("link", pd.DataFrame())
-        # registry["link"] = pd.concat([link_comp, X_out], ignore_index=True)
+        # Ensure we have the right index
+        X_out = X_out.set_index(["entity", "comp_ind"], drop=False)
 
         return X_out
