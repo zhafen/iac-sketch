@@ -57,9 +57,12 @@ class Field(pa.Column):
     *args, **kwargs :
         Additional positional and keyword arguments passed to pa.Column.
     """
+
     field_def_order = [
-        "dtype", "multiplicity",
+        "dtype",
+        "multiplicity",
     ]
+
     def __init__(
         self,
         *args,
@@ -117,7 +120,9 @@ class Field(pa.Column):
         self.multiplicity = multiplicity
 
     @classmethod
-    def get_backend(cls, check_obj: Optional[Any] = None, check_type: Optional[Type] = None):
+    def get_backend(
+        cls, check_obj: Optional[Any] = None, check_type: Optional[Type] = None
+    ):
         """Override to use pandas backend for Field instances."""
         return ColumnBackend()
 
@@ -176,38 +181,39 @@ class View:
 class Registry:
     """
     Entity-Component-System registry implementation using pandas DataFrames.
-    
+
     The Registry manages a collection of component DataFrames, where each DataFrame
     represents components of a specific type. Each entity can have multiple components
     associated with it, and each component is uniquely identified by an entity and
     component index (comp_ind) pair.
-    
+
     Two special components are supported:
     - 'compinsts': Master index tracking all components across all DataFrames
     - 'compdefs': Contains definitions per component type
-    
+
     Parameters
     ----------
     components : dict[str, pd.DataFrame]
         Dictionary mapping component type names to their respective DataFrames.
         Each DataFrame should be indexed by ('entity', 'comp_ind') multi-index.
-    
+
     Attributes
     ----------
     components : dict[str, pd.DataFrame]
         Dictionary storing all component DataFrames by type name.
     """
+
     components: dict[str, pd.DataFrame]
 
     def __getitem__(self, key: str):
         """
         Retrieve a component DataFrame by its type name.
-        
+
         Parameters
         ----------
         key : str
             The component type name to retrieve.
-        
+
         Returns
         -------
         pd.DataFrame
@@ -222,9 +228,9 @@ class Registry:
     def __setitem__(self, key: str, value: pd.DataFrame):
         """
         Set a component DataFrame using dictionary-style assignment.
-        
+
         This method delegates to the `set` method with 'overwrite' mode.
-        
+
         Parameters
         ----------
         key : str
@@ -237,12 +243,12 @@ class Registry:
     def __contains__(self, key: str) -> bool:
         """
         Check if a component type exists in the registry.
-        
+
         Parameters
         ----------
         key : str
             The component type name to check.
-        
+
         Returns
         -------
         bool
@@ -253,7 +259,7 @@ class Registry:
     def keys(self):
         """
         Return the component type names in the registry.
-        
+
         Returns
         -------
         dict_keys
@@ -264,7 +270,7 @@ class Registry:
     def items(self):
         """
         Return key-value pairs of component types and their DataFrames.
-        
+
         Returns
         -------
         dict_items
@@ -275,7 +281,7 @@ class Registry:
     def update(self, other: "Registry", mode: str = "upsert"):
         """
         Update this registry with components from another registry.
-        
+
         Parameters
         ----------
         other : Registry
@@ -292,7 +298,7 @@ class Registry:
     def set(self, key: str, value: pd.DataFrame, mode: str = "upsert"):
         """
         Update or add a component DataFrame to the registry.
-        
+
         Parameters
         ----------
         key : str
@@ -304,15 +310,15 @@ class Registry:
             The update mode to use:
             - 'upsert': Merge with existing data, keeping latest duplicates
             - 'overwrite': Replace existing DataFrame entirely
-        
+
         Notes
         -----
         If 'compinsts' component exists in the registry, it will be automatically
         updated to reflect the new or modified components.
-        
+
         Component multiplicity is checked from the 'compdef' component if available.
-        Multiplicity format is "min..max" where min is the lower bound and max is 
-        the upper bound (or "*" for unlimited). When the upper bound is 1, the 
+        Multiplicity format is "min..max" where min is the lower bound and max is
+        the upper bound (or "*" for unlimited). When the upper bound is 1, the
         DataFrame is indexed only by 'entity'. Otherwise, it uses the multi-index
         ['entity', 'comp_ind'].
         """
@@ -324,16 +330,17 @@ class Registry:
 
         # Check component multiplicity to determine indexing strategy
         use_entity_only_index = False
-        if "compdef" in self.components:
-            compdef = self.components["compdef"]
-            if key in compdef.index:
-                multiplicity_str = compdef.loc[key, "multiplicity"]
-                # Parse multiplicity string (format: "min..max")
-                if ".." in multiplicity_str:
-                    _, upper_bound = multiplicity_str.split("..", 1)
-                    # If upper bound is 1, use entity-only indexing
-                    if upper_bound == "1":
-                        use_entity_only_index = True
+        try:
+            multiplicity_str = self.components["compdef"].loc[key, "multiplicity"]
+            # Parse multiplicity string (format: "min..max")
+            _, upper_bound = multiplicity_str.split("..", 1)
+            # If upper bound is 1, use entity-only indexing
+            if upper_bound == "1":
+                use_entity_only_index = True
+        except (KeyError, ValueError):
+            # If compdef doesn't exist, key not found, or parsing fails,
+            # default to multi-index behavior
+            pass
 
         # Ensure the DataFrame has the proper indexing
         if use_entity_only_index:
@@ -346,7 +353,9 @@ class Registry:
             # For components with multiplicity > 1, use multi-index (entity, comp_ind)
             if value.index.names != ["entity", "comp_ind"]:
                 if "entity" not in value.columns or "comp_ind" not in value.columns:
-                    raise ValueError("DataFrame must contain 'entity' and 'comp_ind' columns.")
+                    raise ValueError(
+                        "DataFrame must contain 'entity' and 'comp_ind' columns."
+                    )
                 value = value.set_index(["entity", "comp_ind"], drop=False)
 
         if key not in self.components:
@@ -355,20 +364,13 @@ class Registry:
             if mode == "overwrite":
                 self.components[key] = value
             elif mode == "upsert":
-                if use_entity_only_index:
-                    # For entity-only indexed components, merge on entity
-                    self.components[key] = pd.concat(
-                        [self.components[key], value]
-                    ).drop_duplicates(subset=["entity"], keep="last")
-                else:
-                    # For multi-indexed components, merge on entity and comp_ind
-                    self.components[key] = pd.concat(
-                        [self.components[key], value]
-                    ).drop_duplicates(subset=["entity", "comp_ind"], keep="last")
+                # For upsert mode, merge and drop duplicates based on the index
+                updated = pd.concat([self.components[key], value])
+                self.components[key] = updated.loc[
+                    ~updated.index.duplicated(keep="last")
+                ]
             else:
-                raise ValueError(
-                    f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'."
-                )
+                raise ValueError(f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'.")
 
         if "compinst" in self.components:
             self.update_compinsts(key, value, mode=mode)
@@ -376,11 +378,11 @@ class Registry:
     def update_compinsts(self, key: str, comp_df: pd.DataFrame, mode: str = "upsert"):
         """
         Update the component instances master index.
-        
+
         This method maintains the 'compinsts' component, which serves as a master
         index tracking all components across all DataFrames and their relationship
         to entities.
-        
+
         Parameters
         ----------
         key : str
@@ -392,7 +394,7 @@ class Registry:
             - 'upsert': Merge with existing compinsts, keeping latest duplicates
             - 'overwrite': Remove existing entries for this component type,
               then add new ones
-        
+
         Notes
         -----
         The method assumes comp_df has 'entity' and 'comp_ind' columns and creates
@@ -414,9 +416,7 @@ class Registry:
             compinst = pd.concat([compinst, new_rows])
             compinst = compinst[~compinst.index.duplicated(keep="last")]
         else:
-            raise ValueError(
-                f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'."
-            )
+            raise ValueError(f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'.")
 
         # TODO: Check if comp_df has duplicate non-nan comp_inds
         # TODO: We also need to check on the indices of comp_df and update them.
@@ -427,7 +427,7 @@ class Registry:
     def copy(self):
         """
         Create a deep copy of the registry.
-        
+
         Returns
         -------
         Registry
@@ -442,27 +442,27 @@ class Registry:
     ) -> pd.DataFrame:
         """
         Resolve a View specification into a concrete DataFrame.
-        
+
         This method takes a View instance and creates a DataFrame by either
         retrieving a single component or joining multiple components together.
-        
+
         Parameters
         ----------
         view : View
             A View instance specifying which components to include and how
             to join them.
-        
+
         Returns
         -------
         pd.DataFrame
             The resulting DataFrame containing the requested view of components.
             The DataFrame's attrs will contain 'view_components' indicating
             which components were used to create the view.
-        
+
         Notes
         -----
         When joining multiple components:
-        - If join_on is None, components must be indexed by 'entity' or 
+        - If join_on is None, components must be indexed by 'entity' or
           ['entity', 'comp_ind']
         - If join_on is specified, components are merged on that column
         - Column name conflicts are resolved with suffixes
@@ -510,17 +510,17 @@ class Registry:
     def view(self, *args, **kwargs) -> pd.DataFrame:
         """
         Get a component or view of components.
-        
+
         This is a convenience method that creates a View instance from the
         provided arguments and then delegates to resolve_view.
-        
+
         Parameters
         ----------
         *args : tuple
             Positional arguments passed to View constructor.
         **kwargs : dict
             Keyword arguments passed to View constructor.
-        
+
         Returns
         -------
         pd.DataFrame
