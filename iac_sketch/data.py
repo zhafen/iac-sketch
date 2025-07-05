@@ -378,11 +378,15 @@ class Registry:
         """
         compinst = self["compinst"].copy()
 
+        # Reset comp_df index to create a simple monotonic index for tracking
+        comp_df = comp_df.reset_index(drop=True)
+
         # Prepare new rows from comp_df for compinst
-        # Assume comp_df has columns 'entity' and 'comp_ind'
+        # Store the original index to map back to comp_df later
         new_rows = comp_df[["entity", "comp_ind"]].copy()
         new_rows["component_type"] = key
-        new_rows = new_rows.set_index(["entity", "comp_ind"])
+        new_rows["original_index"] = comp_df.index  # Track original comp_df row indices
+        new_rows = new_rows.set_index(["entity", "comp_ind"], drop=False)
 
         # If mode is 'overwrite', remove existing entries for this component type
         if mode == "overwrite":
@@ -394,11 +398,38 @@ class Registry:
         # Concatenate new rows to compinst
         compinst = pd.concat([compinst, new_rows])
 
-        # TODO: Replace nan comp_inds with a monotonic index, starting from the largest
-        #       existing comp_ind value for a given entity.
+        # Replace nan comp_inds with a monotonic index, starting from the largest
+        # existing comp_ind value for a given entity
+        if compinst["comp_ind"].isna().any():
+            # Group by entity to handle each entity separately
+            def fill_comp_ind(group):
+                # Find rows with NaN comp_ind
+                nan_mask = group["comp_ind"].isna()
+                if nan_mask.any():
+                    # Get the maximum existing comp_ind for this entity
+                    max_comp_ind = group["comp_ind"].dropna().max()
+                    # If no existing comp_ind, start from 0
+                    if pd.isna(max_comp_ind):
+                        max_comp_ind = -1
+                    # Fill NaN values with monotonic sequence starting from max + 1
+                    nan_count = nan_mask.sum()
+                    new_indices = range(int(max_comp_ind) + 1, int(max_comp_ind) + 1 + nan_count)
+                    group.loc[nan_mask, "comp_ind"] = new_indices
+                return group
+            compinst = compinst.groupby("entity", group_keys=False).apply(fill_comp_ind)
+            
+            # Propagate filled comp_ind values back to comp_df
+            # Filter for rows that were just added (those with original_index values)
+            new_rows_mask = compinst["original_index"].notna()
+            filled_new_rows = compinst[new_rows_mask].copy()
+            # Update comp_df using vectorized assignment
+            comp_df.loc[filled_new_rows["original_index"], "comp_ind"] = filled_new_rows["comp_ind"]
+
+            # Update the index to reflect the new comp_ind values
+            compinst = compinst.reset_index(drop=True).set_index(["entity", "comp_ind"])
 
         # Remove duplicates, keeping the last occurrence
-        compinst = compinst[~compinst.index.duplicated(keep="last")]
+        compinst = compinst[~compinst.index.duplicated(keep="last")].sort_index()
 
         # Check component multiplicity to determine indexing strategy
         try:
