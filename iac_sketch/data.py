@@ -196,13 +196,6 @@ class Registry:
     ----------
     components : dict[str, pd.DataFrame]
         Dictionary storing all component DataFrames by type name.
-    
-    Examples
-    --------
-    >>> import pandas as pd
-    >>> registry = Registry(components={})
-    >>> df = pd.DataFrame({'entity': ['A', 'B'], 'comp_ind': [0, 0], 'value': [1, 2]})
-    >>> registry['positions'] = df
     """
     components: dict[str, pd.DataFrame]
 
@@ -219,15 +212,6 @@ class Registry:
         -------
         pd.DataFrame
             The DataFrame containing components of the specified type.
-        
-        Raises
-        ------
-        KeyError
-            If the component type is not found in the registry.
-        
-        Examples
-        --------
-        >>> positions_df = registry['positions']
         """
 
         if key not in self.components:
@@ -247,10 +231,6 @@ class Registry:
             The component type name.
         value : pd.DataFrame
             The DataFrame to store for this component type.
-        
-        Examples
-        --------
-        >>> registry['positions'] = positions_df
         """
         self.set(key, value, mode="overwrite")
 
@@ -267,11 +247,6 @@ class Registry:
         -------
         bool
             True if the component type exists, False otherwise.
-        
-        Examples
-        --------
-        >>> 'positions' in registry
-        True
         """
         return key in self.components
 
@@ -283,11 +258,6 @@ class Registry:
         -------
         dict_keys
             A view of the component type names.
-        
-        Examples
-        --------
-        >>> list(registry.keys())
-        ['positions', 'velocities', 'compinsts']
         """
         return self.components.keys()
 
@@ -299,11 +269,6 @@ class Registry:
         -------
         dict_items
             A view of (component_type, DataFrame) pairs.
-        
-        Examples
-        --------
-        >>> for comp_type, df in registry.items():
-        ...     print(f"{comp_type}: {len(df)} components")
         """
         return self.components.items()
 
@@ -319,10 +284,6 @@ class Registry:
             The update mode to use. Can be 'upsert' or 'overwrite'.
             - 'upsert': Merge new data with existing, keeping latest duplicates
             - 'overwrite': Replace existing component DataFrames entirely
-        
-        Examples
-        --------
-        >>> registry1.update(registry2, mode='upsert')
         """
 
         for key, comp_df in other.items():
@@ -344,21 +305,10 @@ class Registry:
             - 'upsert': Merge with existing data, keeping latest duplicates
             - 'overwrite': Replace existing DataFrame entirely
         
-        Raises
-        ------
-        TypeError
-            If value is not a pandas DataFrame.
-        ValueError
-            If mode is not 'upsert' or 'overwrite'.
-        
         Notes
         -----
         If 'compinsts' component exists in the registry, it will be automatically
         updated to reflect the new or modified components.
-        
-        Examples
-        --------
-        >>> registry.set('positions', positions_df, mode='upsert')
         """
         if not isinstance(value, pd.DataFrame):
             raise TypeError("Value must be a pandas DataFrame.")
@@ -400,19 +350,10 @@ class Registry:
             - 'overwrite': Remove existing entries for this component type,
               then add new ones
         
-        Raises
-        ------
-        ValueError
-            If mode is not 'upsert' or 'overwrite'.
-        
         Notes
         -----
         The method assumes comp_df has 'entity' and 'comp_ind' columns and creates
         new rows in compinsts with these values plus the component_type.
-        
-        Examples
-        --------
-        >>> registry.update_compinsts('positions', positions_df, mode='upsert')
         """
         compinst = self["compinst"].copy()
 
@@ -449,12 +390,6 @@ class Registry:
         Registry
             A deep copy of this Registry instance, including all component
             DataFrames.
-        
-        Examples
-        --------
-        >>> registry_copy = registry.copy()
-        >>> registry_copy is registry
-        False
         """
         return copy.deepcopy(self)
 
@@ -481,14 +416,6 @@ class Registry:
             The DataFrame's attrs will contain 'view_components' indicating
             which components were used to create the view.
         
-        Raises
-        ------
-        TypeError
-            If view.components is not a string or list of strings.
-        ValueError
-            If joining components that are not properly indexed and no join_on
-            is specified.
-        
         Notes
         -----
         When joining multiple components:
@@ -496,11 +423,6 @@ class Registry:
           ['entity', 'comp_ind']
         - If join_on is specified, components are merged on that column
         - Column name conflicts are resolved with suffixes
-        
-        Examples
-        --------
-        >>> view = View(components=['positions', 'velocities'])
-        >>> combined_df = registry.resolve_view(view)
         """
 
         if isinstance(view.components, str):
@@ -560,17 +482,6 @@ class Registry:
         -------
         pd.DataFrame
             The resulting DataFrame containing the requested view of components.
-        
-        Examples
-        --------
-        >>> # Get a single component
-        >>> positions = registry.view('positions')
-        
-        >>> # Join multiple components
-        >>> combined = registry.view(['positions', 'velocities'], join_how='inner')
-        
-        >>> # Join on specific column
-        >>> result = registry.view(['comp1', 'comp2'], join_on='custom_id')
         """
         view = View(*args, **kwargs)
         return self.resolve_view(view)
