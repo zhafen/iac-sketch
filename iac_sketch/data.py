@@ -309,9 +309,45 @@ class Registry:
         -----
         If 'compinsts' component exists in the registry, it will be automatically
         updated to reflect the new or modified components.
+        
+        Component multiplicity is checked from the 'compdef' component if available.
+        Multiplicity format is "min..max" where min is the lower bound and max is 
+        the upper bound (or "*" for unlimited). When the upper bound is 1, the 
+        DataFrame is indexed only by 'entity'. Otherwise, it uses the multi-index
+        ['entity', 'comp_ind'].
         """
         if not isinstance(value, pd.DataFrame):
             raise TypeError("Value must be a pandas DataFrame.")
+
+        # Make a copy of the DataFrame to avoid modifying the original
+        value = value.copy()
+
+        # Check component multiplicity to determine indexing strategy
+        use_entity_only_index = False
+        if "compdef" in self.components:
+            compdef = self.components["compdef"]
+            if key in compdef.index:
+                multiplicity_str = compdef.loc[key, "multiplicity"]
+                # Parse multiplicity string (format: "min..max")
+                if ".." in multiplicity_str:
+                    _, upper_bound = multiplicity_str.split("..", 1)
+                    # If upper bound is 1, use entity-only indexing
+                    if upper_bound == "1":
+                        use_entity_only_index = True
+
+        # Ensure the DataFrame has the proper indexing
+        if use_entity_only_index:
+            # For components with multiplicity upper bound of 1, index by entity only
+            if value.index.name != "entity":
+                if "entity" not in value.columns:
+                    raise ValueError("DataFrame must contain 'entity' column.")
+                value = value.set_index("entity", drop=False)
+        else:
+            # For components with multiplicity > 1, use multi-index (entity, comp_ind)
+            if value.index.names != ["entity", "comp_ind"]:
+                if "entity" not in value.columns or "comp_ind" not in value.columns:
+                    raise ValueError("DataFrame must contain 'entity' and 'comp_ind' columns.")
+                value = value.set_index(["entity", "comp_ind"], drop=False)
 
         if key not in self.components:
             self.components[key] = value
@@ -319,9 +355,16 @@ class Registry:
             if mode == "overwrite":
                 self.components[key] = value
             elif mode == "upsert":
-                self.components[key] = pd.concat(
-                    [self.components[key], value]
-                ).drop_duplicates(subset=["entity", "comp_ind"], keep="last")
+                if use_entity_only_index:
+                    # For entity-only indexed components, merge on entity
+                    self.components[key] = pd.concat(
+                        [self.components[key], value]
+                    ).drop_duplicates(subset=["entity"], keep="last")
+                else:
+                    # For multi-indexed components, merge on entity and comp_ind
+                    self.components[key] = pd.concat(
+                        [self.components[key], value]
+                    ).drop_duplicates(subset=["entity", "comp_ind"], keep="last")
             else:
                 raise ValueError(
                     f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'."
