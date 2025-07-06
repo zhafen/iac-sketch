@@ -240,3 +240,83 @@ class TestView(unittest.TestCase):
 
         pd.testing.assert_frame_equal(actual, expected)
 
+    def test_view_multiple_in_comp(self):
+        components = {
+            "comp1": pd.DataFrame({
+                "entity": ["entity1", "entity1", "entity2"],
+                "comp_ind": [0, 2, 0],
+                "field1": [0, 1, 2],
+            }),
+            "comp2": pd.DataFrame({
+                "entity": ["entity1"],
+                "comp_ind": [1],
+                "field2": ["a"],
+            }),
+        }
+        registry = data.Registry(components)
+
+        actual = registry.resolve_view(data.View(["comp1", "comp2"]))
+
+        expected = pd.DataFrame({
+            "entity": ["entity1", "entity1", "entity2"],
+            "field1": [0, 1, 2],
+            "field2": ["a", "a", pd.NA],
+        }).set_index("entity")
+
+        pd.testing.assert_frame_equal(actual, expected)
+
+    def test_view_multiple_in_both_comps(self):
+        components = {
+            "comp1": pd.DataFrame({
+                "entity": ["entity1", "entity1", "entity2"],
+                "comp_ind": [0, 2, 0],
+                "field1": [0, 1, 2],
+            }),
+            "comp2": pd.DataFrame({
+                "entity": ["entity1", "entity1",],
+                "comp_ind": [1, 3],
+                "field2": ["a", "b"],
+            }),
+        }
+        registry = data.Registry(components)
+
+        actual = registry.resolve_view(data.View(["comp1", "comp2"]))
+
+        expected = pd.DataFrame({
+            "entity": ["entity1", "entity1", "entity1", "entity1", "entity2"],
+            "field1": [0, 0, 1, 1, 2],
+            "field2": ["a", "b", "a", "b", pd.NA],
+        }).set_index("entity")
+
+        pd.testing.assert_frame_equal(actual, expected)
+
+    def test_three_comps(self):
+        components = {
+            "comp1": pd.DataFrame({
+                "entity": ["entity1", "entity1", "entity2"],
+                "comp_ind": [0, 2, 0],
+                "field1": [0, 1, 2],
+            }),
+            "comp2": pd.DataFrame({
+                "entity": ["entity1", "entity1",],
+                "comp_ind": [1, 3],
+                "field2": ["a", "b"],
+            }),
+            "comp3": pd.DataFrame({
+                "entity": ["entity1", "entity2",],
+                "comp_ind": [4, 1],
+                "field3": [-1, -2],
+            }),
+        }
+        registry = data.Registry(components)
+
+        actual = registry.resolve_view(data.View(["comp1", "comp2", "comp3"]))
+
+        expected = pd.DataFrame({
+            "entity": ["entity1", "entity1", "entity1", "entity1", "entity2"],
+            "field1": [0, 0, 1, 1, 2],
+            "field2": ["a", "b", "a", "b", pd.NA],
+            "field3": [-1, -1, -1, -1, -2],
+        }).set_index("entity")
+
+        pd.testing.assert_frame_equal(actual, expected)
