@@ -297,63 +297,6 @@ class Registry:
 
     def set(self, key: str, value: pd.DataFrame, mode: str = "upsert"):
         """
-        Update or add a component DataFrame to the registry.
-
-        Parameters
-        ----------
-        key : str
-            The component type name.
-        value : pd.DataFrame
-            The DataFrame containing components of this type. Must contain
-            'entity' and 'comp_ind' columns for proper indexing.
-        mode : str, default 'upsert'
-            The update mode to use:
-            - 'upsert': Merge with existing data, keeping latest duplicates
-            - 'overwrite': Replace existing DataFrame entirely
-
-        Notes
-        -----
-        If 'compinsts' component exists in the registry, it will be automatically
-        updated to reflect the new or modified components.
-
-        Component multiplicity is checked from the 'compdef' component if available.
-        Multiplicity format is "min..max" where min is the lower bound and max is
-        the upper bound (or "*" for unlimited). When the upper bound is 1, the
-        DataFrame is indexed only by 'entity'. Otherwise, it uses the multi-index
-        ['entity', 'comp_ind'].
-        """
-        if not isinstance(value, pd.DataFrame):
-            raise TypeError("Value must be a pandas DataFrame.")
-
-        # Make a copy of the DataFrame to avoid modifying the original
-        value = value.copy()
-
-        # Validate and update the component instances
-        if "compinst" in self.components:
-            updated = self.validate_index(key, value, mode=mode)
-
-        if key not in self.components:
-            self.components[key] = value
-        else:
-            if mode == "overwrite":
-                updated = value
-            elif mode == "upsert":
-                # For upsert mode, merge and drop duplicates based on the index
-                updated = pd.concat([self.components[key], value])
-                if upper_bound == "1":
-                    subset = ["entity"]
-                else:
-                    subset = ["entity", "comp_ind"]
-                updated = updated.drop_duplicates(
-                    subset=subset, keep="last"
-                )
-            else:
-                raise ValueError(f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'.")
-
-        self.components[key] = updated
-
-    def validate_index(self, key: str, comp_df: pd.DataFrame, mode: str = "upsert") -> pd.DataFrame:
-        """
         Validate the index of a component DataFrame and update compinsts.
 
         The 'compinsts' component serves as a master index tracking all components
@@ -376,16 +319,18 @@ class Registry:
         The method assumes comp_df has 'entity' and 'comp_ind' columns and creates
         new rows in compinsts with these values plus the component_type.
         """
+        value = value.copy()
+        existing = self[key].copy() if key in self.components else pd.DataFrame()
         compinst = self["compinst"].copy()
 
         # Reset comp_df index to create a simple monotonic index for tracking
-        comp_df = comp_df.reset_index(drop=True)
+        value = value.reset_index(drop=True)
 
         # Prepare new rows from comp_df for compinst
         # Store the original index to map back to comp_df later
-        new_rows = comp_df[["entity", "comp_ind"]].copy()
+        new_rows = value[["entity", "comp_ind"]].copy()
         new_rows["component_type"] = key
-        new_rows["original_index"] = comp_df.index  # Track original comp_df row indices
+        new_rows["original_index"] = value.index  # Track original comp_df row indices
         new_rows = new_rows.set_index(["entity", "comp_ind"], drop=False)
 
         # If mode is 'overwrite', remove existing entries for this component type
@@ -413,23 +358,33 @@ class Registry:
                         max_comp_ind = -1
                     # Fill NaN values with monotonic sequence starting from max + 1
                     nan_count = nan_mask.sum()
-                    new_indices = range(int(max_comp_ind) + 1, int(max_comp_ind) + 1 + nan_count)
+                    new_indices = range(
+                        int(max_comp_ind) + 1, int(max_comp_ind) + 1 + nan_count
+                    )
                     group.loc[nan_mask, "comp_ind"] = new_indices
                 return group
+
             compinst = compinst.groupby("entity", group_keys=False).apply(fill_comp_ind)
-            
+
             # Propagate filled comp_ind values back to comp_df
             # Filter for rows that were just added (those with original_index values)
             new_rows_mask = compinst["original_index"].notna()
             filled_new_rows = compinst[new_rows_mask].copy()
             # Update comp_df using vectorized assignment
-            comp_df.loc[filled_new_rows["original_index"], "comp_ind"] = filled_new_rows["comp_ind"]
+            value.loc[filled_new_rows["original_index"], "comp_ind"] = filled_new_rows[
+                "comp_ind"
+            ]
 
             # Update the index to reflect the new comp_ind values
             compinst = compinst.reset_index(drop=True).set_index(["entity", "comp_ind"])
 
         # Remove duplicates, keeping the last occurrence
         compinst = compinst[~compinst.index.duplicated(keep="last")].sort_index()
+
+        # Update the component DataFrame in the registry
+        value = pd.concat(
+            [existing, value],
+        ).drop_duplicates(subset=["entity", "comp_ind"], keep="last")
 
         # Check component multiplicity to determine indexing strategy
         try:
@@ -444,23 +399,14 @@ class Registry:
         # Ensure the DataFrame has the proper indexing
         if upper_bound == "1":
             # For components with multiplicity upper bound of 1, index by entity only
-            if comp_df.index.name != "entity":
-                if "entity" not in comp_df.columns:
-                    raise ValueError("DataFrame must contain 'entity' column.")
-                comp_df = comp_df.set_index("entity", drop=False)
+            value = value.set_index("entity", drop=False)
         else:
             # For components with multiplicity > 1, use multi-index (entity, comp_ind)
-            if comp_df.index.names != ["entity", "comp_ind"]:
-                if "entity" not in comp_df.columns or "comp_ind" not in comp_df.columns:
-                    raise ValueError(
-                        "DataFrame must contain 'entity' and 'comp_ind' columns."
-                    )
-                comp_df = comp_df.set_index(["entity", "comp_ind"], drop=False)
+            value = value.set_index(["entity", "comp_ind"], drop=False)
 
         # Store
         self.components["compinst"] = compinst
-
-        return comp_df
+        self.components[key] = value
 
     def copy(self):
         """
