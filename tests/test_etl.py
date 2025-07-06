@@ -280,7 +280,10 @@ class TestPreprocessTransformers(unittest.TestCase):
     def test_component_validator(self):
 
         registry = data.Registry({})
-        registry["compdef"] = pd.DataFrame(
+        # We do the rare case of setting the components directly
+        # This should never be done unless you want to override the indexing
+        # and know what you're doing.
+        registry.components["compdef"] = pd.DataFrame(
             [
                 {
                     "entity": "my_component",
@@ -317,7 +320,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "multiplicity": "0..1",
                 },
             ]
-        ).set_index("entity", drop=False)
+        ).set_index("entity")
         registry["my_component"] = pd.DataFrame(
             [
                 {
@@ -340,8 +343,11 @@ class TestPreprocessTransformers(unittest.TestCase):
         registry = self.transform_sys.apply_transform(
             registry,
             transform.ComponentValidator(),
-            components_mapping={"my_component": data.View("my_component")},
+            components_mapping={
+                "my_component": data.View("my_component"),
+            },
         )
+
         expected = pd.DataFrame(
             [
                 {
@@ -358,7 +364,10 @@ class TestPreprocessTransformers(unittest.TestCase):
                 },
             ]
         ).set_index("entity")
+
         actual = registry["my_component"].copy()
+        assert actual.attrs["valid"], actual.attrs["errors"]
+
         assert_frame_equal(actual, expected)
 
 class TestSystemTransformers(unittest.TestCase):

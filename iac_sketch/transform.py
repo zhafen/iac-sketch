@@ -146,7 +146,8 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
 
     def transform(self, X, registry: data.Registry = None):
 
-        X = X.copy()
+        # This is another transform operation that operates on unindexed DataFrames.
+        X = registry.reset_index(X)
 
         # Get the component definition
         # Since X is the input view, which is what we're validating,
@@ -166,26 +167,6 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         except pa.errors.SchemaError as exc:
             X.attrs["valid"] = False
             X.attrs["errors"] += str(exc) + " "
-
-        # Set the index based on the multiplicity of the component
-        multiplicity = component_def["multiplicity"]
-        try:
-            if multiplicity[-1] == "1":
-                X = X.set_index("entity", drop=False)
-            elif multiplicity[-1] == "*":
-                X = X.set_index(["entity", "comp_ind"], drop=False)
-            # TODO: This validates only the upper end of the multiplicity,
-            #       we should also validate the lower end.
-            else:
-                X.attrs["valid"] = False
-                X.attrs[
-                    "errors"
-                ] += f"Failed to set index based on multiplicity, {multiplicity}. "
-        except TypeError:
-            X.attrs["valid"] = False
-            X.attrs[
-                "errors"
-            ] += f"Failed to set index based on multiplicity, {multiplicity}. "
 
         return X
 

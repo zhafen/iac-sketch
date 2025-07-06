@@ -454,6 +454,14 @@ class Registry:
         # Check component multiplicity to determine indexing strategy
         try:
             multiplicity_str = self.components["compdef"].loc[key, "multiplicity"]
+            # It's possible for multiplicity to be a Series before compdef is validated
+            if isinstance(multiplicity_str, pd.Series):
+                if len(multiplicity_str) > 1:
+                    raise ValueError(
+                        f"Component '{key}' has multiple multiplicity definitions."
+                    )
+                multiplicity_str = multiplicity_str.iloc[0]
+
             # Parse multiplicity string (format: "min..max")
             _, upper_bound = multiplicity_str.split("..", 1)
         except (KeyError, ValueError):
