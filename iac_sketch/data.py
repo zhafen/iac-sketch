@@ -324,11 +324,11 @@ class Registry:
             raise ValueError(f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'.")
 
         # We'll be messing with the indices, so we reset them for now
-        value = value.reset_index()
+        value = self.reset_index(value)
 
         # Incorporate the existing component if mode is 'upsert'
         if mode == "upsert" and key in self.components:
-            existing = self[key].reset_index()
+            existing = self.reset_index(self[key])
             value = pd.concat(
                 [existing, value],
             )
@@ -346,8 +346,11 @@ class Registry:
         self, key: str, value: pd.DataFrame, mode: str = "upsert"
     ) -> pd.DataFrame:
 
-        assert (value.index.name is None) and ("entity" in value.columns) and (
-            "comp_ind" in value.columns), (
+        assert (
+            (value.index.name is None)
+            and ("entity" in value.columns)
+            and ("comp_ind" in value.columns)
+        ), (
             "The value DataFrame must not have an index set and must have the "
             "'entity' and 'comp_ind' columns. "
             "Use reset_index() before calling sync_comp_inds."
@@ -398,16 +401,6 @@ class Registry:
 
             compinst = compinst.groupby("entity", group_keys=False).apply(fill_comp_ind)
 
-            # Replace the 'comp_ind' index with the filled 'new_comp_ind' values,
-            # after dropping duplicates
-            # compinst["new_comp_ind"] = compinst["new_comp_ind"].astype(int)
-            # compinst = compinst.drop_duplicates(
-            #     subset=["entity", "new_comp_ind"],
-            #     keep="last",
-            # )
-            # compinst["comp_ind"] = compinst["new_comp_ind"]
-            # compinst = compinst.set_index(["entity", "comp_ind"])
-
             # Propagate filled comp_ind values back to comp_df
             # Filter for rows that were just added (those with original_index values)
             new_rows_mask = compinst["original_index"].notna()
@@ -436,6 +429,26 @@ class Registry:
 
         # Indices for value are handled later
         return value
+
+    def reset_index(self, value: pd.DataFrame) -> pd.DataFrame:
+        """We have a special reset_index method because we want to drop the index only
+        when it's not set to 'entity' or ['entity', 'comp_ind'].
+
+        Parameters
+        ----------
+        value : pd.DataFrame
+            The DataFrame to reset the index for.
+
+        Returns
+        -------
+        pd.DataFrame
+            The DataFrame with the index reset.
+        """
+
+        drop = (
+            list(value.index.names) != ["entity", "comp_ind"]
+        ) and value.index.name != "entity"
+        return value.reset_index(drop=drop)
 
     def set_index(self, key: str, value: pd.DataFrame):
 
