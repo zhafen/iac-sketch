@@ -173,7 +173,7 @@ class View:
     """Encapsulates the specification for a registry view."""
 
     components: str | list[str]
-    join_on: str = None
+    join_on: str = "entity"
     join_how: str = "left"
 
 
@@ -521,30 +521,12 @@ class Registry:
                 if i == 0:
                     view_df = df_i
                     continue
-                if view.join_on is None:
-                    # If join_on is not specified we join on the entity
-                    if df_i.index.name != "entity" and df_i.index.name != [
-                        "entity",
-                        "comp_ind",
-                    ]:
-                        raise ValueError(
-                            f"Component {key} is not indexed by 'entity' or "
-                            "['entity', 'comp_ind']. Must provide join_on."
-                        )
-                    view_df = view_df.join(
-                        df_i,
-                        how=view.join_how,
-                        rsuffix=f"_{key}",
-                        on="entity",
-                    )
-                else:
-                    view_df = view_df.merge(
-                        df_i,
-                        how=view.join_how,
-                        left_on=view.join_on,
-                        right_on=view.join_on,
-                        suffixes=("", f"_{key}"),
-                    )
+                view_df = view_df.merge(
+                    df_i,
+                    on=view.join_on,
+                    how=view.join_how,
+                    suffixes=("", f"_{key}"),
+                )
         else:
             raise TypeError("View.keys must be a string or a list of strings.")
 

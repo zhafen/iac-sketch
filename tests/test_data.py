@@ -213,3 +213,30 @@ class TestRegistry(unittest.TestCase):
         pd.testing.assert_frame_equal(actual, expected)
         actual = registry.reset_index(comp_a.set_index(["entity"]))
         pd.testing.assert_frame_equal(actual, expected)
+
+class TestView(unittest.TestCase):
+    def test_view(self):
+        components = {
+            "comp1": pd.DataFrame({
+                "entity": ["entity1", "entity2"],
+                "comp_ind": [0, 0],
+                "field1": [1, 2],
+            }),
+            "comp2": pd.DataFrame({
+                "entity": ["entity1"],
+                "comp_ind": [1],
+                "field2": ["a"],
+            }),
+        }
+        registry = data.Registry(components)
+
+        actual = registry.resolve_view(data.View(["comp1", "comp2"]))
+
+        expected = pd.DataFrame({
+            "entity": ["entity1", "entity2"],
+            "field1": [1, 2],
+            "field2": ["a", pd.NA],
+        }).set_index("entity")
+
+        pd.testing.assert_frame_equal(actual, expected)
+
