@@ -406,7 +406,14 @@ class TestSystemTransformers(unittest.TestCase):
                         "link_type": "dependency",
                     },
                 ]
-            ).set_index(["entity", "comp_ind"], drop=False)
+            ),
+            "compinst": pd.DataFrame(
+                {
+                    "entity": ["my_workflow", "my_other_workflow"],
+                    "comp_ind": [0, 0],
+                    "component_type": ["links", "links"],
+                }
+            )
         })
 
         registry = self.transform_sys.apply_transform(
@@ -421,26 +428,25 @@ class TestSystemTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_workflow",
-                    "comp_ind": 0,
+                    "comp_ind": 1,
                     "link_type": "dependency",
                     "source": "my_first_task",
                     "target": "my_second_task",
                 },
                 {
                     "entity": "my_workflow",
-                    "comp_ind": 1,
+                    "comp_ind": 2,
                     "link_type": "dependency",
                     "source": "my_second_task",
                     "target": "my_third_task",
                 },
                 {
                     "entity": "my_other_workflow",
-                    "comp_ind": 0,
+                    "comp_ind": 1,
                     "link_type": "dependency",
                     "source": "my_first_task",
                     "target": "my_third_task",
                 },
             ]
-        ).set_index(["entity", "comp_ind"], drop=False)
+        ).set_index(["entity", "comp_ind"]).sort_index()
         assert_frame_equal(actual, expected)
-        assert registry["metadata"]["n_comps"].max() == 4

@@ -191,8 +191,12 @@ class LinksParser(BaseEstimator, TransformerMixin):
     def fit(self, _X, _y=None):
         return self
 
-    def transform(self, X: pd.DataFrame, _registry: data.Registry = None) -> pd.DataFrame:
-        X = X.copy()
+    def transform(self, X: pd.DataFrame, registry: data.Registry = None) -> pd.DataFrame:
+
+        # This transformer produces new components,
+        # so we indicate that with nan comp_inds
+        X = registry.reset_index(X)
+        X["comp_ind"] = pd.NA
 
         # Parse the links column
         exploded_links = (
@@ -216,10 +220,7 @@ class LinksParser(BaseEstimator, TransformerMixin):
             )
         # Add the parsed results back to the original DataFrame
         X_out = (
-            X.join(exploded_links).drop(columns=["links"]).reset_index(drop=True)
+            X.join(exploded_links).drop(columns=["links"])
         )
-
-        # Ensure we have the right index
-        X_out = X_out.set_index(["entity", "comp_ind"], drop=False)
 
         return X_out
