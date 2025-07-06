@@ -346,23 +346,17 @@ class Registry:
         self, key: str, value: pd.DataFrame, mode: str = "upsert"
     ) -> pd.DataFrame:
 
-        assert (
-            (value.index.name is None)
-            and ("entity" in value.columns)
-            and ("comp_ind" in value.columns)
-        ), (
-            "The value DataFrame must not have an index set and must have the "
-            "'entity' and 'comp_ind' columns. "
-            "Use reset_index() before calling sync_comp_inds."
-        )
+        # Just in case, we reset the index of value
+        # This should already be done in set, but if we're using this method
+        # independently, we want to ensure the index is reset.
+        value = self.reset_index(value)
 
         # Skip if compinst is not created yet
         if "compinst" not in self.components:
             return value
 
-        # Get compinst, moving indices back to columns while since we will be
-        # modifying them.
-        compinst = self["compinst"].reset_index()
+        # Get compinst, with fresh indices so we can modify them
+        compinst = self.reset_index(self["compinst"])
 
         # Prepare new rows from comp_df for compinst
         # Store the original index to map back to comp_df later
@@ -470,7 +464,7 @@ class Registry:
             # For components with multiplicity > 1, use multi-index (entity, comp_ind)
             value = value.set_index(["entity", "comp_ind"])
 
-        return value
+        return value.sort_index()
 
     def copy(self):
         """

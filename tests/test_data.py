@@ -148,10 +148,19 @@ class TestRegistry(unittest.TestCase):
 
         registry.set("comp_a", new_component, mode="upsert")
 
-        assert "comp_a" in registry.components
-        assert len(registry["comp_a"]) == 3
-        assert registry["comp_a"].sort_index()["field_1"].tolist() == [-1, 2, -2]
-        assert registry["compinst"].sort_index()["entity"].tolist() == ["entity1", "entity2", "entity3"]
+        expected = pd.DataFrame({
+            "entity": ["entity1", "entity2", "entity3"],
+            "comp_ind": [0, 0, 0],
+            "field_1": [-1, 2, -2],
+        }).set_index(["entity", "comp_ind"])
+        expected_compinsts = pd.DataFrame({
+            "entity": ["entity1", "entity2", "entity3"],
+            "comp_ind": [0, 0, 0],
+            "component_type": ["comp_a", "comp_a", "comp_a"],
+        }).set_index(["entity", "comp_ind"])
+
+        pd.testing.assert_frame_equal(registry["comp_a"], expected)
+        pd.testing.assert_frame_equal(registry["compinst"], expected_compinsts)
 
     def test_sync_comp_inds(self):
         components = {
@@ -179,7 +188,7 @@ class TestRegistry(unittest.TestCase):
             "component_type": ["comp_a"] * 5,
         }).set_index(["entity", "comp_ind"])
 
-        actual = registry.sync_inds_to_compinsts("comp_a", registry["comp_a"], mode="upsert")
+        actual = registry.sync_comp_inds("comp_a", registry["comp_a"], mode="upsert")
 
         pd.testing.assert_frame_equal(actual, expected)
         pd.testing.assert_frame_equal(registry["compinst"], expected_compinsts)
