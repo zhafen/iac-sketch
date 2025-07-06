@@ -464,7 +464,7 @@ class Registry:
 
             # Parse multiplicity string (format: "min..max")
             _, upper_bound = multiplicity_str.split("..", 1)
-        except (KeyError, ValueError):
+        except (KeyError, ValueError, AttributeError):
             # If compdef doesn't exist, key not found, or parsing fails,
             # default to multi-index behavior
             upper_bound = "*"
