@@ -224,8 +224,9 @@ class TestPreprocessTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_other_component",
-                    "comp_ind": 0.0,
-                    "comp_ind_fields": 1.0,
+                    # comp_ind is set to 4 because there are three components
+                    # defined above and one metadata component, so the next is 4
+                    "comp_ind": 4,
                     "fields": {
                         "my_field": data.Field(
                             name="my_field",
@@ -249,8 +250,9 @@ class TestPreprocessTransformers(unittest.TestCase):
                 },
                 {
                     "entity": "my_simple_component",
-                    "comp_ind": 0.0,
-                    "comp_ind_fields": np.nan,
+                    # comp_ind is set to 2 because there is one component
+                    # defined above and one metadata component, so the next is 2
+                    "comp_ind": 2,
                     "fields": {},
                     "defined": True,
                     "unparsed_fields": {},
@@ -259,8 +261,9 @@ class TestPreprocessTransformers(unittest.TestCase):
                 },
                 {
                     "entity": "this_is_a_fictional_component",
-                    "comp_ind": np.nan,
-                    "comp_ind_fields": np.nan,
+                    # comp_ind is set to 0 because this entity is first defined
+                    # during the component definition extraction
+                    "comp_ind": 0,
                     "fields": {},
                     "defined": False,
                     "unparsed_fields": {},
@@ -268,7 +271,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "errors": "Component definition does not exist. ",
                 },
             ]
-        ).set_index("entity")
+        ).set_index(["entity", "comp_ind"])
         actual = registry["compdef"].copy()
         expected = expected.drop(columns="fields")
         actual = actual.drop(columns="fields").loc[expected.index, expected.columns]
@@ -281,8 +284,7 @@ class TestPreprocessTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_component",
-                    "comp_ind": 0.0,
-                    "comp_ind_fields": 1.0,
+                    "comp_ind": 1,
                     "fields": {
                         "entity": data.Field(
                             name="entity",

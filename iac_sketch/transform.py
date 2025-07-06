@@ -89,12 +89,6 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         X.loc[X["defined"].isna(), "defined"] = False
         X["defined"] = X["defined"].astype(bool)
 
-        # We set the index to the entity column in this function, even though for
-        # most components this will be done later, during component validation.
-        # This is because we want to have a mostly valid component definition
-        # dataframe to use for the component validation step.
-        X = X.set_index("entity", drop=False)
-
         # Parse the fields
         X = X.apply(self._parse_fields, axis="columns")
 
@@ -103,7 +97,7 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
 
         # All component definitions include an "entity" column and a "comp_ind" column
         # We pull the definitions from a "default_fields" component.
-        default_fields = X.loc["default_fields", "fields"]
+        default_fields = X.loc[X["entity"] == "default_fields", "fields"]
         X["fields"] = X["fields"].apply(lambda d: {**default_fields, **d})
 
         # Update validity with whether or not the component is defined
