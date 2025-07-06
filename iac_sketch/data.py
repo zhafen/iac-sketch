@@ -352,7 +352,7 @@ class Registry:
         compinst = self["compinst"].copy()
 
         # Reset comp_df index to create a simple monotonic index for tracking
-        value = value.reset_index(drop=True)
+        value = value.reset_index()
 
         # Prepare new rows from comp_df for compinst
         # Store the original index to map back to comp_df later
@@ -400,9 +400,6 @@ class Registry:
                 "comp_ind"
             ]
 
-            # Update the index to reflect the new comp_ind values
-            compinst = compinst.reset_index(drop=True).set_index(["entity", "comp_ind"])
-
         # Remove duplicates, keeping the last occurrence
         compinst = compinst[~compinst.index.duplicated(keep="last")].sort_index()
 
@@ -426,10 +423,10 @@ class Registry:
         # Ensure the DataFrame has the proper indexing
         if upper_bound == "1":
             # For components with multiplicity upper bound of 1, index by entity only
-            value = value.set_index("entity", drop=False)
+            value = value.set_index("entity")
         else:
             # For components with multiplicity > 1, use multi-index (entity, comp_ind)
-            value = value.set_index(["entity", "comp_ind"], drop=False)
+            value = value.set_index(["entity", "comp_ind"])
 
         return value
 

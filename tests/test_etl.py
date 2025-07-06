@@ -113,7 +113,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "value": "This entity is also a test entity.",
                 },
             ]
-        )
+        ).set_index(["entity", "comp_ind"])
         assert_frame_equal(registry["description"], expected)
 
     def test_component_normalizer_complex(self):
@@ -162,7 +162,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "timezone": "UTC",
                 },
             ]
-        )
+        ).set_index(["entity", "comp_ind"])
         assert_frame_equal(actual, expected)
 
     def test_component_normalizer_for_component_component(self):
@@ -201,7 +201,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "multiplicity": pd.NA,
                 },
             ]
-        )
+        ).set_index(["entity", "comp_ind"])
         assert_frame_equal(registry["component"], expected)
 
     def test_component_def_extractor(self):
@@ -355,7 +355,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "my_other_field": False,
                 },
             ]
-        ).set_index("entity", drop=False)
+        ).set_index("entity")
         actual = registry["my_component"].copy()
         assert_frame_equal(actual, expected)
 
