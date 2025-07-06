@@ -272,7 +272,18 @@ class TestPreprocessTransformers(unittest.TestCase):
                 },
             ]
         ).set_index(["entity", "comp_ind"])
+
         actual = registry["compdef"].copy()
+        
+        # Check fields for my_other_component
+        my_component_actual_fields = actual.loc["my_other_component", "fields"].iloc[0]
+        assert "my_field" in my_component_actual_fields
+        assert "my_other_field" in my_component_actual_fields
+        for field_name, field in my_component_actual_fields.items():
+            assert isinstance(field, data.Field), f"{field_name} is not a Field object"
+            assert field.name == field_name, f"{field_name} does not match the field name"
+
+        # Then check the frame
         expected = expected.drop(columns="fields")
         actual = actual.drop(columns="fields").loc[expected.index, expected.columns]
         assert_frame_equal(actual, expected)

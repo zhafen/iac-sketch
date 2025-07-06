@@ -97,7 +97,7 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
 
         # All component definitions include an "entity" column and a "comp_ind" column
         # We pull the definitions from a "default_fields" component.
-        default_fields = X.loc[X["entity"] == "default_fields", "fields"]
+        default_fields = X.loc[X["entity"] == "default_fields", "fields"].iloc[0]
         X["fields"] = X["fields"].apply(lambda d: {**default_fields, **d})
 
         # Update validity with whether or not the component is defined
@@ -149,10 +149,24 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         # This is another transform operation that operates on unindexed DataFrames.
         X = registry.reset_index(X)
 
-        # Get the component definition
+
         # Since X is the input view, which is what we're validating,
         # we can use the view_components attribute to get the name of the component
-        component_def = registry["compdef"].loc[X.attrs["view_components"]]
+        key = X.attrs["view_components"]
+
+        # Get the component definition
+        # If we're validating compdef we have to handle it specially,
+        # because X is not yet in the format it should be.
+        if key == "compdef":
+            component_def = X.loc[X["entity"] == "compdef"]
+            if len(component_def) > 1:
+                raise ValueError(
+                    f"Multiple component definitions found for key '{key}'. "
+                    "This should not happen, please check your registry."
+                )
+            component_def = component_def.iloc[0]
+        else:
+            component_def = registry["compdef"].loc[key]
 
         # Set the attributes for validity and errors
         X.attrs["valid"] = component_def["valid"]
