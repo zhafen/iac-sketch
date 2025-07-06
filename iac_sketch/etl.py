@@ -246,4 +246,12 @@ class TransformSystem:
 
     def apply_system_transforms(self, registry: data.Registry) -> data.Registry:
 
+        # Parsing links into link
+        registry = self.apply_transform(
+            registry,
+            transform.LinksParser(),
+            components_mapping={"link": data.View("links")},
+            mode="upsert",
+        )
+
         return registry

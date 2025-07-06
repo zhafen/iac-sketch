@@ -12,6 +12,6 @@ class TestArchitect(unittest.TestCase):
     def test_etl(self):
         registry = self.architect.perform_registry_etl()
 
-        assert "component" in registry.components
-        assert "link" in registry.components["component"]["entity"].values
+        assert "link" in registry
+        assert "link" in registry["compinst"].index.get_level_values("entity")
 

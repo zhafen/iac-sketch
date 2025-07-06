@@ -185,8 +185,6 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         return X
 
 class LinksParser(BaseEstimator, TransformerMixin):
-    """TODO: Facing an instance of the newest problem with the framework, which is: how to handle comp_inds when we're generating new components post-yaml?
-    """
 
     def fit(self, _X, _y=None):
         return self
