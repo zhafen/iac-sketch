@@ -148,18 +148,18 @@ class TestPreprocessTransformers(unittest.TestCase):
         expected = pd.DataFrame(
             [
                 {
-                    "entity": "my_time",
-                    "comp_ind": 0,
-                    "value": "2023-10-01",
-                    "seconds": np.nan,
-                    "timezone": np.nan,
-                },
-                {
                     "entity": "my_other_time",
                     "comp_ind": 0,
                     "value": "1970-01-01",
                     "seconds": 0.0,
                     "timezone": "UTC",
+                },
+                {
+                    "entity": "my_time",
+                    "comp_ind": 0,
+                    "value": "2023-10-01",
+                    "seconds": np.nan,
+                    "timezone": np.nan,
                 },
             ]
         ).set_index(["entity", "comp_ind"])

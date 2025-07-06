@@ -177,7 +177,6 @@ class View:
     join_how: str = "left"
 
 
-@dataclass(repr=False)
 class Registry:
     """
     Entity-Component-System registry implementation using pandas DataFrames.
@@ -203,7 +202,11 @@ class Registry:
         Dictionary storing all component DataFrames by type name.
     """
 
-    components: dict[str, pd.DataFrame]
+    def __init__(self, components: dict[str, pd.DataFrame] = None):
+        self.components = {}
+        if components:
+            for key, value in components.items():
+                self.set(key, value)
 
     def __getitem__(self, key: str):
         """

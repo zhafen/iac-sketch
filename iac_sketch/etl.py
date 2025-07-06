@@ -132,7 +132,7 @@ class ExtractSystem:
                 # We don't want the component_type column in the final registry
                 # since it was just used to group the components.
                 # We also don't care about the index, so reset it.
-                key: df.drop(columns="component_type").reset_index(drop=True)
+                key: df.drop(columns="component_type")
                 for key, df in entities.groupby("component_type")
             }
         )
@@ -141,7 +141,7 @@ class ExtractSystem:
         # component. We take the time to use the same format as the other components.
         registry["compinst"] = entities[
             ["entity", "comp_ind", "component_type"]
-        ].set_index(["entity", "comp_ind"], drop=False)
+        ].set_index(["entity", "comp_ind"])
 
         return registry
 
