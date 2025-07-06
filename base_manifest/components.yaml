@@ -53,16 +53,6 @@ compdef:
 - component:
     multiplicity: "0..1"
 - fields:
-    entity [str]:
-        description: The entity associated with the component.
-        nullable: False
-    comp_ind [Int64]:
-        description: >
-            The index of the component, amongst the components that define the entity.
-        coerce: True
-    comp_ind_fields [Int64]: 
-        description: Component index for the data component
-        coerce: True
     fields [dict[str, field]]: Field definitions.
     unparsed_fields [dict]: Field definitions in unparsed form.
     defined [bool]: Whether or not the component is defined.
