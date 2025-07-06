@@ -323,19 +323,20 @@ class Registry:
         if mode not in ["upsert", "overwrite"]:
             raise ValueError(f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'.")
 
-        value = value.copy()
-
-        # First step is to fill in any missing comp_inds and sync with compinsts
-        value = self.sync_comp_inds(key, value, mode)
+        # We'll be messing with the indices, so we reset them for now
+        value = value.reset_index()
 
         # Incorporate the existing component if mode is 'upsert'
-        if mode == "upsert":
-            existing = self[key].copy() if key in self.components else pd.DataFrame()
+        if mode == "upsert" and key in self.components:
+            existing = self[key].reset_index()
             value = pd.concat(
                 [existing, value],
-            ).drop_duplicates(subset=["entity", "comp_ind"], keep="last")
+            )
 
-        # Set the index based on component multiplicity
+        # Sync component indices with compinsts
+        value = self.sync_comp_inds(key, value, mode)
+
+        # Add indices
         value = self.set_index(key, value)
 
         # Store
@@ -345,21 +346,26 @@ class Registry:
         self, key: str, value: pd.DataFrame, mode: str = "upsert"
     ) -> pd.DataFrame:
 
+        assert (value.index.name is None) and ("entity" in value.columns) and (
+            "comp_ind" in value.columns), (
+            "The value DataFrame must not have an index set and must have the "
+            "'entity' and 'comp_ind' columns. "
+            "Use reset_index() before calling sync_comp_inds."
+        )
+
         # Skip if compinst is not created yet
         if "compinst" not in self.components:
             return value
 
-        compinst = self["compinst"].copy()
-
-        # Reset comp_df index to create a simple monotonic index for tracking
-        value = value.reset_index()
+        # Get compinst, moving indices back to columns while since we will be
+        # modifying them.
+        compinst = self["compinst"].reset_index()
 
         # Prepare new rows from comp_df for compinst
         # Store the original index to map back to comp_df later
         new_rows = value[["entity", "comp_ind"]].copy()
         new_rows["component_type"] = key
         new_rows["original_index"] = value.index  # Track original comp_df row indices
-        new_rows = new_rows.set_index(["entity", "comp_ind"], drop=False)
 
         # If mode is 'overwrite', remove existing entries for this component type
         if mode == "overwrite":
@@ -371,6 +377,7 @@ class Registry:
         # Replace nan comp_inds with a monotonic index, starting from the largest
         # existing comp_ind value for a given entity
         if compinst["comp_ind"].isna().any():
+
             # Group by entity to handle each entity separately
             def fill_comp_ind(group):
                 # Find rows with NaN comp_ind
@@ -391,21 +398,43 @@ class Registry:
 
             compinst = compinst.groupby("entity", group_keys=False).apply(fill_comp_ind)
 
+            # Replace the 'comp_ind' index with the filled 'new_comp_ind' values,
+            # after dropping duplicates
+            # compinst["new_comp_ind"] = compinst["new_comp_ind"].astype(int)
+            # compinst = compinst.drop_duplicates(
+            #     subset=["entity", "new_comp_ind"],
+            #     keep="last",
+            # )
+            # compinst["comp_ind"] = compinst["new_comp_ind"]
+            # compinst = compinst.set_index(["entity", "comp_ind"])
+
             # Propagate filled comp_ind values back to comp_df
             # Filter for rows that were just added (those with original_index values)
             new_rows_mask = compinst["original_index"].notna()
-            filled_new_rows = compinst[new_rows_mask].copy()
+            new_rows = compinst[new_rows_mask].copy()
             # Update comp_df using vectorized assignment
-            value.loc[filled_new_rows["original_index"], "comp_ind"] = filled_new_rows[
-                "comp_ind"
-            ]
+            value.loc[new_rows["original_index"], "comp_ind"] = new_rows["comp_ind"]
 
-        # Remove duplicates, keeping the last occurrence
-        compinst = compinst[~compinst.index.duplicated(keep="last")].sort_index()
+        # Clean up: drop duplicates, indices, and ensure comp_ind is of type int
+        # There's probably a better way to do this than calling drop_duplicates twice
+        value = value.drop_duplicates(
+            subset=["entity", "comp_ind"],
+            keep="last",
+        ).reset_index(drop=True)
+        value["comp_ind"] = value["comp_ind"].astype(int)
+        compinst = compinst.drop_duplicates(
+            subset=["entity", "comp_ind"],
+            keep="last",
+        ).reset_index(drop=True)
+        compinst["comp_ind"] = compinst["comp_ind"].astype(int)
 
-        # Store the updated compinst in the registry
+        # Return compinst to the original format and set it
+        compinst = compinst.set_index(["entity", "comp_ind"])
+        compinst = compinst[["component_type"]]
+        compinst = compinst.sort_index()
         self.components["compinst"] = compinst
 
+        # Indices for value are handled later
         return value
 
     def set_index(self, key: str, value: pd.DataFrame):
