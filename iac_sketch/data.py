@@ -353,6 +353,8 @@ class Registry:
         # This should already be done in set, but if we're using this method
         # independently, we want to ensure the index is reset.
         value = self.reset_index(value)
+        if "comp_ind" not in value.columns:
+            value["comp_ind"] = pd.NA
 
         # Skip if compinst is not created yet
         if "compinst" not in self.components:

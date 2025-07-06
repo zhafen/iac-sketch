@@ -30,9 +30,11 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
     def fit(self, _X, _y=None):
         return self
 
-    def transform(self, X, _registry: data.Registry = None):
+    def transform(self, X, registry: data.Registry = None):
 
-        X = X.copy()
+        # This transform operates on unindexed DataFrames.
+        # They'll be reindexed when they're returned to the registry.
+        X = registry.reset_index(X)
 
         # Start by unpacking the 'component' column
         comp_data = pd.json_normalize(X["component"])
