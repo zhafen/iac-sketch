@@ -319,8 +319,36 @@ class Registry:
         The method assumes comp_df has 'entity' and 'comp_ind' columns and creates
         new rows in compinsts with these values plus the component_type.
         """
+
+        if mode not in ["upsert", "overwrite"]:
+            raise ValueError(f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'.")
+
         value = value.copy()
-        existing = self[key].copy() if key in self.components else pd.DataFrame()
+
+        # First step is to fill in any missing comp_inds and sync with compinsts
+        value = self.sync_comp_inds(key, value, mode)
+
+        # Incorporate the existing component if mode is 'upsert'
+        if mode == "upsert":
+            existing = self[key].copy() if key in self.components else pd.DataFrame()
+            value = pd.concat(
+                [existing, value],
+            ).drop_duplicates(subset=["entity", "comp_ind"], keep="last")
+
+        # Set the index based on component multiplicity
+        value = self.set_index(key, value)
+
+        # Store
+        self.components[key] = value
+
+    def sync_comp_inds(
+        self, key: str, value: pd.DataFrame, mode: str = "upsert"
+    ) -> pd.DataFrame:
+
+        # Skip if compinst is not created yet
+        if "compinst" not in self.components:
+            return value
+
         compinst = self["compinst"].copy()
 
         # Reset comp_df index to create a simple monotonic index for tracking
@@ -336,9 +364,6 @@ class Registry:
         # If mode is 'overwrite', remove existing entries for this component type
         if mode == "overwrite":
             compinst = compinst[~(compinst["component_type"] == key)]
-        else:
-            if mode != "upsert":
-                raise ValueError(f"Invalid mode '{mode}'. Use 'overwrite' or 'upsert'.")
 
         # Concatenate new rows to compinst
         compinst = pd.concat([compinst, new_rows])
@@ -381,10 +406,12 @@ class Registry:
         # Remove duplicates, keeping the last occurrence
         compinst = compinst[~compinst.index.duplicated(keep="last")].sort_index()
 
-        # Update the component DataFrame in the registry
-        value = pd.concat(
-            [existing, value],
-        ).drop_duplicates(subset=["entity", "comp_ind"], keep="last")
+        # Store the updated compinst in the registry
+        self.components["compinst"] = compinst
+
+        return value
+
+    def set_index(self, key: str, value: pd.DataFrame):
 
         # Check component multiplicity to determine indexing strategy
         try:
@@ -404,9 +431,7 @@ class Registry:
             # For components with multiplicity > 1, use multi-index (entity, comp_ind)
             value = value.set_index(["entity", "comp_ind"], drop=False)
 
-        # Store
-        self.components["compinst"] = compinst
-        self.components[key] = value
+        return value
 
     def copy(self):
         """
