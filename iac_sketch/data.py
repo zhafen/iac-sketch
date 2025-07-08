@@ -381,7 +381,9 @@ class Registry:
         if compinst["comp_ind"].isna().any():
 
             # Group by entity to handle each entity separately
-            def fill_comp_ind(group):
+            filled_groups = []
+            for _, group in compinst.groupby("entity", group_keys=True):
+
                 # Find rows with NaN comp_ind
                 nan_mask = group["comp_ind"].isna()
                 if nan_mask.any():
@@ -396,9 +398,10 @@ class Registry:
                         int(max_comp_ind) + 1, int(max_comp_ind) + 1 + nan_count
                     )
                     group.loc[nan_mask, "comp_ind"] = new_indices
-                return group
 
-            compinst = compinst.groupby("entity", group_keys=False).apply(fill_comp_ind)
+                filled_groups.append(group)
+
+            compinst = pd.concat(filled_groups)
 
             # Propagate filled comp_ind values back to comp_df
             # Filter for rows that were just added (those with original_index values)
