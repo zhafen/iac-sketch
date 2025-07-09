@@ -1,0 +1,11 @@
+forgotten_ticket_incident:
+- description: >
+    Tickets ignored/de-prioritized for a while. One ticket got ignored for 9 months.
+    One of our analysts was assigned and it was de-prioritized.
+- solution:
+    description: >
+      Prioritize assigning analysts to groups and domains they've worked on before.
+
+discrepant_data_incident:
+  - description: >
+      Lots of stakeholders claim there's missing data or too much data.

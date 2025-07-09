@@ -1,0 +1,14 @@
+research_analytics_intake_form:
+- fields:
+    requester_name [str]: ""
+    requester_email [str]: ""
+    request_title [str]: Less than 50 characters.
+    irb_number [irb_number]: 11 characters exactly.
+
+corporate_compliance_team:
+- description: >
+    Provides data steward approval. Currently a one-man team.
+- team
+
+
+
