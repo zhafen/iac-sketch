@@ -6,10 +6,8 @@ class ValidationSystem:
 
     def validate_requirements(self, registry: data.Registry) -> pd.DataFrame:
 
-        reqs = registry["requirement"]
-        invalid_reqs = reqs.query("~is_satisfied")
-
-        return invalid_reqs
+        reqs = registry.view(["requirement", "description", "status"])
+        return reqs.query("value_status not in ['deployed']")
 
     def validate_components(
         self,
