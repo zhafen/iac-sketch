@@ -106,6 +106,18 @@ default_fields:
         nullable: False
         coerce: True
 
+infrastructure:
+- description: >
+    If owned, the owner is a set of technologies, functions, people, etc. defined by
+    a manifest and created to satisfy one or more requirements.
+
+requirement:
+- component
+- description: >
+    If owned, the owner is a condition an infrastructure is designed around fulfilling.
+- fields:
+    infrastructure [id]: The infrastructure this requirement is for.
+
 fulfills_all_requirements:
 - description: All requirements must be met.
 - requirement
@@ -288,10 +300,6 @@ trigger:
 - description: If owned, the entity can be triggered by the event described.
 - fields:
     trigger [entity]:
-
-requirement:
-- component
-- description: If owned, the owner is mandated for the system to function.
 
 status:
 - component
