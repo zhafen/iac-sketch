@@ -55,15 +55,15 @@ class TestTransformSystem(unittest.TestCase):
         )
 
         assert "errors" in new_registry["component_a"].columns
-        assert "valid" in new_registry["component_a"].columns
+        assert "is_valid" in new_registry["component_a"].columns
         assert "errors" in new_registry["component_b"].columns
-        assert "valid" in new_registry["component_b"].columns
+        assert "is_valid" in new_registry["component_b"].columns
 
     def test_apply_preprocess_transforms(self):
 
         registry = self.extract_sys.extract_entities()
         registry = self.transform_sys.apply_preprocess_transforms(registry)
-        assert registry["compdef"].attrs["valid"], registry["compdef"].attrs[
+        assert registry["compdef"].attrs["is_valid"], registry["compdef"].attrs[
             "errors"
         ]
 
@@ -239,12 +239,12 @@ class TestPreprocessTransformers(unittest.TestCase):
                             description="This is another test field.",
                         ),
                     },
-                    "defined": True,
+                    "is_defined": True,
                     "unparsed_fields": {
                         "my_field [int]": "This is a test field.",
                         "my_other_field [bool]": "This is another test field.",
                     },
-                    "valid": True,
+                    "is_valid": True,
                     "errors": "",
                     "multiplicity": "1",
                 },
@@ -254,9 +254,9 @@ class TestPreprocessTransformers(unittest.TestCase):
                     # defined above and one metadata component, so the next is 2
                     "comp_ind": 2,
                     "fields": {},
-                    "defined": True,
+                    "is_defined": True,
                     "unparsed_fields": {},
-                    "valid": True,
+                    "is_valid": True,
                     "errors": "",
                 },
                 {
@@ -265,9 +265,9 @@ class TestPreprocessTransformers(unittest.TestCase):
                     # during the component definition extraction
                     "comp_ind": 0,
                     "fields": {},
-                    "defined": False,
+                    "is_defined": False,
                     "unparsed_fields": {},
-                    "valid": False,
+                    "is_valid": False,
                     "errors": "Component definition does not exist. ",
                 },
             ]
@@ -321,12 +321,12 @@ class TestPreprocessTransformers(unittest.TestCase):
                             coerce=True,
                         ),
                     },
-                    "defined": True,
+                    "is_defined": True,
                     "unparsed_fields": {
                         "my_field [int]": "This is a test field.",
                         "my_other_field [bool]": "This is another test field.",
                     },
-                    "valid": True,
+                    "is_valid": True,
                     "errors": "",
                     "multiplicity": "0..1",
                 },
@@ -377,7 +377,7 @@ class TestPreprocessTransformers(unittest.TestCase):
         ).set_index("entity")
 
         actual = registry["my_component"].copy()
-        assert actual.attrs["valid"], actual.attrs["errors"]
+        assert actual.attrs["is_valid"], actual.attrs["errors"]
 
         assert_frame_equal(actual, expected)
 

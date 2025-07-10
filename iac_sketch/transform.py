@@ -20,8 +20,8 @@ class LogPrepper(BaseEstimator, TransformerMixin):
         X = X.copy()
         if "errors" not in X.columns:
             X["errors"] = ""
-        if "valid" not in X.columns:
-            X["valid"] = True
+        if "is_valid" not in X.columns:
+            X["is_valid"] = True
         return X
 
 
@@ -83,11 +83,11 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
 
         # Add in all components defined in the registry
         # and mark the ones that are not defined
-        X["defined"] = True
+        X["is_defined"] = True
         registry_comps = pd.DataFrame({"entity": registry.keys()})
         X = X.merge(registry_comps, how="outer", on="entity")
-        X.loc[X["defined"].isna(), "defined"] = False
-        X["defined"] = X["defined"].astype(bool)
+        X.loc[X["is_defined"].isna(), "is_defined"] = False
+        X["is_defined"] = X["is_defined"].astype(bool)
 
         # Parse the fields
         X = X.apply(self._parse_fields, axis="columns")
@@ -101,8 +101,8 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         X["fields"] = X["fields"].apply(lambda d: {**default_fields, **d})
 
         # Update validity with whether or not the component is defined
-        X.loc[~X["defined"], "valid"] = False
-        X.loc[~X["defined"], "errors"] += "Component definition does not exist. "
+        X.loc[~X["is_defined"], "is_valid"] = False
+        X.loc[~X["is_defined"], "errors"] += "Component definition does not exist. "
 
         return X
 
@@ -114,7 +114,7 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         if pd.isna(row["component"]):
             row["component"] = {}
             row["fields"] = {}
-            row["valid"] = True
+            row["is_valid"] = True
             row["errors"] = ""
             return row
 
@@ -133,7 +133,7 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
                 )
 
         row["fields"] = fields_i
-        row["valid"] = valid_fields
+        row["is_valid"] = valid_fields
         row["errors"] = valid_message
 
         return row
@@ -169,7 +169,7 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
             component_def = registry["compdef"].loc[key]
 
         # Set the attributes for validity and errors
-        X.attrs["valid"] = component_def["valid"]
+        X.attrs["is_valid"] = component_def["is_valid"]
         X.attrs["errors"] = component_def["errors"]
 
         # The fields in the component definition are the schema for the DataFrame
@@ -179,7 +179,7 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         try:
             X = dataframe_schema.validate(X)
         except pa.errors.SchemaError as exc:
-            X.attrs["valid"] = False
+            X.attrs["is_valid"] = False
             X.attrs["errors"] += str(exc) + " "
 
         return X

@@ -4,14 +4,21 @@ from . import data
 
 class ValidationSystem:
 
+    def validate_requirements(self, registry: data.Registry) -> pd.DataFrame:
+
+        reqs = registry["requirement"]
+        invalid_reqs = reqs.query("~is_satisfied")
+
+        return invalid_reqs
+
     def validate_components(
         self,
         registry: data.Registry,
         invalid_component_columns: list = [
             "source",
             "fields",
-            "defined",
-            "valid",
+            "is_defined",
+            "is_valid",
             "errors",
         ],
     ) -> pd.DataFrame:
@@ -20,13 +27,6 @@ class ValidationSystem:
         invalid_components = component_defs.query("~valid")[invalid_component_columns]
 
         return invalid_components
-
-    def validate_requirements(self, registry: data.Registry) -> pd.DataFrame:
-
-        reqs = registry["requirement"]
-        invalid_reqs = reqs[~reqs["is_satisfied"]]
-
-        return invalid_reqs
 
     def validate_tasks(self, registry: data.Registry) -> pd.DataFrame:
 
