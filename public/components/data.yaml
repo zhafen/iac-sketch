@@ -32,7 +32,9 @@ cohort_patients:
 - time_dependent:
     scd_type: Type II
 
-cohort_patients_history:
+cohort_patient_change:
+- component:
+    table: cohort_patients_history
 - description: >
     Only stores changes to cohort, which reduces the amount of data stored.
 - representation_of: cohort
@@ -43,7 +45,14 @@ cohort_patients_history:
     change_datetime [timestamp]: When the change occurred.
 - time_dependent:
     scd_type: Type IV
-- algorithm: >
+
+update_cohort_patients_history:
+- input:
+    - cohort_patients [dataframe]:
+    - cohort_patients_history [dataframe]:
+- output: cohort_patients_history
+- task
+- procedure: >
     inserted = cohort_patients.join(cohort_patients_history, how="left_anti")
     deleted = cohort_patients_history.join(cohort_patients, how="left_anti")
     cohort_patients_history = cohort_patients_history.union(inserted).union(deleted)
@@ -55,7 +64,7 @@ query_cohort:
     cohort [entity]:
     time_observed [timestamp]: >
         The time at which to look at the population of the cohort.
-- algorithm: >
+- procedure: >
     cohort_ti = cohort.tloc[time_observed]
     if not cohort_ti.is_active:
         return

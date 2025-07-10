@@ -4,10 +4,20 @@ from . import data
 
 class ValidationSystem:
 
-    def validate_components(self, registry: data.Registry) -> pd.DataFrame:
+    def validate_components(
+        self,
+        registry: data.Registry,
+        invalid_component_columns: list = [
+            "source",
+            "fields",
+            "defined",
+            "valid",
+            "errors",
+        ],
+    ) -> pd.DataFrame:
 
-        component_defs = registry["compdef"]
-        invalid_components = component_defs[~component_defs["valid"]]
+        component_defs = registry.view(["compdef", "metadata"])
+        invalid_components = component_defs.query("~valid")[invalid_component_columns]
 
         return invalid_components
 

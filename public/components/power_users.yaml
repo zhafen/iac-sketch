@@ -11,7 +11,7 @@ power_user_sharepoint:
 
 get_data_steward_approval:
 - description: Someone has to get data steward approval.
-- algorithm: >
+- procedure: >
     if assignee_is_analyst():
       analyst submits for approval
     else: # E.g. power user, imaging request

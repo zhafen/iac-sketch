@@ -258,11 +258,16 @@ tag:
 task:
 - description: If owned, the entity is a task to complete.
 
+procedure:
+- description: A process for completing a task.
+- fields:
+    value [str]: Procedure in written format, following no particular guidelines.
+
 input:
 - component
 - description: Component representing input.
 - fields:
-    input [data]: >
+    value [id]: >
         Input component instances for the task. Is of type "fields", so will be parsed
         in the same manner.
 
@@ -270,7 +275,7 @@ output:
 - component
 - description: Component representing output.
 - fields:
-    output [data]: >
+    value [id]: >
         Output component instances for the task. Is of type "fields", so will be parsed
         in the same manner.
 
