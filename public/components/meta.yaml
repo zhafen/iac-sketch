@@ -2,9 +2,9 @@ meta_parse_system_workflow:
 - description: How a manifest is parsed.
 - links:
     links: |
-      extract --> transform
+            extract --> transform
 
-      subgraph extract_from_files_loop
-      extract_from_files --> extract_from_stream
+            subgraph extract_from_files_loop
+            extract_from_files --> extract_from_stream
 
       

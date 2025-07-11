@@ -13,7 +13,7 @@ get_data_steward_approval:
 - description: Someone has to get data steward approval.
 - procedure: >
     if assignee_is_analyst():
-      analyst submits for approval
+            analyst submits for approval
     else: # E.g. power user, imaging request
-      manager submits for approval
+            manager submits for approval
 - task

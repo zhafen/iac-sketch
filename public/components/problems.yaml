@@ -4,8 +4,8 @@ forgotten_ticket_incident:
     One of our analysts was assigned and it was de-prioritized.
 - solution:
     description: >
-      Prioritize assigning analysts to groups and domains they've worked on before.
+            Prioritize assigning analysts to groups and domains they've worked on before.
 
 discrepant_data_incident:
-  - description: >
-      Lots of stakeholders claim there's missing data or too much data.
+    - description: >
+            Lots of stakeholders claim there's missing data or too much data.

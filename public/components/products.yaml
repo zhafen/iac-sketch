@@ -74,8 +74,8 @@ product_location_format:
 - fields:
     data_product_type [str]: The type of the product.
     location [case]: >
-      Overall location the data resides in. Examples include "unity table"
-      and "unity volume".
+            Overall location the data resides in. Examples include "unity table"
+            and "unity volume".
     parent_path [case]: Path inside the location to the directory containing the product.
     path [case]: Path inside parent_dir to the product itself.
 - primary_key: data_product_type

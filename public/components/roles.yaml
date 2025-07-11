@@ -41,8 +41,8 @@ support_team_member:
 - component
 - associated_components:
     required:
-      - person
-      - nu_account
+            - person
+            - nu_account
 
 pbi_workspace_role:
 - description: 

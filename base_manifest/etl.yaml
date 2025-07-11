@@ -85,7 +85,7 @@ validate_compinsts:
 apply_transforms:
 - task
 - links: |
-      get_transform_order --> apply_transform
+            get_transform_order --> apply_transform
 
 get_transform_order:
 - task
