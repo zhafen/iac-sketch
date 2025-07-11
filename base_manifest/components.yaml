@@ -47,6 +47,30 @@ fields:
 - component:
     multiplicity: "0..1"
 
+field:
+- component
+- description: A single attribute or column.
+- fields:
+    name [str]: Name of the field.
+    description [str]: Textual description of the column.
+    dtype [str]: Datatype of the column for type-checking.
+    nullable [bool] = False: Whether the column can contain null values.
+    unique [bool] = False: Whether column values should be unique.
+    report_duplicates [str] = 'all': >
+        How to report unique errors. Options: 'exclude_first', 'exclude_last', 'all'.
+    coerce [bool] = False: >
+        If True, coerce the column to the specified dtype during validation.
+    required [bool] = True: Whether the column must be present in the DataFrame.
+    default [entity]: Default value for the field
+    multiplicity [str] = "0..*": "Number of instances of field.
+    categories [list[str]]: Categories if the field is categorical.
+    title [str]: Human-readable label for the column.
+    metadata [dict]: Optional key-value metadata for the column.
+    checks [str]: Checks to verify validity of the column.
+    parsers [str]: Parsers to preprocess or validate the column.
+    regex [bool] = False: Whether the name should be treated as a regex pattern.
+    drop_invalid_rows [bool] = False: If True, drop invalid rows during validation.
+
 compdef:
 - description: >
     Definitions for a component. Derived from the components "component" and "fields".
@@ -160,22 +184,6 @@ handles_testcases:
 test_handles_testcases:
 - description: The code to test the "handles_testcases" requirement.
 - task
-
-field:
-- component
-- description: A single attribute or column.
-- fields:
-    name [str]: Name of the field.
-    type [entity]: Entity this field is an instance of.
-    description [description]: A description of the field.
-    multiplicity [str] = "0..*": "Number of instances of field. TODO: Delete?"
-    default [entity]: Default value for the field
-
-fields:
-- component
-- description: >
-    Component used to define fields associated with instances of a component.
-    Any entity that owns a fields component is assumed to be a component itself.
 
 description:
 - component
