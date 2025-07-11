@@ -10,5 +10,30 @@ corporate_compliance_team:
     Provides data steward approval. Currently a one-man team.
 - team
 
+northwestern_university_fsm_it:
+- description: Public reference information for NU as an employer.
+- organization:
+    name: Northwestern University - Feinberg School of Medicine
+    street_address: 541 N Fairbanks Ct, Suite 2800, Chicago, IL, 60611
+    employer_id_number: 36-2167817
+    number_of_fulltime_employees_in_us: 8800
+    north_american_industry_classification_system_code: 611310
+
+training_plan_for_stem_opt_students:
+- description: This is sent in once a year.
+- form
+- data:
+    student_role: >
+        This role is with the Northwestern Medicine Enterprise Data Warehouse (NMEDW). {team_member} will work with physicians, researchers, and other data consumers to define requirements, formulat queries, validate results, and generate reports using Microsoft SQL Server and the Microsoft Azure ecosystem. This role directly correlates to {team_member}'s STEM {degree_level} degree in {degree_field} (CIP {cip_code}).
+    goals_and_objectives: >
+        1. Exceptional interpersonal skills including the ability to establish and maintain effective relationships with physicians, management, staff, and other customers.
+        2. Demonstrated customer service skills, including the ability to use appropriate judgement, independent thinking, and creativirty when resolving customer issues.
+        3. Develop analytical thinking by working on analysis projects using various data science tools such as Python and Databricks.
+        4. Develop advanced level SQL Skills.
+        All of the listed tasks are applications of {team_member}'s STEM degree.
+    employer_oversight:
+        The Manager of Research Analytics schedules weekly one-on-one review sessions with {team_member} to monitor progress and growth. {team_member} also goes through peer review discussions for a better understanding of the assignment, and gets feedback for better performance from Analysts, Data Architects, and Researchers. In addition, year end performance evaluations are conducted to ensure career goals and objectives are reviewed.
+    measures_and_assessments: >
+        During the year end reviews, {team_member} is assess for {their} skills and growth in relation to {their} peers. Some of the competencies reviewed are as follows: Merges data from multiple sources in preparation for analysis, interprets results of analyses for reports and presentations, develops queries, quality metric, and reporting tools for the Northwestern Medicine Campus.
 
 
