@@ -1,4 +1,5 @@
 infrastructure:
+- component
 - description: >
     If owned, the owner is a set of technologies, functions, people, etc. defined by
     a manifest and created to satisfy one or more requirements.
@@ -8,12 +9,32 @@ requirement:
 - description: >
     If owned, the owner is a condition an infrastructure is designed around fulfilling.
 - fields:
-    infrastructure [id]: The infrastructure this requirement is for.
+    infrastructure [entity]: The infrastructure this requirement is for.
+
+status:
+- component
+- description: Tracks progress.
+- fields:
+    value [str]:
+        categories:
+            - new
+            - in design
+            - in development
+            - in review
+            - done
+
+supports:
+- component
+- description: The owner entity supports the entity specified in the value field.
+- fields:
+    value [entity]: The entity this entity supports.
 
 task:
+- component
 - description: If owned, the entity is a task to complete.
 
 procedure:
+- component
 - description: A process for completing a task.
 - fields:
     value [str]: Procedure in written format, following no particular guidelines.

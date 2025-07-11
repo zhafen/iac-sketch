@@ -34,7 +34,7 @@ component:
     multiplicity [str]:
         description: Allowed number of instances of a component per entity.
         default: "0..*"
-        coerce: True
+        coerce: False
         categories:
             - "0..1"
             - "0..*"
