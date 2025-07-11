@@ -1,0 +1,55 @@
+# Relationship components
+source:
+- component
+- description: A source entity used for describing relationships.
+- fields:
+    source [entity]:
+
+target:
+- component
+- description: A target entity used for describing relationships.
+- fields:
+    target [entity]:
+
+links:
+- component
+- description: >
+    A description of multiple links, using the syntax:
+      source --> target
+      second_source --> second_target
+- fields:
+    links [str]: A string that describes the edges, in the 
+    link_type [entity]: >
+      The type of the links. Must be a component that has either a source and target
+      component or a link component.
+
+link:
+- component
+- description: >
+    A component that describes a generic link between two entities.
+- fields:
+    source [source]: The source entity.
+    target [target]: The target entity.
+    link_type [entity]: The type of link.
+
+link_type:
+- component
+- description: >
+    Owner component entities can be represented as links. Acceptable formatting for
+    a component instance can be e.g. "- my_link_type: entity", which means the 
+    owner entity is the source and the indicated entity is the target.
+- fields:
+    source_description [description]: Description of what the source entity represents.
+    target_description [description]: Description of what the target entity represents.
+
+dependency:
+- component
+- description: Indicates that the target depends on the source.
+- link_type
+
+alternative:
+- component
+- description: >
+    If an entity has this component, then the entity is an alternative to the
+    indicated entity.
+- link_type

@@ -1,0 +1,78 @@
+infrastructure:
+- description: >
+    If owned, the owner is a set of technologies, functions, people, etc. defined by
+    a manifest and created to satisfy one or more requirements.
+
+requirement:
+- component
+- description: >
+    If owned, the owner is a condition an infrastructure is designed around fulfilling.
+- fields:
+    infrastructure [id]: The infrastructure this requirement is for.
+
+task:
+- description: If owned, the entity is a task to complete.
+
+procedure:
+- description: A process for completing a task.
+- fields:
+    value [str]: Procedure in written format, following no particular guidelines.
+
+input:
+- component
+- description: Component representing input.
+- fields:
+    value [id]: >
+        Input component instances for the task. Is of type "fields", so will be parsed
+        in the same manner.
+
+output:
+- component
+- description: Component representing output.
+- fields:
+    value [id]: >
+        Output component instances for the task. Is of type "fields", so will be parsed
+        in the same manner.
+
+fulfills_all_requirements:
+- description: All requirements must be met.
+- requirement
+
+test_fulfills_all_requirements:
+- description: The code to test the "fulfills_all_requirements" requirement.
+    We need a method to check that a given manifest fulfills all requirements.
+- task
+
+formatted_correctly:
+- description: The manifest must be formatted correctly.
+- requirement
+
+test_formatted_correctly:
+- description: The code to test the "formatted_correctly" requirement.
+- task
+
+fully_connected:
+- description: >
+    No entities can exist in isolation. They must relate to other entities in at least
+    one or more ways.
+- requirement
+
+test_fully_connected:
+- description: The code to test the "fully_connected" requirement.
+- task
+
+tasks_implemented:
+- description: All tasks in the manifest must be implemented.
+- requirement
+
+test_tasks_implemented:
+- description: The code to test the "tasks_implemented" requirement.
+- task
+
+handles_testcases:
+- description:
+- requirement
+
+test_handles_testcases:
+- description: The code to test the "handles_testcases" requirement.
+- task
