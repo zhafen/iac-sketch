@@ -41,13 +41,6 @@ component:
             - "1..1"
             - "1..*"
 
-fields:
-- description: >
-    The fields component shows up when we are creating a component, and is used to
-    define columns.
-- component:
-    multiplicity: "0..1"
-
 field:
 - component
 - description: A single attribute or column.
@@ -71,6 +64,13 @@ field:
     parsers [str]: Parsers to preprocess or validate the column.
     regex [bool] = False: Whether the name should be treated as a regex pattern.
     drop_invalid_rows [bool] = False: If True, drop invalid rows during validation.
+
+fields:
+- description: >
+    The fields component shows up when we are creating a component, and is used to
+    define columns.
+- component:
+    multiplicity: "0..1"
 
 compdef:
 - description: >
@@ -123,7 +123,7 @@ description:
 
 metadata:
 - component:
-    multiplicity: "1..1"
+    multiplicity: "0..1"
 - description: Component that describes metadata about an entity.
 - fields:
     n_comps [int]: >
