@@ -1,3 +1,7 @@
+iaca_infrastructure:
+- infrastructure
+- description: The iaca package code.
+
 perform_registry_etl:
 - task
 - description: >
