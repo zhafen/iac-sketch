@@ -8,6 +8,9 @@ requirement:
 - component
 - description: >
     If owned, the owner is a condition an infrastructure is designed around fulfilling.
+
+    A requirement entity is satisfied if:
+        1. All child requirements have a status "done" or "cancelled".
 - fields:
     infrastructure [entity]: The infrastructure this requirement is for.
 
@@ -22,16 +25,32 @@ status:
             - in development
             - in review
             - done
+            - on hold
+            - cancelled
+
+satisfies:
+- component
+- link_type
+- description: If owned, the owner is an entity that satisfies a requirement.
+- fields:
+    value [entity]: The [requirement] entity this entity satisfies.
 
 supports:
 - component
+- link_type
 - description: The owner entity supports the entity specified in the value field.
 - fields:
     value [entity]: The entity this entity supports.
 
 task:
 - component
-- description: If owned, the entity is a task to complete.
+- description: >
+    If owned, the entity is a task to complete. Fully-implemented tasks can take a few
+    forms:
+        1. A function, likely in Python.
+        2. A Directed Acyclic Graph (DAG).
+        3. A written procedure.
+    All above require an task executor.
 
 procedure:
 - component
@@ -55,45 +74,20 @@ output:
         Output component instances for the task. Is of type "fields", so will be parsed
         in the same manner.
 
-fulfills_all_requirements:
-- description: All requirements must be met.
+fully_designed:
+- description: Each [requirement] entity has exactly one [satisfies] entity.
 - requirement
 
-test_fulfills_all_requirements:
-- description: The code to test the "fulfills_all_requirements" requirement.
-    We need a method to check that a given manifest fulfills all requirements.
-- task
+fully_implemented:
+- description: >
+    Each [requirement] entity has exactly one [satisfies] entity
+    with a status of "done".
 
-formatted_correctly:
-- description: The manifest must be formatted correctly.
+well_defined:
+- description: All [compdef] entities are defined and valid.
 - requirement
-
-test_formatted_correctly:
-- description: The code to test the "formatted_correctly" requirement.
-- task
 
 fully_connected:
 - description: >
-    No entities can exist in isolation. They must relate to other entities in at least
-    one or more ways.
+    The network composed of [link] components and entities as nodes is fully connected.
 - requirement
-
-test_fully_connected:
-- description: The code to test the "fully_connected" requirement.
-- task
-
-tasks_implemented:
-- description: All tasks in the manifest must be implemented.
-- requirement
-
-test_tasks_implemented:
-- description: The code to test the "tasks_implemented" requirement.
-- task
-
-handles_testcases:
-- description:
-- requirement
-
-test_handles_testcases:
-- description: The code to test the "handles_testcases" requirement.
-- task
