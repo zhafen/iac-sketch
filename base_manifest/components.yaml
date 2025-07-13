@@ -63,7 +63,7 @@ field:
         If True, coerce the column to the specified dtype during validation.
     required [bool] = True: Whether the column must be present in the DataFrame.
     default [entity]: Default value for the field
-    multiplicity [str] = "0..*": "Number of instances of field.
+    multiplicity [str] = '0..*': Number of instances of field.
     categories [list[str]]: Categories if the field is categorical.
     title [str]: Human-readable label for the column.
     metadata [dict]: Optional key-value metadata for the column.
