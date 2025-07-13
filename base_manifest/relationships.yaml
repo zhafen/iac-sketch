@@ -1,15 +1,12 @@
 # Relationship components
-source:
+link:
 - component
-- description: A source entity used for describing relationships.
+- description: >
+    A component that describes a generic link between two entities.
 - fields:
-    source [entity]:
-
-target:
-- component
-- description: A target entity used for describing relationships.
-- fields:
-    target [entity]:
+    source [entity]: The source entity.
+    target [entity]: The target entity.
+    link_type [entity]: The type of link.
 
 links:
 - component
@@ -23,33 +20,23 @@ links:
             The type of the links. Must be a component that has either a source and target
             component or a link component.
 
-link:
-- component
-- description: >
-    A component that describes a generic link between two entities.
-- fields:
-    source [source]: The source entity.
-    target [target]: The target entity.
-    link_type [entity]: The type of link.
-
 link_type:
 - component
 - description: >
-    Owner component entities can be represented as links. Acceptable formatting for
-    a component instance can be e.g. "- my_link_type: entity", which means the 
-    owner entity is the source and the indicated entity is the target.
+    If a [compdef] entity owns a [link_type] component then the component represents
+    a pairwise relationship. Such [compdef] entities all have a "value" field of
+    type [entity] that is the "target" and any owners of such a component are
+    the "source".
 - fields:
-    source_description [description]: Description of what the source entity represents.
-    target_description [description]: Description of what the target entity represents.
+    source_description [str] = "": Description of what the source entity represents.
+    target_description [str] = "": Description of what the target entity represents.
 
-dependency:
+depends_on:
 - component
-- description: Indicates that the target depends on the source.
 - link_type
+- description: The source entity depends on the target entity.
 
-alternative:
+alternative_to:
 - component
-- description: >
-    If an entity has this component, then the entity is an alternative to the
-    indicated entity.
 - link_type
+- description: The source entity is an alternative to the target entity.
