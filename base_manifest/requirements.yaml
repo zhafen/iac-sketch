@@ -12,7 +12,7 @@ requirement:
     A requirement entity is satisfied if:
         1. All child requirements have a status "done" or "cancelled".
 - fields:
-    infrastructure [entity]: The infrastructure this requirement is for.
+    value [entity]: The infrastructure this requirement is for.
 
 status:
 - component

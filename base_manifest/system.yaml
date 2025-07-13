@@ -1,15 +1,29 @@
-iaca_infrastructure:
+iac_sketch_infrastructure:
+- description: The iac_sketch package code.
 - infrastructure
-- description: The iaca package code.
+
+executes_tests:
+- description: iac_sketch must run all tests that validate requirements.
+- requirement: iac_sketch_infrastructure
+
+test_requirements:
+- description: Runs all tests that satisfy requirements.
+- task
+- satisfies: executes_tests
+
+manifest_etl:
+- description: iac_sketch must perform ETL on the manifest, returning a registry.
+- requirement: iac_sketch_infrastructure
 
 perform_registry_etl:
-- task
 - description: >
     How entities are defined and parsed.
     When entities are defined, their definitions depend on existing entities.
     We want to create all entities in order, such that their dependencies
     are resolved first. This is the mathematical problem of topological
     sorting, and networkx can solve this problem.
+- task
+- satisfies: manifest_etl
 - links:
     links: |
         extract_entities --> load_entities_to_registry
@@ -17,8 +31,9 @@ perform_registry_etl:
         apply_preprocess_transforms --> apply_system_transforms
 
 extract_entities:
-- task
 - description: Load the entities from yaml files.
+- task
+- supports: perform_registry_etl
 - input:
     input_paths [list[str]]: A list of filename patterns that specify the yamls.
 - output:
@@ -27,16 +42,16 @@ extract_entities:
 - loop: extract_entities_from_yaml
 
 extract_entities_from_yaml:
-- task
 - description: Read the entities from a yaml string or stream.
+- task
 - input:
     yaml [str]: The input yaml.
     entities [dataframe]: Entities extracted from the yaml.
 - loop: parse_components_list
 
 parse_components_list:
-- task
 - description: Convert a dictionary containing components into a list of components.
+- task
 
 load_entities_to_registry:
 - task
