@@ -5,6 +5,8 @@ ETL workflow for registry processing, based on base_manifest/etl.yaml.
 import yaml
 import pandas as pd
 from typing import List, Dict, Callable
+
+import yaml.parser
 from . import data
 import glob
 import os
@@ -50,7 +52,11 @@ class ExtractSystem:
         input_yaml: str,
         source: str = None,
     ) -> pd.DataFrame:
-        input_yaml = yaml.safe_load(input_yaml)
+
+        try:
+            input_yaml = yaml.safe_load(input_yaml)
+        except yaml.parser.ParserError as e:
+            raise ValueError(f"Error parsing YAML from {source}") from e
 
         if input_yaml is None:
             return pd.DataFrame()
