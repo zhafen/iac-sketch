@@ -27,16 +27,17 @@ link_type:
     a pairwise relationship. Such [compdef] entities all have a "value" field of
     type [entity] that is the "target" and any owners of such a component are
     the "source".
-- fields:
-    source_description [str] = "": Description of what the source entity represents.
-    target_description [str] = "": Description of what the target entity represents.
 
 depends_on:
 - component
 - link_type
 - description: The source entity depends on the target entity.
+- fields:
+    value [entity]: The entity the owner entity depends on.
 
 alternative_to:
 - component
 - link_type
 - description: The source entity is an alternative to the target entity.
+- fields:
+    value [entity]: The entity the owner entity is an alternative to.

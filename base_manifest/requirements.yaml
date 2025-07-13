@@ -31,16 +31,16 @@ status:
 satisfies:
 - component
 - link_type
-- description: If owned, the owner is an entity that satisfies a requirement.
+- description: The source (owner) entity satisfies the target entity.
 - fields:
-    value [entity]: The [requirement] entity this entity satisfies.
+    value [entity]: The [requirement] entity the owner entity satisfies.
 
 supports:
 - component
 - link_type
-- description: The owner entity supports the entity specified in the value field.
+- description: The source (owner) entity supports the target entity.
 - fields:
-    value [entity]: The entity this entity supports.
+    value [entity]: The entity the owner entity supports.
 
 task:
 - component
