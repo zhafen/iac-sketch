@@ -15,6 +15,12 @@ manifest_etl:
 - description: iac_sketch must perform ETL on the manifest, returning a registry.
 - requirement: iac_sketch_infrastructure
 
+test_perform_registry_etl:
+- description: A test that validates we can perform the registry etl.
+- test:
+    implementation: iac_sketch.test_sketch.TestArchitect.test_etl
+- satisfies: manifest_etl
+
 perform_registry_etl:
 - description: >
     How entities are defined and parsed.

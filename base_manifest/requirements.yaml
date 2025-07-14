@@ -75,25 +75,29 @@ output:
         in the same manner.
 
 fully_designed:
-- description: Each [requirement] entity has exactly one [satisfies] entity.
+- description: >
+    Each [requirement] entity has at least one [satisfies] entity.
 - requirement
 
 fully_designed_test:
+- description: If this test passes then the fully_designed requirement is fulfilled.
 - test:
     implementation: iac_sketch.validate.ValidationSystem.validate_designed
-- description: If this test passes then the fully_designed requirement is fulfilled.
 - satisfies: fully_designed
 - status: "in development"
 
 fully_implemented:
 - description: >
-    Each [requirement] entity has exactly one [satisfies] entity
-    with a status of "done".
+    Each [requirement] entity has at least one [satisfies] entity and they must
+    meet the following conditions:
+    1. If a [test] entity, it must have an implementation that passes when executed.
+    2. If a [task] entity, it must have a status of "done".
+- requirement
 
 fully_implemented_test:
+- description: If this test passes then the fully_implemented condition is fulfilled.
 - test:
     implementation: iac_sketch.validate.ValidationSystem.validate_implemented
-- description: If this test passes then the fully_implemented condition is fulfilled.
 - satisfies: fully_implemented
 - status: "in development"
 
@@ -102,9 +106,9 @@ fully_defined:
 - requirement
 
 fully_defined_test:
+- description: If this test passes then the fully_defined condition is fulfilled.
 - test:
     implementation: iac_sketch.validate.ValidationSystem.validate_defined
-- description: If this test passes then the fully_defined condition is fulfilled.
 - satisfies: fully_defined
 - status: "in development"
 
@@ -114,8 +118,8 @@ fully_connected:
 - requirement
 
 fully_connected_test:
+- description: If this test passes then the fully_connected condition is fulfilled.
 - test:
     implementation: iac_sketch.validate.ValidationSystem.validate_connected
-- description: If this test passes then the fully_connected condition is fulfilled.
 - satisfies: fully_connected
 - status: "in development"
