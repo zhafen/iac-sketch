@@ -54,6 +54,10 @@ parse_components_list:
 - task
 
 load_entities_to_registry:
+- description: >
+    An object containing all the components. At the core of the registry are the
+    components, a dictionary containing one dataframe per component type,
+    with one row per component instance.
 - task
 - input:
     entities [dataframe]: >

@@ -1,22 +1,22 @@
 tag:
-- component
 - description: >
     When a component owns a tag component as part of its definition, then the component
     describes information on how the owning entity should be treated.
+- component
 
 workflow:
-- component
 - description: If owned, the entity describes a series of tasks to run in order.
+- component
 
 trigger:
-- component
 - description: If owned, the entity can be triggered by the event described.
+- component
 - fields:
     trigger [entity]:
 
 status:
-- component
 - description: Implementation progress status for an entity.
+- component
 - fields:
     status [categorical]:
         categories:
@@ -28,24 +28,24 @@ status:
             - removed
 
 time_dependent:
-- component
 - description: Description of how the data depends on time.
+- component
 - fields:
     scd_type [categorical]:
         description: Slowly-changing dimension type.
         default: Type II
 
 timestamp:
-- component
 - description: A specific moment in time.
+- component
 - fields:
     timestamp [str]: String representation of the timestamp.
     seconds [float]: Epoch time representation of the timestamp.
     timezone [categorical]: Timezone for the timestamp.
 
 person:
-- component
 - description: An entity representing a person.
+- component
 - fields:
     first_name [str]:
     last_name [str]:

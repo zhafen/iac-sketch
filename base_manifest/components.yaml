@@ -42,8 +42,8 @@ component:
             - "1..*"
 
 field:
-- component
 - description: A single attribute or column.
+- component
 - fields:
     name [str]: Name of the field.
     description [str]: Textual description of the column.
@@ -116,15 +116,15 @@ default_fields:
         coerce: True
 
 description:
-- component
 - description: Widely-used component that describes the entity in question.
+- component
 - fields:
     description [str]: The actual field containing the description.
 
 metadata:
+- description: Component that describes metadata about an entity.
 - component:
     multiplicity: "0..1"
-- description: Component that describes metadata about an entity.
 - fields:
     n_comps [int]: >
         Number of components associated with an entity,

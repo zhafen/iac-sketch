@@ -1,22 +1,22 @@
 infrastructure:
-- component
 - description: >
     If owned, the owner is a set of technologies, functions, people, etc. defined by
     a manifest and created to satisfy one or more requirements.
+- component
 
 requirement:
-- component
 - description: >
     If owned, the owner is a condition an infrastructure is designed around fulfilling.
 
     A requirement entity is satisfied if:
         1. All child requirements have a status "done" or "cancelled".
+- component
 - fields:
     value [entity]: The infrastructure this requirement is for.
 
 status:
-- component
 - description: Tracks progress.
+- component
 - fields:
     value [str]:
         categories:
@@ -29,21 +29,20 @@ status:
             - cancelled
 
 satisfies:
+- description: The source (owner) entity satisfies the target entity.
 - component
 - link_type
-- description: The source (owner) entity satisfies the target entity.
 - fields:
     value [entity]: The [requirement] entity the owner entity satisfies.
 
 supports:
+- description: The source (owner) entity supports the target entity.
 - component
 - link_type
-- description: The source (owner) entity supports the target entity.
 - fields:
     value [entity]: The entity the owner entity supports.
 
 task:
-- component
 - description: >
     If owned, the entity is a task to complete. Fully-implemented tasks can take a few
     forms:
@@ -51,24 +50,25 @@ task:
         2. A Directed Acyclic Graph (DAG).
         3. A written procedure.
     All above require an task executor.
+- component
 
 procedure:
-- component
 - description: A process for completing a task.
+- component
 - fields:
     value [str]: Procedure in written format, following no particular guidelines.
 
 input:
-- component
 - description: Component representing input.
+- component
 - fields:
     value [id]: >
         Input component instances for the task. Is of type "fields", so will be parsed
         in the same manner.
 
 output:
-- component
 - description: Component representing output.
+- component
 - fields:
     value [id]: >
         Output component instances for the task. Is of type "fields", so will be parsed

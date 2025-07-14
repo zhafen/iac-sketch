@@ -101,8 +101,8 @@ run_report_notebook:
 - description: Run the notebook that produces the report tables.
 
 run_report_algorithm_version:
-- alternative_to: run_report
 - description: Run the code to generate a report.
+- alternative_to: run_report
 - task
 - procedure: >
     sorted_report_code = report_code.sort("execution_priority")
