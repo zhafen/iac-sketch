@@ -11,14 +11,14 @@ link:
 links:
 - description: >
     A description of multiple links, using the syntax:
-            source --> target
-            second_source --> second_target
+        source --> target
+        second_source --> second_target
 - component
 - fields:
-    links [str]: A string that describes the edges, in the 
+    value [str]: A string that describes the edges, in the 
     link_type [entity]: >
-            The type of the links. Must be a component that has either a source and target
-            component or a link component.
+        The type of the links. Must be a component that has either a source and target
+        component or a link component.
 
 link_type:
 - description: >

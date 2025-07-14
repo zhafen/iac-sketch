@@ -172,15 +172,14 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         X.attrs["is_valid"] = component_def["is_valid"]
         X.attrs["errors"] = component_def["errors"]
 
-        # The fields in the component definition are the schema for the DataFrame
-        dataframe_schema = pa.DataFrameSchema(component_def["fields"])
-
         # Validate X against the schema
         try:
+            # The fields in the component definition are the schema for the DataFrame
+            dataframe_schema = pa.DataFrameSchema(component_def["fields"])
             X = dataframe_schema.validate(X)
-        except pa.errors.SchemaError as exc:
+        except (AttributeError, pa.errors.SchemaError) as e:
             X.attrs["is_valid"] = False
-            X.attrs["errors"] += str(exc) + " "
+            X.attrs["errors"] += str(e) + " "
 
         return X
 
@@ -198,7 +197,7 @@ class LinksParser(BaseEstimator, TransformerMixin):
 
         # Parse the links column
         exploded_links = (
-            X["links"]
+            X["value"]
             # Split on newlines
             .str.strip()
             .str.split("\n")
@@ -218,7 +217,7 @@ class LinksParser(BaseEstimator, TransformerMixin):
             )
         # Add the parsed results back to the original DataFrame
         X_out = (
-            X.join(exploded_links).drop(columns=["links"])
+            X.join(exploded_links).reset_index(drop=True).drop(columns="value")
         )
 
         return X_out

@@ -80,8 +80,8 @@ compdef:
 - fields:
     fields [dict[str, field]]: Field definitions.
     unparsed_fields [dict]: Field definitions in unparsed form.
-    defined [bool]: Whether or not the component is defined.
-    valid [bool]: Whether or not the component definition is valid.
+    is_defined [bool]: Whether or not the component is defined.
+    is_valid [bool]: Whether or not the component definition is valid.
     errors [str]: Message associated with the validity of the definition.
     multiplicity [str]:
         description: Allowed number of instances of a component per entity.
