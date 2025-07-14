@@ -18,6 +18,9 @@ class TestArchitect(unittest.TestCase):
         self.architect.perform_registry_etl()
         is_valid, invalids = self.architect.validate_registry()
 
+        assert invalids["test_fully_designed"].empty
+        assert invalids["test_fully_implemented"].empty
+        assert invalids["test_fully_defined"].empty
+        assert invalids["test_fully_connected"].empty
         assert is_valid
-        assert len(invalids) > 0
 

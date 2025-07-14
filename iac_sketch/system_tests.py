@@ -2,47 +2,18 @@ import pandas as pd
 
 from . import data
 
-def validate_requirements(registry: data.Registry) -> pd.DataFrame:
+def validate_designed(registry: data.Registry) -> pd.DataFrame:
 
-    reqs = registry.view(["requirement", "description", "status"])
-    return reqs.query("value_status not in ['deployed']")
+    assert False
 
-def validate_components(
-    registry: data.Registry,
-    invalid_component_columns: list = [
-        "source",
-        "fields",
-        "is_defined",
-        "is_valid",
-        "errors",
-    ],
-) -> pd.DataFrame:
+def validate_implemented(registry: data.Registry) -> pd.DataFrame:
 
-    component_defs = registry.view(["compdef", "metadata"])
-    invalid_components = component_defs.query("~valid")[invalid_component_columns]
+    assert False
 
-    return invalid_components
+def validate_defined(registry: data.Registry) -> pd.DataFrame:
 
-def validate_tasks(registry: data.Registry) -> pd.DataFrame:
+    assert False
 
-    tasks = registry["task"]
-    invalid_tasks = tasks[~tasks["implemented"]]
+def validate_connected(registry: data.Registry) -> pd.DataFrame:
 
-    return invalid_tasks
-
-def validate_testcases(registry: data.Registry) -> pd.DataFrame:
-
-    testcases = registry["testcase"]
-    invalid_testcases = testcases[~testcases["passing"]]
-
-    return invalid_testcases
-
-def validate_connectivity(registry: data.Registry) -> pd.DataFrame:
-    """
-    Validate the connectivity of entities in the registry.
-    This checks if all entities are connected to at least one other entity.
-    """
-    connectivity = registry["connectivity"]
-    invalid_entities = connectivity[~connectivity["connected"]]
-
-    return invalid_entities
+    assert False

@@ -1,25 +1,16 @@
 import unittest
 
-from iac_sketch import sketch, validate
+from iac_sketch import sketch, system_tests
 
 
 class TestValidator(unittest.TestCase):
     def setUp(self):
-        self.valid_sys = validate.ValidationSystem()
-        self.architect = sketch.Architect(valid_sys=self.valid_sys)
-        self.architect.perform_registry_etl()
-        
-    def test_validate(self):
+        architect = sketch.Architect()
+        self.registry = architect.perform_registry_etl()
 
-        is_valid, invalids = self.valid_sys.validate(self.architect.registry)
+    def test_fully_defined(self):
 
-        assert is_valid
-        for value in invalids.values():
-            assert value.empty
-
-    def test_validate_requirements(self):
-
-        invalid_reqs = self.valid_sys.validate_requirements(self.architect.registry)
+        invalid_reqs = system_tests.
 
         assert invalid_reqs.empty
 

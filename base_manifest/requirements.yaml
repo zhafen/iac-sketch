@@ -89,7 +89,7 @@ fully_designed:
     Each [requirement] entity has at least one [satisfies] entity.
 - requirement
 
-fully_designed_test:
+test_fully_designed:
 - description: If this test passes then the fully_designed requirement is fulfilled.
 - test:
     implementation: iac_sketch.validate.ValidationSystem.validate_designed
@@ -104,7 +104,7 @@ fully_implemented:
     2. If a [task] entity, it must have a status of "done".
 - requirement
 
-fully_implemented_test:
+test_fully_implemented:
 - description: If this test passes then the fully_implemented condition is fulfilled.
 - test:
     implementation: iac_sketch.validate.ValidationSystem.validate_implemented
@@ -115,7 +115,7 @@ fully_defined:
 - description: All [compdef] entities are defined and valid.
 - requirement
 
-fully_defined_test:
+test_fully_defined:
 - description: If this test passes then the fully_defined condition is fulfilled.
 - test:
     implementation: iac_sketch.validate.ValidationSystem.validate_defined
@@ -127,7 +127,7 @@ fully_connected:
     The network composed of [link] components and entities as nodes is fully connected.
 - requirement
 
-fully_connected_test:
+test_fully_connected:
 - description: If this test passes then the fully_connected condition is fulfilled.
 - test:
     implementation: iac_sketch.validate.ValidationSystem.validate_connected
