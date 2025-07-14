@@ -8,6 +8,14 @@ class TestValidator(unittest.TestCase):
         self.valid_sys = validate.ValidationSystem()
         self.architect = sketch.Architect(valid_sys=self.valid_sys)
         self.architect.perform_registry_etl()
+        
+    def test_validate(self):
+
+        is_valid, invalids = self.valid_sys.validate(self.architect.registry)
+
+        assert is_valid
+        for value in invalids.values():
+            assert value.empty
 
     def test_validate_requirements(self):
 

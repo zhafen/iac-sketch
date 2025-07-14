@@ -2,16 +2,22 @@ iac_sketch_infrastructure:
 - description: The iac_sketch package code.
 - infrastructure
 
-executes_tests:
+can_execute_tests:
 - description: iac_sketch must run all tests that validate requirements.
 - requirement: iac_sketch_infrastructure
 
-test_requirements:
+executes_tests:
 - description: Runs all tests that satisfy requirements.
 - task
-- satisfies: executes_tests
+- satisfies: can_execute_tests
 
-manifest_etl:
+test_executes_tests:
+- description: The test that validates that executes_tests works.
+- test:
+    implementation: iac_sketch.test_validate.TestValidator.test_validate
+- satisfies: can_execute_tests
+
+can_perform_registry_etl:
 - description: iac_sketch must perform ETL on the manifest, returning a registry.
 - requirement: iac_sketch_infrastructure
 
@@ -19,7 +25,7 @@ test_perform_registry_etl:
 - description: A test that validates we can perform the registry etl.
 - test:
     implementation: iac_sketch.test_sketch.TestArchitect.test_etl
-- satisfies: manifest_etl
+- satisfies: can_perform_registry_etl
 
 perform_registry_etl:
 - description: >
@@ -29,7 +35,7 @@ perform_registry_etl:
     are resolved first. This is the mathematical problem of topological
     sorting, and networkx can solve this problem.
 - task
-- satisfies: manifest_etl
+- satisfies: can_perform_registry_etl
 - links:
     links: |
         extract_entities --> load_entities_to_registry
