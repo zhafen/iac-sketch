@@ -1,4 +1,6 @@
-from . import etl, validate
+import pandas as pd
+
+from . import data, etl
 
 class Architect:
 
@@ -28,3 +30,30 @@ class Architect:
         self.registry = self.transform_sys.apply_preprocess_transforms(self.registry)
         self.registry = self.transform_sys.apply_system_transforms(self.registry)
         return self.registry
+
+    def validate_registry(self, registry: data.Registry) -> tuple[bool, dict[str, pd.DataFrame]]:
+
+        invalids = {}
+
+        tests = registry.view("test")
+        for entity, row in tests.iterrows():
+            if row["implementation"]:
+
+                try:
+                    # Get the test function from the implementation path
+                    module_path, test_func_name = row["implementation"].rsplit(".", 1)
+                    module = importlib.import_module(module_path)
+                    test_func = getattr(module, test_func_name, None)
+
+                    # Call the test function if it is callable
+                    invalids[entity] = test_func(registry)
+                except (ImportError, AttributeError) as e:
+                    invalids[entity] = (
+                        f"Test function {row['implementation']} is invalid: {e}"
+                    )
+            else:
+                invalids[entity] = "Test implementation is missing."
+
+        is_valid = all(df.empty for df in invalids.values())
+
+        return is_valid, invalids
