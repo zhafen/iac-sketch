@@ -396,14 +396,14 @@ class TestSystemTransformers(unittest.TestCase):
                     {
                         "entity": "my_workflow",
                         "comp_ind": 0,
-                        "links": "my_first_task --> my_second_task\nmy_second_task --> my_third_task",
-                        "link_type": "dependency",
+                        "value": "my_first_task --> my_second_task\nmy_second_task --> my_third_task",
+                        "link_type": "dependent",
                     },
                     {
                         "entity": "my_other_workflow",
                         "comp_ind": 0,
-                        "links": "my_first_task --> my_third_task",
-                        "link_type": "dependency",
+                        "value": "my_first_task --> my_third_task",
+                        "link_type": "dependent",
                     },
                 ]
             ),
@@ -429,21 +429,21 @@ class TestSystemTransformers(unittest.TestCase):
                 {
                     "entity": "my_workflow",
                     "comp_ind": 1,
-                    "link_type": "dependency",
+                    "link_type": "dependent",
                     "source": "my_first_task",
                     "target": "my_second_task",
                 },
                 {
                     "entity": "my_workflow",
                     "comp_ind": 2,
-                    "link_type": "dependency",
+                    "link_type": "dependent",
                     "source": "my_second_task",
                     "target": "my_third_task",
                 },
                 {
                     "entity": "my_other_workflow",
                     "comp_ind": 1,
-                    "link_type": "dependency",
+                    "link_type": "dependent",
                     "source": "my_first_task",
                     "target": "my_third_task",
                 },
