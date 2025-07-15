@@ -48,7 +48,8 @@ class Architect:
 
                     # Call the test function if it is callable
                     invalids[entity] = test_func(self.registry)
-                except (ImportError, AttributeError) as e:
+                # A bare except is okay here because we're logging.
+                except Exception as e: # pylint: disable=W0718
                     invalids[entity] = (
                         f"Test function {row['value_code']} is invalid: {e}"
                     )
