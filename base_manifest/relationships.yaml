@@ -46,3 +46,27 @@ child:
     reverse: parent
 - fields:
     value [entity]: The parent entity to the owner entity.
+
+depends_on:
+- description: The source entity depends on the target entity.
+- component
+- link_type:
+    reverse: dependent
+- fields:
+    value [entity]: The entity the owner entity depends on.
+
+dependent:
+- description: The target entity depends on the source entity.
+- component
+- link_type:
+    reverse: depends_on
+- fields:
+    value [entity]: The entity that depends on the owner.
+
+alternative_to:
+- description: The source entity is an alternative to the target entity.
+- component
+- link_type:
+    directed: False
+- fields:
+    value [entity]: The entity the owner entity is an alternative to.
