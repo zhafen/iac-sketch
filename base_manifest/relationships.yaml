@@ -15,8 +15,10 @@ links:
         second_source --> second_target
 - component
 - fields:
-    value [str]: A string that describes the edges, in the 
-    link_type [entity]: >
+    value [str]: >
+        A string that describes the edges, following the format "{source} --> {target}"
+        with linebreaks separating different links.
+    link_type [entity] = "dependent": >
         The type of the links. Must be a component that has either a source and target
         component or a link component.
 
@@ -47,7 +49,7 @@ child:
 - fields:
     value [entity]: The parent entity to the owner entity.
 
-depends_on:
+dependency:
 - description: The source entity depends on the target entity.
 - component
 - link_type:
@@ -59,7 +61,7 @@ dependent:
 - description: The target entity depends on the source entity.
 - component
 - link_type:
-    reverse: depends_on
+    reverse: dependency
 - fields:
     value [entity]: The entity that depends on the owner.
 
