@@ -55,6 +55,8 @@ class Architect:
             else:
                 invalids[entity] = "Test implementation is missing."
 
-        is_valid = all(df.empty for df in invalids.values())
+        is_valid = all(
+            df.empty if not isinstance(df, str) else False for df in invalids.values()
+        )
 
         return is_valid, invalids
