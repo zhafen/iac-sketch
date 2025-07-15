@@ -13,8 +13,8 @@ executes_tests:
 
 test_executes_tests:
 - description: The test that validates that executes_tests works.
-- test:
-    implementation: iac_sketch.test_validate.TestValidator.test_validate
+- test
+- code: iac_sketch.test_validate.TestValidator.test_validate
 - satisfies: can_execute_tests
 
 can_perform_registry_etl:
@@ -23,8 +23,8 @@ can_perform_registry_etl:
 
 test_perform_registry_etl:
 - description: A test that validates we can perform the registry etl.
-- test:
-    implementation: iac_sketch.test_sketch.TestArchitect.test_etl
+- test
+- code: iac_sketch.test_sketch.TestArchitect.test_etl
 - satisfies: can_perform_registry_etl
 
 perform_registry_etl:

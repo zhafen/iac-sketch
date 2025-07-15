@@ -1,0 +1,5 @@
+code:
+- description: A piece of code.
+- component
+- fields:
+    value [str]: Path to the code.

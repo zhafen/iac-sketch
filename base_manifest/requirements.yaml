@@ -91,8 +91,8 @@ fully_designed:
 
 test_fully_designed:
 - description: If this test passes then the fully_designed requirement is fulfilled.
-- test:
-    implementation: iac_sketch.validate.ValidationSystem.validate_designed
+- test
+- code: iac_sketch.validate.ValidationSystem.validate_designed
 - satisfies: fully_designed
 - status: "in development"
 
@@ -106,8 +106,8 @@ fully_implemented:
 
 test_fully_implemented:
 - description: If this test passes then the fully_implemented condition is fulfilled.
-- test:
-    implementation: iac_sketch.validate.ValidationSystem.validate_implemented
+- test
+- code: iac_sketch.validate.ValidationSystem.validate_implemented
 - satisfies: fully_implemented
 - status: "in development"
 
@@ -117,8 +117,8 @@ fully_defined:
 
 test_fully_defined:
 - description: If this test passes then the fully_defined condition is fulfilled.
-- test:
-    implementation: iac_sketch.validate.ValidationSystem.validate_defined
+- test
+- code: iac_sketch.validate.ValidationSystem.validate_defined
 - satisfies: fully_defined
 - status: "in development"
 
@@ -129,7 +129,7 @@ fully_connected:
 
 test_fully_connected:
 - description: If this test passes then the fully_connected condition is fulfilled.
-- test:
-    implementation: iac_sketch.validate.ValidationSystem.validate_connected
+- test
+- code: iac_sketch.validate.ValidationSystem.validate_connected
 - satisfies: fully_connected
 - status: "in development"
