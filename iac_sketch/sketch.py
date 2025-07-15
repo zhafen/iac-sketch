@@ -36,13 +36,13 @@ class Architect:
 
         invalids = {}
 
-        tests = self.registry.view("test")
+        tests = self.registry.view(["test", "code"])
         for entity, row in tests.iterrows():
-            if row["implementation"]:
+            if row["value_code"]:
 
                 try:
-                    # Get the test function from the implementation path
-                    module_path, test_func_name = row["implementation"].rsplit(".", 1)
+                    # Get the test function from the code path
+                    module_path, test_func_name = row["value_code"].rsplit(".", 1)
                     module = importlib.import_module(module_path)
                     test_func = getattr(module, test_func_name, None)
 
@@ -50,10 +50,10 @@ class Architect:
                     invalids[entity] = test_func(self.registry)
                 except (ImportError, AttributeError) as e:
                     invalids[entity] = (
-                        f"Test function {row['implementation']} is invalid: {e}"
+                        f"Test function {row['value_code']} is invalid: {e}"
                     )
             else:
-                invalids[entity] = "Test implementation is missing."
+                invalids[entity] = "Test code is missing."
 
         is_valid = all(
             df.empty if not isinstance(df, str) else False for df in invalids.values()

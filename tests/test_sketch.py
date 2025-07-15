@@ -33,7 +33,7 @@ class TestArchitect(unittest.TestCase):
             )
             assert isinstance(invalids[test_name], pd.DataFrame), (
                 f"Invalids for {test_name} should be a DataFrame, "
-                f"got {type(invalids[test_name])}"
+                f"got: {invalids[test_name]}"
             )
             assert invalids[
                 test_name
