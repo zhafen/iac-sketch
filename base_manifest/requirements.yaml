@@ -2,21 +2,21 @@ infrastructure:
 - description: >
     If owned, the owner is a set of technologies, functions, people, etc. defined by
     a manifest and created to satisfy one or more requirements.
-- component
+- component:
+    multiplicity: "0..1"
 
 requirement:
 - description: >
     If owned, the owner is a condition an infrastructure is designed around fulfilling.
-
-    A requirement entity is satisfied if:
-        1. All child requirements have a status "done" or "cancelled".
-- component
+- component:
+    multiplicity: "0..1"
 - fields:
     value [entity]: The infrastructure this requirement is for.
 
 status:
 - description: Tracks progress.
-- component
+- component:
+    multiplicity: "0..1"
 - fields:
     value [str]:
         categories:
@@ -50,7 +50,8 @@ task:
         2. A Directed Acyclic Graph (DAG).
         3. A written procedure.
     All above require an task executor.
-- component
+- component:
+    multiplicity: "0..1"
 
 test:
 - description: >
@@ -58,19 +59,21 @@ test:
     be the path to a Python function that accepts a registry as an argument
     and returns a dataframe containing any invalid components.
 - component:
-    - multiplicity: "0..1"
+    multiplicity: "0..1"
 - fields:
     implementation [str]: The location of the test code.
 
 procedure:
 - description: A process for completing a task.
-- component
+- component:
+    multiplicity: "0..1"
 - fields:
     value [str]: Procedure in written format, following no particular guidelines.
 
 input:
 - description: Component representing input.
-- component
+- component:
+    multiplicity: "0..1"
 - fields:
     value [id]: >
         Input component instances for the task. Is of type "fields", so will be parsed
@@ -78,7 +81,8 @@ input:
 
 output:
 - description: Component representing output.
-- component
+- component:
+    multiplicity: "0..1"
 - fields:
     value [id]: >
         Output component instances for the task. Is of type "fields", so will be parsed

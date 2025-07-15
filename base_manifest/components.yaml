@@ -117,7 +117,8 @@ default_fields:
 
 description:
 - description: Widely-used component that describes the entity in question.
-- component
+- component:
+    multiplicity: "0..1"
 - fields:
     description [str]: The actual field containing the description.
 

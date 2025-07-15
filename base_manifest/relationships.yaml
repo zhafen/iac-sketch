@@ -28,7 +28,8 @@ link_type:
     a pairwise relationship. Such [compdef] entities all have a "value" field of
     type [entity] that is the "target" and any owners of such a component are
     the "source".
-- component
+- component:
+    multiplicity: "0..1"
 - fields:
     directed [bool] = True: Whether or not the link is directed.
     reverse [entity]: The link_type for the reverse direction.
