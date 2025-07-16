@@ -24,8 +24,19 @@ class TestExtractSystem(unittest.TestCase):
 
         assert "component" in registry
         assert "component" in registry.keys()
+        assert not registry["component"].index.has_duplicates
 
+    def test_extract_twice(self):
+        """Running extract twice in a row should yield the same result.
+        At the time this test was written, it did not.
+        """
 
+        registry = self.extract_sys.extract_entities()
+        registry = self.extract_sys.extract_entities()
+
+        assert "component" in registry
+        assert "component" in registry.keys()
+        assert not registry["component"].index.has_duplicates
 class TestTransformSystem(unittest.TestCase):
 
     def setUp(self):
