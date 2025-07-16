@@ -18,7 +18,7 @@ from . import transform
 class ExtractSystem:
 
     def extract_entities(
-        self, filename_patterns: str | List[str] = [], yaml_str: str = None
+        self, filename_patterns: str | List[str] = [], input_yaml: str = None
     ) -> data.Registry:
 
         if isinstance(filename_patterns, str):
@@ -39,8 +39,8 @@ class ExtractSystem:
                 entities.append(entities_i)
 
         # Add direct input YAML if provided
-        if yaml_str is not None:
-            entities_i = self.extract_entities_from_yaml(yaml_str, source="input")
+        if input_yaml is not None:
+            entities_i = self.extract_entities_from_yaml(input_yaml, source="input")
             entities.append(entities_i)
 
         entities = pd.concat(entities, ignore_index=True)
