@@ -1,6 +1,7 @@
 """
 ETL workflow for registry processing, based on base_manifest/etl.yaml.
 """
+import copy
 
 import yaml
 import pandas as pd
@@ -18,8 +19,11 @@ from . import transform
 class ExtractSystem:
 
     def extract_entities(
-        self, filename_patterns: str | List[str] = [], input_yaml: str = None
+        self, filename_patterns: str | List[str] = [], input: str = None
     ) -> data.Registry:
+
+        # Ensure we don't modify the original list
+        filename_patterns = copy.copy(filename_patterns)
 
         if isinstance(filename_patterns, str):
             filename_patterns = [filename_patterns]
@@ -39,8 +43,8 @@ class ExtractSystem:
                 entities.append(entities_i)
 
         # Add direct input YAML if provided
-        if input_yaml is not None:
-            entities_i = self.extract_entities_from_yaml(input_yaml, source="input")
+        if input is not None:
+            entities_i = self.extract_entities_from_yaml(input, source="input")
             entities.append(entities_i)
 
         entities = pd.concat(entities, ignore_index=True)
