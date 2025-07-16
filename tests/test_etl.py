@@ -400,7 +400,7 @@ class TestSystemTransformers(unittest.TestCase):
         self.transform_sys = etl.TransformSystem()
 
 
-    def test_linkparser(self):
+    def test_links_parser(self):
         registry = data.Registry({
             "links": pd.DataFrame(
                 [
@@ -461,3 +461,9 @@ class TestSystemTransformers(unittest.TestCase):
             ]
         ).set_index(["entity", "comp_ind"]).sort_index()
         assert_frame_equal(actual, expected)
+
+    def test_link_collector(self):
+
+        registry = self.extract_sys.extract_entities()
+
+        raise NotImplementedError()
