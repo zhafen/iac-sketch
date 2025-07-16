@@ -228,7 +228,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                 my_other_field [bool]: This is another test field.
             - this_is_a_fictional_component
         """
-        registry = self.extract_sys.extract_entities(input=yaml_str)
+        registry = self.extract_sys.extract_entities(yaml_str=yaml_str)
         registry = self.transform_sys.normalize_components(registry)
         registry = self.transform_sys.extract_compdefs(registry)
         expected = pd.DataFrame(
