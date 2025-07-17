@@ -221,3 +221,40 @@ class LinksParser(BaseEstimator, TransformerMixin):
         )
 
         return X_out
+
+class LinkCollector(BaseEstimator, TransformerMixin):
+
+    def fit(self, _X, _y=None):
+        return self
+
+    def transform(self, X: pd.DataFrame, registry: data.Registry = None) -> pd.DataFrame:
+
+        # Rename and copy
+        if X.attrs["view_components"] != ["link_type"]:
+            raise ValueError(
+                "LinkCollector should only be used on the 'link_type' view. "
+                f"Got: {X.attrs['view_components']}"
+            )
+        link_types = X.copy()
+
+        # Loop through and gather the links from the components tagged with link_type
+        dfs = []
+        for _, row in link_types.iterrows():
+
+            # Every component flagged as a link_type should have a 'value' column
+            # and a multiindex of entity, comp_ind. We massage those into a DataFrame
+            # with multiindex (with nan comp_ind) and a source and target column.
+            df_i = registry.view(row.name)
+            df_i = df_i.reset_index()
+            df_i = df_i.rename(columns={"value": "target"})
+            df_i["source"] = df_i["entity"]
+            # This will get filled in to an appropriate value later
+            df_i["comp_ind"] = pd.NA  
+            df_i["link_type"] = row["link_type"]
+            df_i = df_i[["entity", "comp_ind", "source", "target", "link_type"]]
+
+            dfs.append(df_i)
+
+        X_out = pd.concat(dfs, ignore_index=True)
+
+        return X_out
