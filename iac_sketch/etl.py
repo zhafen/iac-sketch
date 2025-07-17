@@ -1,6 +1,7 @@
 """
 ETL workflow for registry processing, based on base_manifest/etl.yaml.
 """
+
 import copy
 
 import yaml
@@ -256,11 +257,19 @@ class TransformSystem:
 
     def apply_system_transforms(self, registry: data.Registry) -> data.Registry:
 
-        # Parsing links into link
+        # Parse links components into link components
         registry = self.apply_transform(
             registry,
             transform.LinksParser(),
             components_mapping={"link": data.View("links")},
+            mode="upsert",
+        )
+
+        # Collect components with link_type tags into the link component df
+        registry = self.apply_transform(
+            registry,
+            transform.LinkCollector(),
+            components_mapping={"link": data.View("link_type")},
             mode="upsert",
         )
 
