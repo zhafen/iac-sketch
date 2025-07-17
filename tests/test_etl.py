@@ -491,13 +491,32 @@ class TestSystemTransformers(unittest.TestCase):
         task_1:
         - task
 
+        task_2:
+        - task
+
         requirement_0_0:
         - requirement
         - parent: requirement_0
+
+        # This entity tests that despite the link_type being depended_on_by,
+        # what shows up in the link component is the non-reverse link type.
+        # It also checks that we don't duplicate links.
+        workflow_0:
+        - links:
+            value: |
+                task_0 --> task_1
+                task_1 --> task_2
+            link_type: depended_on_by
         """
 
         registry = self.extract_sys.extract_entities(input_yaml=input_yaml)
         registry = self.transform_sys.apply_preprocess_transforms(registry)
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.LinksParser(),
+            components_mapping={"link": data.View("links")},
+            mode="upsert",
+        )
         registry = self.transform_sys.apply_transform(
             registry,
             transform.LinkCollector(),
@@ -530,6 +549,13 @@ class TestSystemTransformers(unittest.TestCase):
                         "link_type": "depends_on",
                         "source": "task_1",
                         "target": "task_0",
+                    },
+                    {
+                        "entity": "workflow_0",
+                        "comp_ind": pd.NA,
+                        "link_type": "depends_on",
+                        "source": "task_2",
+                        "target": "task_1",
                     },
                 ]
             )

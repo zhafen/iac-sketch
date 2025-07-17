@@ -22,7 +22,7 @@ links:
         description: >
             The type of the links. Must be a component that has either a source and target
             component or a link component.
-        default: dependent
+        default: depended_on_by
 
 link_type:
 - description: >
