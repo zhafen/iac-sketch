@@ -37,6 +37,8 @@ class TestExtractSystem(unittest.TestCase):
         assert "component" in registry
         assert "component" in registry.keys()
         assert not registry["component"].index.has_duplicates
+
+
 class TestTransformSystem(unittest.TestCase):
 
     def setUp(self):
@@ -77,6 +79,7 @@ class TestTransformSystem(unittest.TestCase):
         assert registry["compdef"].attrs["is_valid"], registry["compdef"].attrs[
             "errors"
         ]
+
 
 class TestPreprocessTransformers(unittest.TestCase):
 
@@ -285,14 +288,16 @@ class TestPreprocessTransformers(unittest.TestCase):
         ).set_index(["entity", "comp_ind"])
 
         actual = registry["compdef"].copy()
-        
+
         # Check fields for my_other_component
         my_component_actual_fields = actual.loc["my_other_component", "fields"].iloc[0]
         assert "my_field" in my_component_actual_fields
         assert "my_other_field" in my_component_actual_fields
         for field_name, field in my_component_actual_fields.items():
             assert isinstance(field, data.Field), f"{field_name} is not a Field object"
-            assert field.name == field_name, f"{field_name} does not match the field name"
+            assert (
+                field.name == field_name
+            ), f"{field_name} does not match the field name"
 
         # Then check the frame
         expected = expected.drop(columns="fields")
@@ -392,6 +397,7 @@ class TestPreprocessTransformers(unittest.TestCase):
 
         assert_frame_equal(actual, expected)
 
+
 class TestSystemTransformers(unittest.TestCase):
 
     def setUp(self):
@@ -399,33 +405,34 @@ class TestSystemTransformers(unittest.TestCase):
         self.extract_sys = etl.ExtractSystem()
         self.transform_sys = etl.TransformSystem()
 
-
     def test_links_parser(self):
-        registry = data.Registry({
-            "links": pd.DataFrame(
-                [
+        registry = data.Registry(
+            {
+                "links": pd.DataFrame(
+                    [
+                        {
+                            "entity": "my_workflow",
+                            "comp_ind": 0,
+                            "value": "my_first_task --> my_second_task\nmy_second_task --> my_third_task",
+                            "link_type": "dependent",
+                        },
+                        {
+                            "entity": "my_other_workflow",
+                            "comp_ind": 0,
+                            "value": "my_first_task --> my_third_task",
+                            "link_type": "dependent",
+                        },
+                    ]
+                ),
+                "compinst": pd.DataFrame(
                     {
-                        "entity": "my_workflow",
-                        "comp_ind": 0,
-                        "value": "my_first_task --> my_second_task\nmy_second_task --> my_third_task",
-                        "link_type": "dependent",
-                    },
-                    {
-                        "entity": "my_other_workflow",
-                        "comp_ind": 0,
-                        "value": "my_first_task --> my_third_task",
-                        "link_type": "dependent",
-                    },
-                ]
-            ),
-            "compinst": pd.DataFrame(
-                {
-                    "entity": ["my_workflow", "my_other_workflow"],
-                    "comp_ind": [0, 0],
-                    "component_type": ["links", "links"],
-                }
-            )
-        })
+                        "entity": ["my_workflow", "my_other_workflow"],
+                        "comp_ind": [0, 0],
+                        "component_type": ["links", "links"],
+                    }
+                ),
+            }
+        )
 
         registry = self.transform_sys.apply_transform(
             registry,
@@ -435,35 +442,115 @@ class TestSystemTransformers(unittest.TestCase):
         )
 
         actual = registry["link"]
-        expected = pd.DataFrame(
-            [
-                {
-                    "entity": "my_workflow",
-                    "comp_ind": 1,
-                    "link_type": "dependent",
-                    "source": "my_first_task",
-                    "target": "my_second_task",
-                },
-                {
-                    "entity": "my_workflow",
-                    "comp_ind": 2,
-                    "link_type": "dependent",
-                    "source": "my_second_task",
-                    "target": "my_third_task",
-                },
-                {
-                    "entity": "my_other_workflow",
-                    "comp_ind": 1,
-                    "link_type": "dependent",
-                    "source": "my_first_task",
-                    "target": "my_third_task",
-                },
-            ]
-        ).set_index(["entity", "comp_ind"]).sort_index()
+        expected = (
+            pd.DataFrame(
+                [
+                    {
+                        "entity": "my_workflow",
+                        "comp_ind": 1,
+                        "link_type": "dependent",
+                        "source": "my_first_task",
+                        "target": "my_second_task",
+                    },
+                    {
+                        "entity": "my_workflow",
+                        "comp_ind": 2,
+                        "link_type": "dependent",
+                        "source": "my_second_task",
+                        "target": "my_third_task",
+                    },
+                    {
+                        "entity": "my_other_workflow",
+                        "comp_ind": 1,
+                        "link_type": "dependent",
+                        "source": "my_first_task",
+                        "target": "my_third_task",
+                    },
+                ]
+            )
+            .set_index(["entity", "comp_ind"])
+            .sort_index()
+        )
         assert_frame_equal(actual, expected)
 
     def test_link_collector(self):
 
-        registry = self.extract_sys.extract_entities()
+        input_yaml = """
+        requirement_0:
+        - requirement
 
-        raise NotImplementedError()
+        test_0:
+        - test
+        - satisfies: requirement_0
+
+        task_0:
+        - task
+        - satisfies: requirement_0
+        - depended_on_by: task_1
+
+        task_1:
+        - task
+
+        requirement_0_0:
+        - requirement
+        - parent: requirement_0
+
+        """
+
+        registry = self.extract_sys.extract_entities(input_yaml=input_yaml)
+        registry = self.transform_sys.apply_preprocess_transforms(registry)
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.LinksCollector(),
+            components_mapping={"link": data.View("link_type")},
+            mode="upsert",
+        )
+
+        actual = registry["link"]
+        # comp_inds get set at runtime, so we don't check them here
+        expected = (
+            pd.DataFrame(
+                [
+                    {
+                        "entity": "requirement_0_0",
+                        "comp_ind": pd.NA,
+                        "link_type": "parent",
+                        "source": "requirement_0_0",
+                        "target": "requirement_0",
+                    },
+                    {
+                        "entity": "task_0",
+                        "comp_ind": pd.NA,
+                        "link_type": "satisfies",
+                        "source": "task_0",
+                        "target": "requirement_0",
+                    },
+                    {
+                        "entity": "task_0",
+                        "comp_ind": pd.NA,
+                        "link_type": "depends_on",
+                        "source": "task_1",
+                        "target": "task_0",
+                    },
+                ]
+            )
+            .set_index(["entity", "comp_ind"])
+            .sort_index()
+        )
+
+        for _, row in expected.iterrows():
+
+            link_df_for_entity = actual.loc[row.names[0]]
+            matching_rows = link_df_for_entity.loc[
+                link_df_for_entity["link_type"] == row["link_type"]
+            ]
+
+            assert (
+                len(matching_rows) == 1
+            ), (
+                f"Expected one row for {row['entity']} with link "
+                f"type {row['link_type']}, found {len(matching_rows)}"
+            )
+
+            assert matching_rows.iloc[0]["source"] == row["source"]
+            assert matching_rows.iloc[0]["target"] == row["target"]
