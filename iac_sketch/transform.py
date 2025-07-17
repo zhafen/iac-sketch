@@ -16,7 +16,9 @@ class LogPrepper(BaseEstimator, TransformerMixin):
         # Stateless transformer, nothing to fit
         return self
 
-    def transform(self, X: pd.DataFrame, _registry: data.Registry = None) -> pd.DataFrame:
+    def transform(
+        self, X: pd.DataFrame, _registry: data.Registry = None
+    ) -> pd.DataFrame:
         X = X.copy()
         if "errors" not in X.columns:
             X["errors"] = ""
@@ -149,7 +151,6 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
         # This is another transform operation that operates on unindexed DataFrames.
         X = registry.reset_index(X)
 
-
         # Since X is the input view, which is what we're validating,
         # we can use the view_components attribute to get the name of the component
         key = X.attrs["view_components"]
@@ -183,12 +184,15 @@ class ComponentValidator(BaseEstimator, TransformerMixin):
 
         return X
 
+
 class LinksParser(BaseEstimator, TransformerMixin):
 
     def fit(self, _X, _y=None):
         return self
 
-    def transform(self, X: pd.DataFrame, registry: data.Registry = None) -> pd.DataFrame:
+    def transform(
+        self, X: pd.DataFrame, registry: data.Registry = None
+    ) -> pd.DataFrame:
 
         # This transformer produces new components,
         # so we indicate that with nan comp_inds
@@ -216,41 +220,53 @@ class LinksParser(BaseEstimator, TransformerMixin):
                 "Links column is not formatted correctly. Did you use a pipe, |? "
             )
         # Add the parsed results back to the original DataFrame
-        X_out = (
-            X.join(exploded_links).reset_index(drop=True).drop(columns="value")
-        )
+        X_out = X.join(exploded_links).reset_index(drop=True).drop(columns="value")
 
         return X_out
+
 
 class LinkCollector(BaseEstimator, TransformerMixin):
 
     def fit(self, _X, _y=None):
         return self
 
-    def transform(self, X: pd.DataFrame, registry: data.Registry = None) -> pd.DataFrame:
+    def transform(
+        self, X: pd.DataFrame, registry: data.Registry = None
+    ) -> pd.DataFrame:
 
         # Rename and copy
-        if X.attrs["view_components"] != ["link_type"]:
+        if X.attrs["view_components"] != "link_type":
             raise ValueError(
                 "LinkCollector should only be used on the 'link_type' view. "
                 f"Got: {X.attrs['view_components']}"
             )
         link_types = X.copy()
 
+        # Check that link_types has the right index
+        assert link_types.index.names == [
+            "entity",
+        ], "link_types should have a single index level 'entity'."
+
         # Loop through and gather the links from the components tagged with link_type
         dfs = []
         for _, row in link_types.iterrows():
 
+            link_type = row.name
+
+            # Sometimes there aren't links of that type yet, at least as components
+            if link_type not in registry:
+                continue
+            df_i = registry.view(link_type)
+
             # Every component flagged as a link_type should have a 'value' column
             # and a multiindex of entity, comp_ind. We massage those into a DataFrame
             # with multiindex (with nan comp_ind) and a source and target column.
-            df_i = registry.view(row.name)
             df_i = df_i.reset_index()
             df_i = df_i.rename(columns={"value": "target"})
             df_i["source"] = df_i["entity"]
             # This will get filled in to an appropriate value later
-            df_i["comp_ind"] = pd.NA  
-            df_i["link_type"] = row["link_type"]
+            df_i["comp_ind"] = pd.NA
+            df_i["link_type"] = link_type
             df_i = df_i[["entity", "comp_ind", "source", "target", "link_type"]]
 
             dfs.append(df_i)

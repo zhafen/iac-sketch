@@ -501,7 +501,7 @@ class TestSystemTransformers(unittest.TestCase):
         registry = self.transform_sys.apply_preprocess_transforms(registry)
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.LinksCollector(),
+            transform.LinkCollector(),
             components_mapping={"link": data.View("link_type")},
             mode="upsert",
         )
@@ -540,17 +540,16 @@ class TestSystemTransformers(unittest.TestCase):
 
         for _, row in expected.iterrows():
 
-            link_df_for_entity = actual.loc[row.names[0]]
+            link_df_for_entity = actual.loc[row.name[0]]
             matching_rows = link_df_for_entity.loc[
                 link_df_for_entity["link_type"] == row["link_type"]
             ]
 
-            assert (
-                len(matching_rows) == 1
-            ), (
-                f"Expected one row for {row['entity']} with link "
-                f"type {row['link_type']}, found {len(matching_rows)}"
-            )
+            if len(matching_rows) != 1:
+                raise ValueError(
+                    "Test entities are designed to have exactly one component with the "
+                    f"expected link_type, but found {len(matching_rows)}."
+                )
 
             assert matching_rows.iloc[0]["source"] == row["source"]
             assert matching_rows.iloc[0]["target"] == row["target"]
