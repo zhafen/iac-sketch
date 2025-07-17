@@ -494,7 +494,6 @@ class TestSystemTransformers(unittest.TestCase):
         requirement_0_0:
         - requirement
         - parent: requirement_0
-
         """
 
         registry = self.extract_sys.extract_entities(input_yaml=input_yaml)
@@ -548,7 +547,8 @@ class TestSystemTransformers(unittest.TestCase):
             if len(matching_rows) != 1:
                 raise ValueError(
                     "Test entities are designed to have exactly one component with the "
-                    f"expected link_type, but found {len(matching_rows)}."
+                    f"expected link_type, but found {len(matching_rows)} "
+                    f"for {row.name[0]} with link_type {row['link_type']}"
                 )
 
             assert matching_rows.iloc[0]["source"] == row["source"]
