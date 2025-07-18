@@ -174,7 +174,10 @@ class View:
     """Encapsulates the specification for a registry view."""
 
     components: str | list[str]
+    reset_index: bool = False
     join_on: str = "entity"
+    join_left_on: str = None
+    join_right_on: str = None
     join_how: str = "left"
 
 
@@ -529,15 +532,23 @@ class Registry:
 
         if isinstance(view.components, str):
             view_df = self[view.components].copy()
+            if view.reset_index:
+                view_df = view_df.reset_index()
         elif isinstance(view.components, list):
             for i, key in enumerate(view.components):
                 df_i = self[key]
+
+                if view.reset_index:
+                    df_i = df_i.reset_index()
+
                 if i == 0:
                     view_df = df_i
                     continue
                 view_df = view_df.merge(
                     df_i,
                     on=view.join_on,
+                    left_on=view.join_left_on,
+                    right_on=view.join_right_on,
                     how=view.join_how,
                     suffixes=("", f"_{key}"),
                 )
