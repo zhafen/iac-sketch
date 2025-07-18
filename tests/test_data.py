@@ -1,5 +1,6 @@
 import unittest
 
+import numpy as np
 import pandas as pd
 from pandera import dtypes
 from pandera.engines import pandas_engine
@@ -350,12 +351,17 @@ class TestView(unittest.TestCase):
         actual = registry.resolve_view(view)
 
         expected = pd.DataFrame({
-            "entity": ["entity1", "entity1", "entity2", "entity2"],
-            "field1": [0, 1, 2, 2],
-            "comp2.entity_field2": ["entity1", "entity1", "entity2", "entity2"],
+            "comp1.entity": ["entity1", "entity1", "entity2", "entity2"],
+            "comp1.comp_ind": [0, 2, 0, 0],
+            "comp1.field1": [0, 1, 2, 2],
+            "comp2.entity": [pd.NA, pd.NA, "entity1", "entity1"],
+            "comp2.comp_ind": [np.nan, np.nan, 1, 3],
             "comp2.field2": [pd.NA, pd.NA, "a", "b"],
-            "comp3.entity_field3": ["entity1", "entity1", "entity2", "entity2"],
+            "comp2.entity_field2": [pd.NA, pd.NA, "entity2", "entity2"],
+            "comp3.entity": ["entity2", "entity2", "entity1", "entity1"],
+            "comp3.comp_ind": [1, 1, 4, 4],
             "comp3.field3": [-2, -2, -1, -1],
+            "comp3.entity_field3": ["entity1", "entity1", "entity2", "entity2"],
         })
 
         pd.testing.assert_frame_equal(actual, expected)

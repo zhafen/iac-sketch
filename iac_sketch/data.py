@@ -529,30 +529,30 @@ class Registry:
         """
 
         if isinstance(view.components, str):
-            view_df = self[view.components]
+            view_df = self[view.components].reset_index()
         elif isinstance(view.components, list):
 
             # Prepare the join variables
             if isinstance(view.join_on, str):
-                left_on = view.join_on
+                left_on = f"{view.components[0]}.{view.join_on}"
             else:
                 if len(view.join_on) != len(view.components):
                     raise ValueError("join_on must be the same length as components")
-                left_on = view.join_on[0]
+                left_on = f"{view.components[0]}.{view.join_on[0]}"
 
             # Loop through to join
             for i, key in enumerate(view.components):
-                df_i = self[key]
-
-                # No need to join if this is the first component.
-                if i == 0:
-                    view_df = df_i
-                    continue
+                df_i = self[key].reset_index()
 
                 # Rename columns to avoid conflicts
                 df_i = df_i.rename(
                     columns={col: f"{key}.{col}" for col in df_i.columns}
                 )
+
+                # No need to join if this is the first component.
+                if i == 0:
+                    view_df = df_i
+                    continue
 
                 if isinstance(view.join_on, str):
                     right_on = f"{key}.{view.join_on}"
