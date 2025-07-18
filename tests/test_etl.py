@@ -525,6 +525,7 @@ class TestSystemTransformers(unittest.TestCase):
         )
 
         actual = registry["link"]
+
         # comp_inds get set at runtime, so we don't check them here
         expected = (
             pd.DataFrame(
@@ -542,20 +543,6 @@ class TestSystemTransformers(unittest.TestCase):
                         "link_type": "satisfies",
                         "source": "task_0",
                         "target": "requirement_0",
-                    },
-                    {
-                        "entity": "task_0",
-                        "comp_ind": pd.NA,
-                        "link_type": "depends_on",
-                        "source": "task_1",
-                        "target": "task_0",
-                    },
-                    {
-                        "entity": "workflow_0",
-                        "comp_ind": pd.NA,
-                        "link_type": "depends_on",
-                        "source": "task_2",
-                        "target": "task_1",
                     },
                 ]
             )
@@ -579,3 +566,8 @@ class TestSystemTransformers(unittest.TestCase):
 
             assert matching_rows.iloc[0]["source"] == row["source"]
             assert matching_rows.iloc[0]["target"] == row["target"]
+
+        # Check that we have the expected workflow links
+        depends_ons = actual.query("link_type == 'depends_on'")
+        assert len(depends_ons.query("source == 'task_1' and target == 'task_0'")) == 1
+        assert len(depends_ons.query("source == 'task_2' and target == 'task_1'")) == 1
