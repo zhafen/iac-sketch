@@ -94,9 +94,6 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         # Parse the fields
         X = X.apply(self._parse_fields, axis="columns")
 
-        # Rename
-        X = X.rename({"component": "unparsed_fields"}, axis="columns")
-
         # All component definitions include an "entity" column and a "comp_ind" column
         # We pull the definitions from a "default_fields" component.
         default_fields = X.loc[X["entity"] == "default_fields", "fields"].iloc[0]
@@ -106,6 +103,14 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         X.loc[~X["is_defined"], "is_valid"] = False
         X.loc[~X["is_defined"], "errors"] += "Component definition does not exist. "
 
+        # Reorganize and rename
+        X = X.rename(
+            columns={
+                "fields.component": "unparsed_fields",
+                "component.multiplicity": "multiplicity",
+            }
+        ).drop(columns=["component.value"])
+
         return X
 
     def _parse_fields(
@@ -113,8 +118,8 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         row,
     ) -> pd.Series:
         # If not given any fields then this is just a flag component
-        if pd.isna(row["component"]):
-            row["component"] = {}
+        if pd.isna(row["fields.component"]):
+            row["fields.component"] = {}
             row["fields"] = {}
             row["is_valid"] = True
             row["errors"] = ""
@@ -123,7 +128,7 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         fields_i = {}
         valid_fields = True
         valid_message = ""
-        for field_key, field_value in row["component"].items():
+        for field_key, field_value in row["fields.component"].items():
             try:
                 field = data.Field.from_kv_pair(field_key, field_value)
                 fields_i[field.name] = field
@@ -309,7 +314,7 @@ class LinkCollector(BaseEstimator, TransformerMixin):
         for _, row in link_types.iterrows():
 
             # Get the relevant rows
-            is_reverse_link_type = X["link_type"] == row['reverse']
+            is_reverse_link_type = X["link_type"] == row["reverse"]
             df_i = X.loc[is_reverse_link_type].copy()
 
             # If there are no links of this type, skip
@@ -322,7 +327,7 @@ class LinkCollector(BaseEstimator, TransformerMixin):
 
             # Put the data back
             X.loc[is_reverse_link_type] = df_i
-            
+
         # De-duplicate
         X = X.drop_duplicates(subset=["source", "target", "link_type"])
 
