@@ -520,7 +520,7 @@ class TestSystemTransformers(unittest.TestCase):
         registry = self.transform_sys.apply_transform(
             registry,
             transform.LinkCollector(),
-            components_mapping={"link": data.View("link_type")},
+            components_mapping={"link": data.View("link")},
             mode="upsert",
         )
 

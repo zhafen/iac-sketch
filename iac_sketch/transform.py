@@ -234,15 +234,16 @@ class LinkCollector(BaseEstimator, TransformerMixin):
         self, X: pd.DataFrame, registry: data.Registry = None
     ) -> pd.DataFrame:
 
-        # Rename and copy
-        if X.attrs["view_components"] != "link_type":
+        # Validate and get an index-less copy
+        if X.attrs["view_components"] != "link":
             raise ValueError(
-                "LinkCollector should only be used on the 'link_type' view. "
+                "LinkCollector should only be used on the 'link' view. "
                 f"Got: {X.attrs['view_components']}"
             )
-        link_types = X.copy()
+        X = X.reset_index()
 
         # Check that link_types has the right index
+        link_types = registry.view("link_type")
         assert link_types.index.names == [
             "entity",
         ], "link_types should have a single index level 'entity'."
@@ -309,6 +310,29 @@ class LinkCollector(BaseEstimator, TransformerMixin):
                 df_i["link_type"] = link_type
                 dfs.append(df_i)
 
-        X_out = pd.concat(dfs, ignore_index=True)
 
-        return X_out
+        # Add the links to the original DataFrame
+        X = pd.concat([X] + dfs, ignore_index=True)
+
+        # Change reversed link types to the original link type
+        for _, row in link_types.iterrows():
+
+            # Get the relevant rows
+            is_reverse_link_type = X["link_type"] == row['reverse']
+            df_i = X.loc[is_reverse_link_type].copy()
+
+            # If there are no links of this type, skip
+            if df_i.empty:
+                continue
+
+            # Reverse the source and target columns and change the link_type
+            df_i = df_i.rename(columns={"source": "target", "target": "source"})
+            df_i["link_type"] = row.name
+
+            # Put the data back
+            X.loc[is_reverse_link_type] = df_i
+            
+        # De-duplicate
+        X = X.drop_duplicates(subset=["source", "target", "link_type"])
+
+        return X
