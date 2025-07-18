@@ -7,6 +7,7 @@ import pandas as pd
 import pandera.pandas as pa
 from pandera.backends.pandas.components import ColumnBackend
 from pandera.engines import pandas_engine
+import yaml
 
 
 # --- Registry class ---
@@ -568,3 +569,28 @@ class Registry:
         """
         view = View(*args, **kwargs)
         return self.resolve_view(view)
+
+    def view_entity(
+        self, entity: str, output_yaml: bool = True, print_output: bool = True
+    ) -> str | dict[str, pd.Series | pd.DataFrame]:
+
+        entity_comps = self.view("compinst").loc[entity]
+        result = {}
+        for _, row in entity_comps.iterrows():
+            # Get the component type and its data
+            data_i = self.view(row["component_type"]).loc[entity]
+
+            # Format
+            if isinstance(data_i, pd.DataFrame) and len(data_i) == 1:
+                data_i = data_i.reset_index().iloc[0]
+            data_i = data_i.to_dict()
+
+            result[row["component_type"]] = data_i
+
+        if output_yaml:
+            result = yaml.dump(result, indent=4)
+
+        if print_output:
+            print(result)
+
+        return result
