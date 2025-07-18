@@ -174,9 +174,10 @@ class View:
     """Encapsulates the specification for a registry view."""
 
     components: str | list[str]
-    reset_index: bool = False
     join_on: str | list[str] = "entity"
     join_how: str = "left"
+    reset_index: bool = False
+
 
 class Registry:
     """
@@ -534,15 +535,14 @@ class Registry:
         elif isinstance(view.components, list):
 
             # Prepare the join variables
-            if isinstance(view.join_on, str):
+            right_on = view.join_on
+            one_join_var = isinstance(view.join_on, str)
+            if one_join_var:
                 left_on = view.join_on
-                right_on = view.join_on
             else:
                 if len(view.join_on) != len(view.components):
                     raise ValueError("join_on must be the same length as components")
-                left_on = view.join_on[0]
-                # right_on will be updated as we loop through components
-                right_on = view.join_on[0]
+                left_on = f"{view.components[0]}.{view.join_on[0]}"
 
             # Loop through to join
             for i, key in enumerate(view.components):
@@ -554,7 +554,9 @@ class Registry:
                 # Rename columns to avoid conflicts
                 df_i = df_i.rename(
                     columns={
-                        col: f"{key}.{col}" if col != right_on else col
+                        col: (
+                            col if (col == left_on) and one_join_var else f"{key}.{col}"
+                        )
                         for col in df_i.columns
                     }
                 )
@@ -564,9 +566,9 @@ class Registry:
                     view_df = df_i
                     continue
 
-                # Identify the right join column
-                if not isinstance(view.join_on, str):
-                    right_on = view.join_on[i]
+                # Override the right join if we're not joining on one variable
+                if not one_join_var:
+                    right_on = f"{key}.{view.join_on[i]}"
 
                 # Perform the join
                 view_df = view_df.merge(
