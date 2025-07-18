@@ -529,45 +529,34 @@ class Registry:
         """
 
         if isinstance(view.components, str):
-            view_df = self[view.components].copy()
-            if view.reset_index:
-                view_df = view_df.reset_index()
+            view_df = self[view.components]
         elif isinstance(view.components, list):
 
             # Prepare the join variables
-            right_on = view.join_on
-            one_join_var = isinstance(view.join_on, str)
-            if one_join_var:
+            if isinstance(view.join_on, str):
                 left_on = view.join_on
             else:
                 if len(view.join_on) != len(view.components):
                     raise ValueError("join_on must be the same length as components")
-                left_on = f"{view.components[0]}.{view.join_on[0]}"
+                left_on = view.join_on[0]
 
             # Loop through to join
             for i, key in enumerate(view.components):
                 df_i = self[key]
-
-                if view.reset_index:
-                    df_i = df_i.reset_index()
-
-                # Rename columns to avoid conflicts
-                df_i = df_i.rename(
-                    columns={
-                        col: (
-                            col if (col == left_on) and one_join_var else f"{key}.{col}"
-                        )
-                        for col in df_i.columns
-                    }
-                )
 
                 # No need to join if this is the first component.
                 if i == 0:
                     view_df = df_i
                     continue
 
-                # Override the right join if we're not joining on one variable
-                if not one_join_var:
+                # Rename columns to avoid conflicts
+                df_i = df_i.rename(
+                    columns={col: f"{key}.{col}" for col in df_i.columns}
+                )
+
+                if isinstance(view.join_on, str):
+                    right_on = f"{key}.{view.join_on}"
+                else:
                     right_on = f"{key}.{view.join_on[i]}"
 
                 # Perform the join
@@ -582,6 +571,7 @@ class Registry:
 
         # Store the view components in the DataFrame attributes
         view_df.attrs["view_components"] = view.components
+        view_df.attrs["view_join_on"] = view.join_on
         return view_df
 
     def view(self, *args, **kwargs) -> pd.DataFrame:
