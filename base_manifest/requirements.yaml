@@ -31,14 +31,16 @@ status:
 satisfies:
 - description: The source (owner) entity satisfies the target entity.
 - component
-- link_type
+- link_type:
+    reverse: satisfied_by
 - fields:
     value [entity]: The [requirement] entity the owner entity satisfies.
 
 supports:
 - description: The source (owner) entity supports the target entity.
 - component
-- link_type
+- link_type:
+    reverse: supported_by
 - fields:
     value [entity]: The entity the owner entity supports.
 

@@ -248,7 +248,7 @@ class LinkCollector(BaseEstimator, TransformerMixin):
             "entity",
         ], "link_types should have a single index level 'entity'."
 
-        def format_links(link_type: str, owner_is_source: bool) -> pd.DataFrame:
+        def format_links(link_type: str) -> pd.DataFrame:
             """
             Formats links for a given link_type, setting owner as source or target.
 
@@ -267,22 +267,16 @@ class LinkCollector(BaseEstimator, TransformerMixin):
 
             df_i = registry.view(link_type)
 
-            if owner_is_source:
-                rename_map = {"value": "target"}
-                col_set_to_owner = "source"
-            else:
-                rename_map = {"value": "source"}
-                col_set_to_owner = "target"
-
             # Every component flagged as a link_type should have a 'value' column
             # and a multiindex of entity, comp_ind. We massage those into a DataFrame
             # with multiindex (with nan comp_ind) and a source and target column.
             df_i = df_i.reset_index()
-            df_i = df_i.rename(columns=rename_map)
-            df_i[col_set_to_owner] = df_i["entity"]
+            df_i = df_i.rename(columns={"value": "target"})
+            df_i["source"] = df_i["entity"]
             # This will get filled in to an appropriate value later
             df_i["comp_ind"] = pd.NA
-            df_i = df_i[["entity", "comp_ind", "source", "target"]]
+            df_i["link_type"] = link_type
+            df_i = df_i[["entity", "comp_ind", "source", "target", "link_type"]]
 
             return df_i
 
@@ -295,8 +289,7 @@ class LinkCollector(BaseEstimator, TransformerMixin):
 
             # Sometimes there aren't links of that type yet, at least as components
             if link_type in registry:
-                df_i = format_links(link_type, owner_is_source=True)
-                df_i["link_type"] = link_type
+                df_i = format_links(link_type)
                 dfs.append(df_i)
 
             # Collect the links from the reverse component
@@ -304,12 +297,10 @@ class LinkCollector(BaseEstimator, TransformerMixin):
                 continue
             reverse_link_type = row["reverse"]
             if reverse_link_type in registry:
-                df_i = format_links(reverse_link_type, owner_is_source=False)
+                df_i = format_links(reverse_link_type)
                 # We use the non-reverse link type as the link_type, since we want to treat
                 # them as the same type of link
-                df_i["link_type"] = link_type
                 dfs.append(df_i)
-
 
         # Add the links to the original DataFrame
         X = pd.concat([X] + dfs, ignore_index=True)
