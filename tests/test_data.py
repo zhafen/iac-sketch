@@ -234,8 +234,8 @@ class TestView(unittest.TestCase):
 
         expected = pd.DataFrame({
             "entity": ["entity1", "entity2"],
-            "field1": [1, 2],
-            "field2": ["a", pd.NA],
+            "comp1.field1": [1, 2],
+            "comp2.field2": ["a", pd.NA],
         }).set_index("entity")
 
         pd.testing.assert_frame_equal(actual, expected)
@@ -259,8 +259,8 @@ class TestView(unittest.TestCase):
 
         expected = pd.DataFrame({
             "entity": ["entity1", "entity1", "entity2"],
-            "field1": [0, 1, 2],
-            "field2": ["a", "a", pd.NA],
+            "comp1.field1": [0, 1, 2],
+            "comp2.field2": ["a", "a", pd.NA],
         }).set_index("entity")
 
         pd.testing.assert_frame_equal(actual, expected)
@@ -284,8 +284,8 @@ class TestView(unittest.TestCase):
 
         expected = pd.DataFrame({
             "entity": ["entity1", "entity1", "entity1", "entity1", "entity2"],
-            "field1": [0, 0, 1, 1, 2],
-            "field2": ["a", "b", "a", "b", pd.NA],
+            "comp1.field1": [0, 0, 1, 1, 2],
+            "comp2.field2": ["a", "b", "a", "b", pd.NA],
         }).set_index("entity")
 
         pd.testing.assert_frame_equal(actual, expected)
@@ -314,9 +314,9 @@ class TestView(unittest.TestCase):
 
         expected = pd.DataFrame({
             "entity": ["entity1", "entity1", "entity1", "entity1", "entity2"],
-            "field1": [0, 0, 1, 1, 2],
-            "field2": ["a", "b", "a", "b", pd.NA],
-            "field3": [-1, -1, -1, -1, -2],
+            "comp1.field1": [0, 0, 1, 1, 2],
+            "comp2.field2": ["a", "b", "a", "b", pd.NA],
+            "comp3.field3": [-1, -1, -1, -1, -2],
         }).set_index("entity")
 
         pd.testing.assert_frame_equal(actual, expected)
