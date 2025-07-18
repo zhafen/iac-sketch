@@ -175,11 +175,8 @@ class View:
 
     components: str | list[str]
     reset_index: bool = False
-    join_on: str = "entity"
-    join_left_on: str = None
-    join_right_on: str = None
+    join_on: str | list[str] = "entity"
     join_how: str = "left"
-
 
 class Registry:
     """
@@ -212,7 +209,7 @@ class Registry:
             for key, value in components.items():
                 self.set(key, value)
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str) -> pd.DataFrame:
         """
         Retrieve a component DataFrame by its type name.
 
@@ -535,22 +532,48 @@ class Registry:
             if view.reset_index:
                 view_df = view_df.reset_index()
         elif isinstance(view.components, list):
+
+            # Prepare the join variables
+            if isinstance(view.join_on, str):
+                left_on = view.join_on
+                right_on = view.join_on
+            else:
+                if len(view.join_on) != len(view.components):
+                    raise ValueError("join_on must be the same length as components")
+                left_on = view.join_on[0]
+                # right_on will be updated as we loop through components
+                right_on = view.join_on[0]
+
+            # Loop through to join
             for i, key in enumerate(view.components):
                 df_i = self[key]
 
                 if view.reset_index:
                     df_i = df_i.reset_index()
 
+                # Rename columns to avoid conflicts
+                df_i = df_i.rename(
+                    columns={
+                        col: f"{key}.{col}" if col != right_on else col
+                        for col in df_i.columns
+                    }
+                )
+
+                # No need to join if this is the first component.
                 if i == 0:
                     view_df = df_i
                     continue
+
+                # Identify the right join column
+                if not isinstance(view.join_on, str):
+                    right_on = view.join_on[i]
+
+                # Perform the join
                 view_df = view_df.merge(
                     df_i,
-                    on=view.join_on,
-                    left_on=view.join_left_on,
-                    right_on=view.join_right_on,
+                    left_on=left_on,
+                    right_on=right_on,
                     how=view.join_how,
-                    suffixes=("", f"_{key}"),
                 )
         else:
             raise TypeError("View.keys must be a string or a list of strings.")
