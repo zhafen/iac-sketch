@@ -89,7 +89,7 @@ apply_preprocess_transforms:
     links: |
         normalize_compinsts --> extract_compdefs
         extract_compdefs --> validate_compinsts
-    link_type: dependency
+    link_type: depended_on_by
 
 apply_system_transforms:
 - description: >

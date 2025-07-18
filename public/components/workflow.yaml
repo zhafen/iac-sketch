@@ -5,7 +5,7 @@ request_workflow:
     links: |
             accept_request --> build_report
             build_report --> deliver_report
-    link_type: dependency
+    link_type: depended_on_by
 
 accept_request_workflow:
 - append_to: accept_request
@@ -26,7 +26,7 @@ accept_request_workflow:
         data_steward_reviews_request -->|reject| requester_revises_request
         requester_revises_request --> data_steward_reviews_request
             create_or_revise_service_agreement --> requester_reviews_service_agreement
-    link_type: dependency
+    link_type: depended_on_by
 
 build_report_workflow:
 - description: The workflow for building a report
@@ -39,7 +39,7 @@ build_report_workflow:
             work_on_report --> get_feedback_on_report
             get_feedback_on_report --> work_on_report
             get_feedback_on_report --> finalize_report
-    link_type: dependency
+    link_type: depended_on_by
 
 work_on_report:
 - description: The workflow for actually working on the report.
@@ -48,7 +48,7 @@ work_on_report:
     links: |
         build_cohort --> build_report
         build_report --> build_pbi_report
-    link_type: dependency
+    link_type: depended_on_by
 
 get_feedback_on_report:
 - task
@@ -63,7 +63,7 @@ get_feedback_on_report:
         get_feedback_from_first_reviewer --> get_feedback_from_second_reviewer
         get_feedback_from_second_reviewer --> revise_pr
         revise_pr --> get_feedback_from_second_reviewer
-    link_type: dependency
+    link_type: depended_on_by
 
 finalize_report:
 - task
@@ -88,7 +88,7 @@ run_report:
     links: |
             run_etl --> run_cohort_notebook
             run_cohort_notebook --> run_report_notebook
-    link_type: dependency
+    link_type: depended_on_by
 
 run_etl:
 - description: Run any ETL needed for the report.
