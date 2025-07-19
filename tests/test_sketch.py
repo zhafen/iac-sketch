@@ -18,7 +18,7 @@ class TestArchitect(unittest.TestCase):
 
     def test_validate(self):
         self.architect.perform_registry_etl()
-        is_valid, invalids = self.architect.validate_registry()
+        tests, test_results = self.architect.validate_registry()
 
         expected_tests = [
             "test_fully_designed",
@@ -27,18 +27,18 @@ class TestArchitect(unittest.TestCase):
             "test_fully_connected",
         ]
         for test_name in expected_tests:
-            assert test_name in invalids, (
-                f"Test {test_name} is missing from invalids. "
-                f"invalids: {list(invalids.keys())}"
+            assert test_name in test_results, (
+                f"Test {test_name} is missing from test_results. "
+                f"test_results: {list(test_results.keys())}"
             )
-            assert isinstance(invalids[test_name], pd.DataFrame), (
-                f"Invalids for {test_name} should be a DataFrame, "
-                f"got: {invalids[test_name]}"
+            assert isinstance(test_results[test_name], pd.DataFrame), (
+                f"Test results for {test_name} should be a DataFrame, "
+                f"got: {test_results[test_name]}"
             )
-            assert invalids[
+            assert test_results[
                 test_name
             ].empty, (
-                f"Invalids for {test_name} should be empty, got {invalids[test_name]}"
+                f"Test results for {test_name} should be empty, got {test_results[test_name]}"
             )
 
-        assert is_valid
+        assert tests.loc[expected_tests, "test_passed"].all()
