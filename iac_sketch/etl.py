@@ -232,7 +232,7 @@ class TransformSystem:
             # components.
             components_mapping={
                 "compdef": data.View(
-                    ["component", "fields"], join_on="entity", join_how="outer"
+                    ["component", "fields"], join_how="outer"
                 )
             },
         )
