@@ -30,8 +30,8 @@ def test_implemented(registry: data.Registry) -> pd.DataFrame:
 
 def test_defined(registry: data.Registry) -> pd.DataFrame:
 
-    assert False
-
+    # All compdefs that are invalid
+    return registry.view("compdef").query("~is_valid")
 
 def test_connected(registry: data.Registry) -> pd.DataFrame:
 
