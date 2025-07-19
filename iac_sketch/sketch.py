@@ -38,20 +38,20 @@ class Architect:
 
         tests = self.registry.view(["test", "code"])
         for entity, row in tests.iterrows():
-            if row["value_code"]:
+            if row["code.value"]:
 
                 try:
                     # Get the test function from the code path
-                    module_path, test_func_name = row["value_code"].rsplit(".", 1)
+                    module_path, test_func_name = row["code.value"].rsplit(".", 1)
                     module = importlib.import_module(module_path)
-                    test_func = getattr(module, test_func_name, None)
+                    test_func = getattr(module, test_func_name)
 
                     # Call the test function if it is callable
                     invalids[entity] = test_func(self.registry)
                 # A bare except is okay here because we're logging.
                 except Exception as e: # pylint: disable=W0718
                     invalids[entity] = (
-                        f"Test function {row['value_code']} is invalid: {e}"
+                        f"Test function {row['code.value']} is invalid: {e}"
                     )
             else:
                 invalids[entity] = "Test code is missing."

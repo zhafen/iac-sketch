@@ -14,7 +14,7 @@ executes_tests:
 test_executes_tests:
 - description: The test that validates that executes_tests works.
 - test
-- code: iac_sketch.test_validate.TestValidator.test_validate
+- code: iac_sketch..test.test_sketch.test_validate
 - satisfies: can_execute_tests
 
 can_perform_registry_etl:
