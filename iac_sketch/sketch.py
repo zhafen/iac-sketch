@@ -30,6 +30,7 @@ class Architect:
         self.registry = self.extract_sys.extract_entities(filename_patterns)
         self.registry = self.transform_sys.apply_preprocess_transforms(self.registry)
         self.registry = self.transform_sys.apply_system_transforms(self.registry)
+        self.registry = self.transform_sys.apply_postprocess_transforms(self.registry)
         return self.registry
 
     def validate_registry(self) -> tuple[bool, dict[str, pd.DataFrame]]:

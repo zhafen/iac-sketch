@@ -238,9 +238,11 @@ class TransformSystem:
         )
 
     def validate_compdefs(self, registry: data.Registry) -> data.Registry:
+        """First we validate the component definitions, since they'll be used
+        to validate the components themselves.
+        We also do this in postprocessing.
+        """
 
-        # First we validate the component definitions, since they'll be used
-        # to validate the components themselves.
         registry = self.apply_transform(
             registry,
             transform.ComponentValidator(),
@@ -272,5 +274,11 @@ class TransformSystem:
             components_mapping={"link": data.View("link")},
             mode="upsert",
         )
+
+        return registry
+
+    def apply_postprocess_transforms(self, registry: data.Registry) -> data.Registry:
+
+        registry = self.validate_compdefs(registry)
 
         return registry
