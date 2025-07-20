@@ -585,12 +585,7 @@ class TestSystemTransformers(unittest.TestCase):
 
         registry = self.extract_sys.extract_entities(input_yaml=input_yaml)
         registry = self.transform_sys.apply_preprocess_transforms(registry)
-        registry = self.transform_sys.apply_transform(
-            registry,
-            transform.GraphBuilder(),
-            components_mapping={"node": data.View("link")},
-            mode="overwrite",
-        )
+        registry = self.transform_sys.build_graph_from_links(registry)
         actual = registry["node"]
 
         # This is the first time these entities show up, so comp_ind is 0 for all

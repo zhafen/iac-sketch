@@ -352,16 +352,9 @@ class GraphBuilder(BaseEstimator, TransformerMixin):
             "GraphBuilder should only be used on the 'link' view. "
             f"Got: {X.attrs['view_components']}"
         )
-
-        # Build the graph
-        registry.graph = nx.from_pandas_edgelist(
-            X,
-            source="source",
-            target="target",
-            edge_key="link_type",
-            create_using=nx.DiGraph,
+        assert hasattr(registry, "graph"), (
+            "GraphBuilder expects the registry to have a 'graph' attribute."
         )
-        registry.graph.add_nodes_from(registry.entities)
 
         # Build a nodes dataframe with information about connectivity
         connected_components = [

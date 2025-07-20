@@ -5,6 +5,7 @@ ETL workflow for registry processing, based on base_manifest/etl.yaml.
 import copy
 
 import yaml
+import networkx as nx
 import pandas as pd
 from typing import List, Dict, Callable
 
@@ -275,7 +276,22 @@ class TransformSystem:
             mode="upsert",
         )
 
+        registry = self.build_graph_from_links(registry)
+
+        return registry
+
+    def build_graph_from_links(self, registry: data.Registry) -> data.Registry:
+
+
         # Build a graph from the links
+        registry.graph = nx.from_pandas_edgelist(
+            registry.view("link"),
+            source="source",
+            target="target",
+            edge_key="link_type",
+            create_using=nx.DiGraph,
+        )
+        registry.graph.add_nodes_from(registry.entities)
         registry = self.apply_transform(
             registry,
             transform.GraphBuilder(),
