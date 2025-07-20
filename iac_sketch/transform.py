@@ -335,7 +335,7 @@ class LinkCollector(BaseEstimator, TransformerMixin):
         return X
 
 
-class GraphBuilder(BaseEstimator, TransformerMixin):
+class GraphAnalyzer(BaseEstimator, TransformerMixin):
     """
     Transformer that builds a graph from the links in the registry.
     It doesn't modify the link component, but adds a node component.

@@ -282,7 +282,6 @@ class TransformSystem:
 
     def build_graph_from_links(self, registry: data.Registry) -> data.Registry:
 
-
         # Build a graph from the links
         registry.graph = nx.from_pandas_edgelist(
             registry.view("link"),
@@ -294,7 +293,7 @@ class TransformSystem:
         registry.graph.add_nodes_from(registry.entities)
         registry = self.apply_transform(
             registry,
-            transform.GraphBuilder(),
+            transform.GraphAnalyzer(),
             components_mapping={"node": data.View("link")},
             mode="overwrite",
         )

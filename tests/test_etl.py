@@ -568,7 +568,7 @@ class TestSystemTransformers(unittest.TestCase):
         assert len(depends_ons.query("source == 'task_1' and target == 'task_0'")) == 1
         assert len(depends_ons.query("source == 'task_2' and target == 'task_1'")) == 1
 
-    def test_graph_builder(self):
+    def test_build_graph_from_links(self):
         input_yaml = """
         link_0:
         - link:
