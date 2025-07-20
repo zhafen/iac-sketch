@@ -25,6 +25,27 @@ test_perform_registry_etl:
 - test
 - satisfies: can_perform_registry_etl
 
+can_document_workflows:
+- description: iac_sketch must provide a method to document workflows
+- requirement: iac_sketch_infrastructure
+
+minimizes_structure_repetition:
+- description: >
+    iac_sketch should not require the user to go through code and transcribe the
+    structure into yaml when it's already defined.
+
+    Possible solutions:
+    1. Automatically retrieve structure from the code.
+    2. Use the structure in the yaml to define code execution order
+        (may conflict with the minimal_workflow_orchestration_functionality requirement)
+- requirement: iac_sketch_infrastructure
+
+minimal_workflow_orchestration_functionality:
+- description: >
+    There are many highly-functional workflow orchestrators out there.
+    We do not want to re-invent the wheel.
+- requirement: iac_sketch_infrastructure
+
 perform_registry_etl:
 - description: >
     How entities are defined and parsed.
