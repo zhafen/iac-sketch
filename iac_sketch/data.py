@@ -281,6 +281,10 @@ class Registry:
         """
         return self.components.items()
 
+    @property
+    def entities(self) -> pd.Index:
+        return self.view("compinst").index.get_level_values("entity").unique()
+
     def update(self, other: "Registry", mode: str = "upsert"):
         """
         Update this registry with components from another registry.
