@@ -35,4 +35,4 @@ def test_defined(registry: data.Registry) -> pd.DataFrame:
 
 def test_connected(registry: data.Registry) -> pd.DataFrame:
 
-    return registry.view("node").query("connected_component_category != 0")
+    return registry.view("node").query("connected_component_group != 0")

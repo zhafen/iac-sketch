@@ -275,6 +275,14 @@ class TransformSystem:
             mode="upsert",
         )
 
+        # Build a graph from the links
+        registry = self.apply_transform(
+            registry,
+            transform.GraphBuilder(),
+            components_mapping={"node": data.View("link")},
+            mode="overwrite",
+        )
+
         return registry
 
     def apply_postprocess_transforms(self, registry: data.Registry) -> data.Registry:

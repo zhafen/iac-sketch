@@ -1,10 +1,6 @@
-# Dummy transformer for testing
-import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.preprocessing import StandardScaler
-
 import unittest
 
+import networkx as nx
 import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
@@ -607,3 +603,6 @@ class TestSystemTransformers(unittest.TestCase):
             ]
         ).set_index("entity")
         assert_frame_equal(actual.loc[expected.index, expected.columns], expected)
+
+        assert hasattr(registry, "graph")
+        assert isinstance(registry.graph, nx.DiGraph)
