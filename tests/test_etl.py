@@ -597,12 +597,13 @@ class TestSystemTransformers(unittest.TestCase):
         )
         actual = registry["node"]
 
+        # This is the first time these entities show up, so comp_ind is 0 for all
         expected = pd.DataFrame(
             [
-                {"entity": "task_0", "connected_component_group": 0},
-                {"entity": "task_1", "connected_component_group": 0},
-                {"entity": "task_2", "connected_component_group": 1},
-                {"entity": "task_3", "connected_component_group": 1},
+                {"entity": "task_0", "comp_ind": 0, "connected_component_group": 0},
+                {"entity": "task_1", "comp_ind": 0,"connected_component_group": 0},
+                {"entity": "task_2", "comp_ind": 0, "connected_component_group": 1},
+                {"entity": "task_3", "comp_ind": 0, "connected_component_group": 1},
             ]
         ).set_index("entity")
-        assert_frame_equal(actual.loc[expected.index], expected)
+        assert_frame_equal(actual.loc[expected.index, expected.columns], expected)
