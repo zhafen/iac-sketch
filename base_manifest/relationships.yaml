@@ -8,6 +8,14 @@ link:
     target [entity]: The target entity.
     link_type [entity]: The type of link.
 
+node:
+- description: A component describing an entity in the context of the entity as a node.
+- component:
+    multiplicity: "0..1"
+- fields:
+    connected_component_group [int]: >
+        Which collection of components this node is connected to.
+
 links:
 - description: >
     A description of multiple links, using the syntax:

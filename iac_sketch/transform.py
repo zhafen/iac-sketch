@@ -367,9 +367,9 @@ class GraphBuilder(BaseEstimator, TransformerMixin):
         connected_components = [
             _ for _ in nx.connected_components(registry.graph.to_undirected())
         ]
-        X_out = registry.entities.to_frame()
-        X_out["connected_component_category"] = -1
+        X_out = pd.DataFrame({"entity": list(registry.graph.nodes())}).set_index("entity")
+        X_out["connected_component_group"] = -1
         for i, comps in enumerate(connected_components):
-            X_out.loc[list(comps), "connected_component_category"] = i
+            X_out.loc[list(comps), "connected_component_group"] = i
 
         return X_out

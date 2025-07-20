@@ -574,19 +574,17 @@ class TestSystemTransformers(unittest.TestCase):
 
     def test_graph_builder(self):
         input_yaml = """
-        task_0:
-        - task
+        link_0:
+        - link:
+            source: task_1
+            target: task_0
+            link_type: depends_on
 
-        task_1:
-        - task
-        - depends_on: task_0
-
-        task_2:
-        - task
-
-        task_3:
-        - task
-        - depends_on: task_1
+        link_1:
+        - link:
+            source: task_3
+            target: task_2
+            link_type: depends_on
         """
 
         registry = self.extract_sys.extract_entities(input_yaml=input_yaml)
@@ -601,10 +599,10 @@ class TestSystemTransformers(unittest.TestCase):
 
         expected = pd.DataFrame(
             [
-                {"entity": "task_0", "comp_ind": 1, "connected_component_category": 0},
-                {"entity": "task_1", "comp_ind": 2, "connected_component_category": 0},
-                {"entity": "task_2", "comp_ind": 1, "connected_component_category": 1},
-                {"entity": "task_3", "comp_ind": 2, "connected_component_category": 1},
+                {"entity": "task_0", "connected_component_group": 0},
+                {"entity": "task_1", "connected_component_group": 0},
+                {"entity": "task_2", "connected_component_group": 1},
+                {"entity": "task_3", "connected_component_group": 1},
             ]
-        ).set_index(["entity", "comp_ind"])
+        ).set_index("entity")
         assert_frame_equal(actual.loc[expected.index], expected)
