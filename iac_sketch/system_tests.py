@@ -35,4 +35,12 @@ def test_defined(registry: data.Registry) -> pd.DataFrame:
 
 def test_connected(registry: data.Registry) -> pd.DataFrame:
 
-    assert False
+    # All entities that are not connected to any other entity
+    entities = registry.view("compinst").index.get_level_values("entity").unique()
+    links = registry.view("link")
+    connected_entities = pd.concat([links["source"], links["target"]]).unique()
+    unconnected_entities =  entities[~entities.isin(connected_entities)]
+    return unconnected_entities.to_frame().join(
+        registry.view("description")
+    )[["value"]].rename(columns={"value": "description"})
+
