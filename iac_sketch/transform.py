@@ -1,3 +1,4 @@
+import networkx as nx
 import pandas as pd
 import pandera.pandas as pa
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -332,3 +333,43 @@ class LinkCollector(BaseEstimator, TransformerMixin):
         X = X.drop_duplicates(subset=["source", "target", "link_type"])
 
         return X
+
+
+class GraphBuilder(BaseEstimator, TransformerMixin):
+    """
+    Transformer that builds a graph from the links in the registry.
+    It doesn't modify the link component, but adds a node component.
+    """
+
+    def fit(self, _X, _y=None):
+        return self
+
+    def transform(
+        self, X: pd.DataFrame, registry: data.Registry = None
+    ) -> pd.DataFrame:
+
+        assert X.attrs["view_components"] == "link", (
+            "GraphBuilder should only be used on the 'link' view. "
+            f"Got: {X.attrs['view_components']}"
+        )
+
+        # Build the graph
+        registry.graph = nx.from_pandas_edgelist(
+            X,
+            source="source",
+            target="target",
+            edge_key="link_type",
+            create_using=nx.DiGraph,
+        )
+        registry.graph.add_nodes_from(registry.entities)
+
+        # Build a nodes dataframe with information about connectivity
+        connected_components = [
+            _ for _ in nx.connected_components(registry.graph.to_undirected())
+        ]
+        X_out = registry.entities.to_frame()
+        X_out["connected_component_category"] = -1
+        for i, comps in enumerate(connected_components):
+            X_out.loc[list(comps), "connected_component_category"] = i
+
+        return X_out

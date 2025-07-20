@@ -571,3 +571,40 @@ class TestSystemTransformers(unittest.TestCase):
         depends_ons = actual.query("link_type == 'depends_on'")
         assert len(depends_ons.query("source == 'task_1' and target == 'task_0'")) == 1
         assert len(depends_ons.query("source == 'task_2' and target == 'task_1'")) == 1
+
+    def test_graph_builder(self):
+        input_yaml = """
+        task_0:
+        - task
+
+        task_1:
+        - task
+        - depends_on: task_0
+
+        task_2:
+        - task
+
+        task_3:
+        - task
+        - depends_on: task_1
+        """
+
+        registry = self.extract_sys.extract_entities(input_yaml=input_yaml)
+        registry = self.transform_sys.apply_preprocess_transforms(registry)
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.GraphBuilder(),
+            components_mapping={"node": data.View("link")},
+            mode="overwrite",
+        )
+        actual = registry["node"]
+
+        expected = pd.DataFrame(
+            [
+                {"entity": "task_0", "comp_ind": 1, "connected_component_category": 0},
+                {"entity": "task_1", "comp_ind": 2, "connected_component_category": 0},
+                {"entity": "task_2", "comp_ind": 1, "connected_component_category": 1},
+                {"entity": "task_3", "comp_ind": 2, "connected_component_category": 1},
+            ]
+        ).set_index(["entity", "comp_ind"])
+        assert_frame_equal(actual.loc[expected.index], expected)

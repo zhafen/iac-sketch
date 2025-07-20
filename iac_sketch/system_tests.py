@@ -1,3 +1,4 @@
+import networkx as nx
 import pandas as pd
 
 from . import data
@@ -35,12 +36,4 @@ def test_defined(registry: data.Registry) -> pd.DataFrame:
 
 def test_connected(registry: data.Registry) -> pd.DataFrame:
 
-    # All entities that are not connected to any other entity
-    entities = registry.entities
-    links = registry.view("link")
-    connected_entities = pd.concat([links["source"], links["target"]]).unique()
-    unconnected_entities =  entities[~entities.isin(connected_entities)]
-    return unconnected_entities.to_frame().join(
-        registry.view("description")
-    )[["value"]].rename(columns={"value": "description"})
-
+    return registry.view("node").query("connected_component_category != 0")
