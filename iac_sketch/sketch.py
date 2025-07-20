@@ -35,7 +35,7 @@ class Architect:
     def validate_registry(self) -> tuple[bool, dict[str, pd.DataFrame]]:
 
         # Prepare summary dataframe
-        tests = self.registry.view(["test", "description", "code"])
+        tests = self.registry.view(["test", "code"])
         tests["errors"] = pd.NA
         tests["test_passed"] = pd.NA
 
@@ -53,16 +53,15 @@ class Architect:
                 test_func = getattr(module, test_func_name)
 
                 # Call the test function if it is callable
-                test_result = test_func(self.registry)
+                test_result: pd.DataFrame = test_func(self.registry)
 
                 # Store results
+                test_results[entity] = test_result
                 tests.loc[entity, "test_passed"] = test_result.empty
                 tests.loc[entity, "errors"] = ""
 
             # A bare except is okay here because we're logging.
             except Exception as e:  # pylint: disable=W0718
-                tests.loc[entity, "errors"] = (
-                    f"Test function {row['code.value']} is invalid: {e}"
-                )
+                tests.loc[entity, "errors"] = e
 
         return tests, test_results

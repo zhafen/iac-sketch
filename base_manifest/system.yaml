@@ -23,7 +23,6 @@ can_perform_registry_etl:
 test_perform_registry_etl:
 - description: A test that validates we can perform the registry etl.
 - test
-- code: iac_sketch.test_sketch.TestArchitect.test_etl
 - satisfies: can_perform_registry_etl
 
 perform_registry_etl:
