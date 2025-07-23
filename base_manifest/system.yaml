@@ -60,29 +60,48 @@ perform_registry_etl:
         extract_entities --> load_entities_to_registry
         load_entities_to_registry --> apply_preprocess_transforms
         apply_preprocess_transforms --> apply_system_transforms
+        apply_system_transforms --> apply_postprocess_transforms
 
 extract_entities:
-- description: Load the entities from yaml files.
+- description: Load the entities.
 - task
-- supports: perform_registry_etl
+- subtask_of: perform_registry_etl
 - input:
-    input_paths [list[str]]: A list of filename patterns that specify the yamls.
+    filename_patterns [list[str]]: Files matching these patterns are loaded.
+    input_yaml [str]: Optional yaml-formatted input string.
 - output:
-    entities [dataframe]: >
-        DataFrame containing entities, with one row per component instance.
-- loop: extract_entities_from_yaml
+    registry [registry]:
+- subtask: extract_entities_from_yaml
+- subtask: load_entities_to_registry
 
 extract_entities_from_yaml:
 - description: Read the entities from a yaml string or stream.
 - task
 - input:
-    yaml [str]: The input yaml.
-    entities [dataframe]: Entities extracted from the yaml.
-- loop: parse_components_list
+    input_yaml [str]: 
+    source [str]: Optional label of where the yaml came from.
+- output:
+    registry [registry]: 
+- subtask: parse_components_list
+- code: iac_sketch.etl.ExtractSystem.extract_entities_from_yaml
 
 parse_components_list:
 - description: Convert a dictionary containing components into a list of components.
 - task
+- input:
+    entity [str]: Name of the entity associated with the components.
+    comps [list]: The components themselves, as a dictionary.
+    source [str]: Optional label of where the yaml came from.
+- output:
+    extracted_comps [list[dict]]: Parsed version of the components.
+- code: iac_sketch.etl.ExtractSystem.parse_components_list
+
+load_entities_to_registry:
+- task
+- input:
+    entities [dataframe]:
+- output:
+    registry [registry]:
 
 load_entities_to_registry:
 - description: >
