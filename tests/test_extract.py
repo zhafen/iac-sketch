@@ -21,6 +21,15 @@ class TestPythonExtractor(unittest.TestCase):
         )
         entities = self.extractor.extract_from_input(input_python)
         assert len(entities) == 2
+
+        # Module component
+        comp = entities.iloc[0]
+        assert comp["entity"] == ""
+        assert comp["comp_key"] == "test_python_extractor"
+        assert comp["component_type"] == "Module"
+        assert comp["component"]["body"] == ["test_python_extractor.my_function"]
+
+        # Function component
         comp = entities.iloc[1]
         assert comp["entity"] == "test_python_extractor"
         assert comp["comp_key"] == "my_function"

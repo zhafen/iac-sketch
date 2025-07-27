@@ -11,7 +11,7 @@ class PythonAstExtractor(ast.NodeVisitor):
         self.source = source
         self.path = []
         self.entities = []
-        self.types = tuple([getattr(ast, t) for t in types if hasattr(ast, t)])
+        self.types = tuple(getattr(ast, t) for t in types if hasattr(ast, t))
 
     def extract_from_input(self, input_python: str) -> pd.DataFrame:
 
@@ -24,14 +24,17 @@ class PythonAstExtractor(ast.NodeVisitor):
         if not isinstance(node, self.types):
             return
 
+        # Get the entity and component key
         entity, comp_key = self.get_node_id(node)
+        self.path.append(comp_key)
 
-        # Create a component
+        # Create a component representing the node
         comp = {}
         self.comp_count = 0
         for field_key, field_value in ast.iter_fields(node):
             comp[field_key] = self.parse_field(field_value)
 
+        # Format and store
         component = {
             "entity": entity,
             "comp_key": comp_key,
@@ -40,9 +43,10 @@ class PythonAstExtractor(ast.NodeVisitor):
         }
         self.entities.append(component)
 
-        self.path.append(comp_key)
+        # Visit children
         super().generic_visit(node)
 
+        # Move back up the path
         self.path.pop()
 
     def get_node_id(self, node):
@@ -66,14 +70,14 @@ class PythonAstExtractor(ast.NodeVisitor):
 
     def parse_field(self, field_value):
 
-        if not hasattr(field_value, "__dict__"):
-            return field_value
-        if isinstance(field_value, ast.Constant):
-            return field_value.value
         if isinstance(field_value, list):
             return [self.parse_field(item) for item in field_value]
         if isinstance(field_value, dict):
             return {key: self.parse_field(value) for key, value in field_value.items()}
+        if not hasattr(field_value, "__dict__"):
+            return field_value
+        if isinstance(field_value, ast.Constant):
+            return field_value.value
         if isinstance(field_value, ast.AST):
             return self.get_node_path(field_value)
         raise ValueError(f"Unsupported field type: {type(field_value)}")
