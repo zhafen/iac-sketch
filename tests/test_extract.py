@@ -9,7 +9,7 @@ class TestPythonExtractor(unittest.TestCase):
     """Test suite for the ComponentVisitor class from extract.py"""
 
     def setUp(self):
-        self.extractor = extract.PythonAstExtractor("test_python_extractor")
+        self.extractor = extract.PythonAstExtractor("test_python_extractor.py")
 
     def test_extract_function(self):
 

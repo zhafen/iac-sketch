@@ -9,9 +9,8 @@ class PythonAstExtractor(ast.NodeVisitor):
         self, source: str, types: list[str] = ["FunctionDef", "ClassDef", "Module"]
     ):
         self.source = source
-        self.path = [source]
+        self.path = []
         self.entities = []
-        self.comp_count = 0
         self.types = tuple([getattr(ast, t) for t in types if hasattr(ast, t)])
 
     def extract_from_input(self, input_python: str) -> pd.DataFrame:
@@ -23,7 +22,7 @@ class PythonAstExtractor(ast.NodeVisitor):
     def generic_visit(self, node):
 
         if not isinstance(node, self.types):
-            return super().generic_visit(node)
+            super().generic_visit(node)
 
         entity, comp_key = self.get_node_id(node)
 
@@ -49,12 +48,13 @@ class PythonAstExtractor(ast.NodeVisitor):
     def get_node_id(self, node):
 
         # Get the path
-        if "name" in node._fields:
+        if isinstance(node, ast.Module):
+            comp_key = self.source[:-3]
+        elif hasattr(node, "name"):
             comp_key = node.name
         else:
             comp_key = str(self.comp_count)
             self.comp_count += 1
-
         entity = ".".join(self.path)
 
         return entity, comp_key
