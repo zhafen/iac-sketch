@@ -37,7 +37,7 @@ class PythonExtractor:
 
         # First pass: assign IDs
         self.id_assigner.set_root(input_name)
-        self.id_assigner.assign_ids(tree)
+        tree = self.id_assigner.assign_ids(tree)
 
         # Second pass: extract components
         entities = self.component_extractor.extract_components(tree)
@@ -54,9 +54,10 @@ class IdAssigner(ast.NodeTransformer):
         self.path = []
         self.comp_counts = {}
 
-    def assign_ids(self, tree: ast.AST):
+    def assign_ids(self, tree: ast.AST) -> ast.AST:
         """Assign IDs to all nodes in the AST."""
-        self.visit(tree)
+        tree = self.visit(tree)
+        return tree
 
     def visit(self, node):
         """Visit a node and assign it an ID."""
@@ -79,8 +80,10 @@ class IdAssigner(ast.NodeTransformer):
         node.comp_key = comp_key
 
         self.path.append(comp_key)
-        self.generic_visit(node)
+        node = self.generic_visit(node)
         self.path.pop()
+
+        return node
 
 
 class ComponentExtractor(ast.NodeVisitor):
