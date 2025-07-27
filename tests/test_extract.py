@@ -119,7 +119,10 @@ class TestPythonExtractor(unittest.TestCase):
         assert comp["entity"] == "test_python_extractor"
         assert comp["comp_key"] == "1"
         assert comp["component_type"] == "Import"
-        assert comp["component"]["module"] == ["sys", "ast"]
+        assert comp["component"]["names"] == [
+            {"name": "sys", "asname": None},
+            {"name": "ast", "asname": None},
+        ]
 
         # Import math component
         comp = entities.iloc[3]
@@ -127,4 +130,4 @@ class TestPythonExtractor(unittest.TestCase):
         assert comp["comp_key"] == "2"
         assert comp["component_type"] == "ImportFrom"
         assert comp["component"]["module"] == "math"
-        assert comp["component"]["names"] == ["sqrt"]
+        assert comp["component"]["names"] == [{"name": "sqrt", "asname": None}]

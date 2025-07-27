@@ -3,7 +3,7 @@ import ast
 import pandas as pd
 
 
-class PythonAstExtractor(ast.NodeVisitor):
+class PythonAstExtractor(ast.NodeTransformer):
 
     def __init__(
         self,
@@ -34,17 +34,26 @@ class PythonAstExtractor(ast.NodeVisitor):
 
     def get_node_id(self, node):
 
+        # Get the entity name.
+        # This assumes the path is current.
         entity = ".".join(self.path)
 
-        # Get the path
-        if isinstance(node, ast.Module):
+        # Get the component key
+        # If it's already set, use it
+        if hasattr(node, "comp_key"):
+            comp_key = node.comp_key
+        # If it's a module, use the source name
+        elif isinstance(node, ast.Module):
             comp_key = self.source[:-3]
+        # Otherwise, use the node's name if it exists
         elif hasattr(node, "name"):
             comp_key = node.name
+        # Fall back to an incrementing counter
         else:
             # If no name, use an incrementing counter
             comp_key = str(self.comp_counts.setdefault(entity, 0))
             self.comp_counts[entity] += 1
+            node.comp_key = comp_key
 
         return entity, comp_key
 
