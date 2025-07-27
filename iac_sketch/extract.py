@@ -30,7 +30,7 @@ class PythonExtractor:
         return self.extract_from_input(input_python, filepath[:-3])
 
     def extract_from_input(
-        self, input_python: str, input_name: str = ""
+        self, input_python: str, input_name: str = "direct_input"
     ) -> pd.DataFrame:
         """Extract components from Python code."""
         tree = ast.parse(input_python)
