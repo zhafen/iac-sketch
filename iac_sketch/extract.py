@@ -19,36 +19,6 @@ class PythonAstExtractor(ast.NodeVisitor):
 
         return pd.DataFrame(self.entities)
 
-    def generic_visit(self, node):
-
-        if not isinstance(node, self.types):
-            return
-
-        # Get the entity and component key
-        entity, comp_key = self.get_node_id(node)
-        self.path.append(comp_key)
-
-        # Create a component representing the node
-        comp = {}
-        self.comp_count = 0
-        for field_key, field_value in ast.iter_fields(node):
-            comp[field_key] = self.parse_field(field_value)
-
-        # Format and store
-        component = {
-            "entity": entity,
-            "comp_key": comp_key,
-            "component_type": node.__class__.__name__,
-            "component": comp,
-        }
-        self.entities.append(component)
-
-        # Visit children
-        super().generic_visit(node)
-
-        # Move back up the path
-        self.path.pop()
-
     def get_node_id(self, node):
 
         # Get the path
@@ -68,6 +38,38 @@ class PythonAstExtractor(ast.NodeVisitor):
         entity, comp_key = self.get_node_id(node)
         return f"{entity}.{comp_key}"
 
+    def generic_visit(self, node):
+
+        if not isinstance(node, self.types):
+            return
+
+        # Reset component count for each visit
+        self.comp_count = 0
+
+        # Get the entity and component key
+        entity, comp_key = self.get_node_id(node)
+        self.path.append(comp_key)
+
+        # Create a component representing the node
+        comp = {}
+        for field_key, field_value in ast.iter_fields(node):
+            comp[field_key] = self.parse_field(field_value)
+
+        # Format and store
+        component = {
+            "entity": entity,
+            "comp_key": comp_key,
+            "component_type": node.__class__.__name__,
+            "component": comp,
+        }
+        self.entities.append(component)
+
+        # Visit children
+        super().generic_visit(node)
+
+        # Move back up the path
+        self.path.pop()
+
     def parse_field(self, field_value):
 
         if isinstance(field_value, list):
@@ -81,3 +83,26 @@ class PythonAstExtractor(ast.NodeVisitor):
         if isinstance(field_value, ast.AST):
             return self.get_node_path(field_value)
         raise ValueError(f"Unsupported field type: {type(field_value)}")
+
+    def visit_Import(self, node):
+        for name in node.names:
+            entity, comp_key = self.get_node_id(node)
+            component = {
+                "entity": entity,
+                "comp_key": comp_key,
+                "component_type": node.__class__.__name__,
+            }
+            self.entities.append(component)
+
+    def visit_ImportFrom(self, node):
+        entity, comp_key = self.get_node_id(node)
+        component = {
+            "entity": entity,
+            "comp_key": comp_key,
+            "component_type": node.__class__.__name__,
+            "component": {
+                "module": node.module,
+                "names": node.names,
+            },
+        }
+        self.entities.append(component)

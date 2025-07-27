@@ -83,3 +83,55 @@ class TestPythonExtractor(unittest.TestCase):
         assert comp["comp_key"] == "my_method"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_method"
+
+    def test_extract_import(self):
+        
+        input_python = dedent(
+            """
+            import os
+            import sys, ast
+            from math import sqrt
+            """
+        )
+        entities = self.extractor.extract_from_input(input_python)
+        assert len(entities) == 5
+
+        # Module component
+        comp = entities.iloc[0]
+        assert comp["entity"] == ""
+        assert comp["comp_key"] == "test_python_extractor"
+        assert comp["component_type"] == "Module"
+        assert comp["component"]["body"] == [
+            "test_python_extractor.0",
+            "test_python_extractor.1",
+            "test_python_extractor.2",
+            "test_python_extractor.3",
+        ]
+
+        # Import os component
+        comp = entities.iloc[1]
+        assert comp["entity"] == "test_python_extractor"
+        assert comp["comp_key"] == "0"
+        assert comp["component_type"] == "Import"
+        assert comp["component"]["module"] == "os"
+
+        # Import sys component
+        comp = entities.iloc[2]
+        assert comp["entity"] == "test_python_extractor"
+        assert comp["comp_key"] == "1"
+        assert comp["component_type"] == "Import"
+        assert comp["component"]["module"] == "sys"
+
+        # Import ast component
+        comp = entities.iloc[3]
+        assert comp["entity"] == "test_python_extractor"
+        assert comp["comp_key"] == "2"
+        assert comp["component_type"] == "Import"
+        assert comp["component"]["module"] == "ast"
+
+        # Import sqrt component
+        comp = entities.iloc[4]
+        assert comp["entity"] == "test_python_extractor"
+        assert comp["comp_key"] == "3"
+        assert comp["component_type"] == "ImportFrom"
+        assert comp["component"]["names"] == ["sqrt"]
