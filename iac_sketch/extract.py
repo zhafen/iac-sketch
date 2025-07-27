@@ -2,13 +2,17 @@ import ast
 
 import pandas as pd
 
+
 class PythonAstExtractor(ast.NodeVisitor):
 
-    def __init__(self, source: str):
+    def __init__(
+        self, source: str, types: list[str] = ["FunctionDef", "ClassDef", "Module"]
+    ):
         self.source = source
         self.path = [source]
         self.entities = []
         self.comp_count = 0
+        self.types = tuple([getattr(ast, t) for t in types if hasattr(ast, t)])
 
     def extract_from_input(self, input_python: str) -> pd.DataFrame:
 
@@ -17,6 +21,9 @@ class PythonAstExtractor(ast.NodeVisitor):
         return pd.DataFrame(self.entities)
 
     def generic_visit(self, node):
+
+        if not isinstance(node, self.types):
+            return super().generic_visit(node)
 
         entity, comp_key = self.get_node_id(node)
 
@@ -59,6 +66,8 @@ class PythonAstExtractor(ast.NodeVisitor):
 
     def parse_field(self, field_value):
 
+        if not hasattr(field_value, "__dict__"):
+            return field_value
         if isinstance(field_value, list):
             return [self.parse_field(item) for item in field_value]
         if isinstance(field_value, dict):
