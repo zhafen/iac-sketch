@@ -68,12 +68,12 @@ class PythonAstExtractor(ast.NodeVisitor):
 
         if not hasattr(field_value, "__dict__"):
             return field_value
+        if isinstance(field_value, ast.Constant):
+            return field_value.value
         if isinstance(field_value, list):
             return [self.parse_field(item) for item in field_value]
         if isinstance(field_value, dict):
             return {key: self.parse_field(value) for key, value in field_value.items()}
-        if isinstance(field_value, ast.Constant):
-            return field_value.value
         if isinstance(field_value, ast.AST):
             return self.get_node_path(field_value)
         raise ValueError(f"Unsupported field type: {type(field_value)}")
