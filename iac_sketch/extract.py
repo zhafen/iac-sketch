@@ -1,11 +1,20 @@
 import ast
 
-class ComponentVisitor(ast.NodeVisitor):
+import pandas as pd
 
-    def __init__(self):
-        self.path = []
-        self.components = []
+class PythonAstExtractor(ast.NodeVisitor):
+
+    def __init__(self, source: str):
+        self.source = source
+        self.path = [source]
+        self.entities = []
         self.comp_count = 0
+
+    def extract_from_input(self, input_python: str) -> pd.DataFrame:
+
+        self.visit(ast.parse(input_python))
+
+        return pd.DataFrame(self.entities)
 
     def generic_visit(self, node):
 
@@ -23,7 +32,7 @@ class ComponentVisitor(ast.NodeVisitor):
             "component_type": node.__class__.__name__,
             "component": comp,
         }
-        self.components.append(component)
+        self.entities.append(component)
 
         self.path.append(comp_key)
         super().generic_visit(node)
