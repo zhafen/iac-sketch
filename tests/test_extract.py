@@ -94,7 +94,7 @@ class TestPythonExtractor(unittest.TestCase):
             """
         )
         entities = self.extractor.extract_from_input(input_python)
-        assert len(entities) == 5
+        assert len(entities) == 4
 
         # Module component
         comp = entities.iloc[0]
@@ -105,7 +105,6 @@ class TestPythonExtractor(unittest.TestCase):
             "test_python_extractor.0",
             "test_python_extractor.1",
             "test_python_extractor.2",
-            "test_python_extractor.3",
         ]
 
         # Import os component
@@ -113,25 +112,19 @@ class TestPythonExtractor(unittest.TestCase):
         assert comp["entity"] == "test_python_extractor"
         assert comp["comp_key"] == "0"
         assert comp["component_type"] == "Import"
-        assert comp["component"]["module"] == "os"
+        assert comp["component"]["names"] == [{"name": "os", "asname": None}]
 
-        # Import sys component
+        # Import sys, ast component
         comp = entities.iloc[2]
         assert comp["entity"] == "test_python_extractor"
         assert comp["comp_key"] == "1"
         assert comp["component_type"] == "Import"
-        assert comp["component"]["module"] == "sys"
+        assert comp["component"]["module"] == ["sys", "ast"]
 
-        # Import ast component
+        # Import math component
         comp = entities.iloc[3]
         assert comp["entity"] == "test_python_extractor"
         assert comp["comp_key"] == "2"
-        assert comp["component_type"] == "Import"
-        assert comp["component"]["module"] == "ast"
-
-        # Import sqrt component
-        comp = entities.iloc[4]
-        assert comp["entity"] == "test_python_extractor"
-        assert comp["comp_key"] == "3"
         assert comp["component_type"] == "ImportFrom"
+        assert comp["component"]["module"] == "math"
         assert comp["component"]["names"] == ["sqrt"]

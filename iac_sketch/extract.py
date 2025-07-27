@@ -6,12 +6,24 @@ import pandas as pd
 class PythonAstExtractor(ast.NodeVisitor):
 
     def __init__(
-        self, source: str, types: list[str] = ["FunctionDef", "ClassDef", "Module"]
+        self,
+        source: str,
+        entity_types: list[str] = [
+            "FunctionDef",
+            "ClassDef",
+            "Module",
+            "Import",
+            "ImportFrom",
+        ],
+        field_types: list[str] = [
+            "alias",
+        ],
     ):
         self.source = source
         self.path = []
         self.entities = []
-        self.types = tuple(getattr(ast, t) for t in types if hasattr(ast, t))
+        self.entity_types = tuple(getattr(ast, t) for t in entity_types)
+        self.field_types = tuple(getattr(ast, t) for t in field_types)
 
     def extract_from_input(self, input_python: str) -> pd.DataFrame:
 
@@ -40,7 +52,7 @@ class PythonAstExtractor(ast.NodeVisitor):
 
     def generic_visit(self, node):
 
-        if not isinstance(node, self.types):
+        if not isinstance(node, self.entity_types):
             return
 
         # Reset component count for each visit
@@ -78,31 +90,8 @@ class PythonAstExtractor(ast.NodeVisitor):
             return {key: self.parse_field(value) for key, value in field_value.items()}
         if not hasattr(field_value, "__dict__"):
             return field_value
-        if isinstance(field_value, ast.Constant):
-            return field_value.value
+        if isinstance(field_value, self.field_types):
+            return dict(ast.iter_fields(field_value))
         if isinstance(field_value, ast.AST):
             return self.get_node_path(field_value)
         raise ValueError(f"Unsupported field type: {type(field_value)}")
-
-    def visit_Import(self, node):
-        for name in node.names:
-            entity, comp_key = self.get_node_id(node)
-            component = {
-                "entity": entity,
-                "comp_key": comp_key,
-                "component_type": node.__class__.__name__,
-            }
-            self.entities.append(component)
-
-    def visit_ImportFrom(self, node):
-        entity, comp_key = self.get_node_id(node)
-        component = {
-            "entity": entity,
-            "comp_key": comp_key,
-            "component_type": node.__class__.__name__,
-            "component": {
-                "module": node.module,
-                "names": node.names,
-            },
-        }
-        self.entities.append(component)
