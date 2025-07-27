@@ -24,6 +24,7 @@ class PythonAstExtractor(ast.NodeVisitor):
         self.entities = []
         self.entity_types = tuple(getattr(ast, t) for t in entity_types)
         self.field_types = tuple(getattr(ast, t) for t in field_types)
+        self.comp_counts = {}
 
     def extract_from_input(self, input_python: str) -> pd.DataFrame:
 
@@ -33,15 +34,17 @@ class PythonAstExtractor(ast.NodeVisitor):
 
     def get_node_id(self, node):
 
+        entity = ".".join(self.path)
+
         # Get the path
         if isinstance(node, ast.Module):
             comp_key = self.source[:-3]
         elif hasattr(node, "name"):
             comp_key = node.name
         else:
-            comp_key = str(self.comp_count)
-            self.comp_count += 1
-        entity = ".".join(self.path)
+            # If no name, use an incrementing counter
+            comp_key = str(self.comp_counts.setdefault(entity, 0))
+            self.comp_counts[entity] += 1
 
         return entity, comp_key
 
@@ -54,9 +57,6 @@ class PythonAstExtractor(ast.NodeVisitor):
 
         if not isinstance(node, self.entity_types):
             return
-
-        # Reset component count for each visit
-        self.comp_count = 0
 
         # Get the entity and component key
         entity, comp_key = self.get_node_id(node)
@@ -84,12 +84,15 @@ class PythonAstExtractor(ast.NodeVisitor):
 
     def parse_field(self, field_value):
 
+        # For lists and dicts, recursively parse their contents
         if isinstance(field_value, list):
             return [self.parse_field(item) for item in field_value]
         if isinstance(field_value, dict):
             return {key: self.parse_field(value) for key, value in field_value.items()}
+        # For primitives, return the value directly
         if not hasattr(field_value, "__dict__"):
             return field_value
+        # For AST nodes, convert to a dict of fields or a reference
         if isinstance(field_value, self.field_types):
             return dict(ast.iter_fields(field_value))
         if isinstance(field_value, ast.AST):
