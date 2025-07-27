@@ -9,7 +9,7 @@ class TestPythonExtractor(unittest.TestCase):
     """Test suite for the ComponentVisitor class from extract.py"""
 
     def setUp(self):
-        self.extractor = extract.PythonAstExtractor("test_python_extractor.py")
+        self.extractor = extract.PythonExtractor("test_python_extractor.py")
 
     def test_extract_function(self):
 
@@ -85,7 +85,7 @@ class TestPythonExtractor(unittest.TestCase):
         assert comp["component"]["name"] == "my_method"
 
     def test_extract_import(self):
-        
+
         input_python = dedent(
             """
             import os
@@ -131,3 +131,23 @@ class TestPythonExtractor(unittest.TestCase):
         assert comp["component_type"] == "ImportFrom"
         assert comp["component"]["module"] == "math"
         assert comp["component"]["names"] == [{"name": "sqrt", "asname": None}]
+
+    def test_calls(self):
+
+        input_python = dedent(
+            """
+            def my_function(x):
+                return x + 1
+
+            x = my_function(5)
+
+            def my_second_function(y):
+                return my_function(y) * 2
+            """
+        )
+        entities = self.extractor.extract_from_input(input_python).set_index(
+            "entity", "comp_key"
+        )
+
+        # Check first function call
+        comp = entities.loc["test_python_extractor", "1"]

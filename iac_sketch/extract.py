@@ -3,11 +3,40 @@ import ast
 import pandas as pd
 
 
-class PythonAstExtractor(ast.NodeTransformer):
+class IdAssigner(ast.NodeVisitor):
+    """Assigns unique identifiers to AST nodes."""
+
+    def __init__(self, source: str):
+        self.source = source
+        self.path = []
+        self.comp_counts = {}
+
+    def assign_ids(self, tree: ast.AST):
+        """Assign IDs to all nodes in the AST."""
+        self.visit(tree)
+
+    def visit(self, node):
+        """Visit a node and assign it an ID."""
+        if isinstance(node, ast.Module):
+            comp_key = self.source[:-3]
+        elif hasattr(node, "name"):
+            comp_key = node.name
+        else:
+            entity = ".".join(self.path)
+            comp_key = str(self.comp_counts.setdefault(entity, 0))
+            self.comp_counts[entity] += 1
+
+        node.comp_key = comp_key
+        self.path.append(comp_key)
+        self.generic_visit(node)
+        self.path.pop()
+
+
+class ComponentExtractor(ast.NodeVisitor):
+    """Extracts components from AST nodes with assigned IDs."""
 
     def __init__(
         self,
-        source: str,
         entity_types: list[str] = [
             "FunctionDef",
             "ClassDef",
@@ -19,52 +48,33 @@ class PythonAstExtractor(ast.NodeTransformer):
             "alias",
         ],
     ):
-        self.source = source
         self.path = []
         self.entities = []
         self.entity_types = tuple(getattr(ast, t) for t in entity_types)
         self.field_types = tuple(getattr(ast, t) for t in field_types)
-        self.comp_counts = {}
 
-    def extract_from_input(self, input_python: str) -> pd.DataFrame:
-
-        self.visit(ast.parse(input_python))
-
-        return pd.DataFrame(self.entities)
+    def extract_components(self, tree: ast.AST) -> list[dict]:
+        """Extract components from the AST."""
+        self.entities = []
+        self.path = []
+        self.visit(tree)
+        return self.entities
 
     def get_node_id(self, node):
-
-        # Get the entity name.
-        # This assumes the path is current.
+        """Get the entity and component key for a node."""
         entity = ".".join(self.path)
-
-        # Get the component key
-        # If it's already set, use it
-        if hasattr(node, "comp_key"):
-            comp_key = node.comp_key
-        # If it's a module, use the source name
-        elif isinstance(node, ast.Module):
-            comp_key = self.source[:-3]
-        # Otherwise, use the node's name if it exists
-        elif hasattr(node, "name"):
-            comp_key = node.name
-        # Fall back to an incrementing counter
-        else:
-            # If no name, use an incrementing counter
-            comp_key = str(self.comp_counts.setdefault(entity, 0))
-            self.comp_counts[entity] += 1
-            node.comp_key = comp_key
-
+        comp_key = getattr(node, "comp_key", "unknown")
         return entity, comp_key
 
     def get_node_path(self, node):
-
+        """Get the full path for a node."""
         entity, comp_key = self.get_node_id(node)
         return f"{entity}.{comp_key}"
 
-    def generic_visit(self, node):
-
+    def visit(self, node):
+        """Visit a node and extract component if it's an entity type."""
         if not isinstance(node, self.entity_types):
+            self.generic_visit(node)
             return
 
         # Get the entity and component key
@@ -86,13 +96,13 @@ class PythonAstExtractor(ast.NodeTransformer):
         self.entities.append(component)
 
         # Visit children
-        super().generic_visit(node)
+        self.generic_visit(node)
 
         # Move back up the path
         self.path.pop()
 
     def parse_field(self, field_value):
-
+        """Parse a field value, handling different types appropriately."""
         # For lists and dicts, recursively parse their contents
         if isinstance(field_value, list):
             return [self.parse_field(item) for item in field_value]
@@ -107,3 +117,37 @@ class PythonAstExtractor(ast.NodeTransformer):
         if isinstance(field_value, ast.AST):
             return self.get_node_path(field_value)
         raise ValueError(f"Unsupported field type: {type(field_value)}")
+
+
+class PythonExtractor:
+    """Main class that orchestrates ID assignment and component extraction."""
+
+    def __init__(
+        self,
+        source: str,
+        entity_types: list[str] = [
+            "FunctionDef",
+            "ClassDef",
+            "Module",
+            "Import",
+            "ImportFrom",
+        ],
+        field_types: list[str] = [
+            "alias",
+        ],
+    ):
+        self.source = source
+        self.id_assigner = IdAssigner(source)
+        self.component_extractor = ComponentExtractor(entity_types, field_types)
+
+    def extract_from_input(self, input_python: str) -> pd.DataFrame:
+        """Extract components from Python code."""
+        tree = ast.parse(input_python)
+        
+        # First pass: assign IDs
+        self.id_assigner.assign_ids(tree)
+        
+        # Second pass: extract components
+        entities = self.component_extractor.extract_components(tree)
+        
+        return pd.DataFrame(entities)
