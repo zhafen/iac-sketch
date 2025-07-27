@@ -22,7 +22,7 @@ class PythonAstExtractor(ast.NodeVisitor):
     def generic_visit(self, node):
 
         if not isinstance(node, self.types):
-            super().generic_visit(node)
+            return
 
         entity, comp_key = self.get_node_id(node)
 
