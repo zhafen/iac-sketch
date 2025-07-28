@@ -7,14 +7,22 @@ import pandas as pd
 
 
 class YAMLExtractor:
-    """Handles extraction and parsing of entities from YAML sources."""
+    """Main class that orchestrates YAML parsing and component extraction."""
 
-    def extract_entities_from_yaml(
-        self,
-        input_yaml: str,
-        source: str = None,
+    def __init__(self):
+        pass
+
+    def extract(self, filepath: str) -> pd.DataFrame:
+        """Extract components from a YAML file."""
+        with open(filepath, "r", encoding="utf-8") as file:
+            input_yaml = file.read()
+
+        return self.extract_from_input(input_yaml, source=filepath)
+
+    def extract_from_input(
+        self, input_yaml: str, source: str = "input"
     ) -> pd.DataFrame:
-        """Extract entities from YAML content.
+        """Extract components from YAML content.
         
         Args:
             input_yaml: YAML content as string
@@ -24,15 +32,15 @@ class YAMLExtractor:
             DataFrame with extracted entities and components
         """
         try:
-            input_yaml = yaml.safe_load(input_yaml)
+            parsed_yaml = yaml.safe_load(input_yaml)
         except (yaml.parser.ParserError, yaml.scanner.ScannerError) as e:
             raise ValueError(f"Error parsing YAML from {source}") from e
 
-        if input_yaml is None:
+        if parsed_yaml is None:
             return pd.DataFrame()
 
         entities = []
-        for entity, comps in input_yaml.items():
+        for entity, comps in parsed_yaml.items():
             # Check if the entity already exists
             if entity in entities:
                 raise KeyError(f"Entity {entity} is defined in multiple files.")

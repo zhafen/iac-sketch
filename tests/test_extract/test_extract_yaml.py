@@ -1,6 +1,9 @@
+import os
 import unittest
-import pandas as pd
+import tempfile
 from textwrap import dedent
+
+import pandas as pd
 
 from iac_sketch.extract import YAMLExtractor
 
@@ -21,7 +24,7 @@ class TestYAMLExtractor(unittest.TestCase):
             """
         )
         
-        df = self.extractor.extract_entities_from_yaml(yaml_content, source="test")
+        df = self.extractor.extract_from_input(yaml_content, source="test")
         
         self.assertEqual(len(df), 3)  # 2 components + 1 metadata
         self.assertEqual(df.iloc[0]["entity"], "test_entity")
@@ -45,7 +48,7 @@ class TestYAMLExtractor(unittest.TestCase):
             """
         )
         
-        df = self.extractor.extract_entities_from_yaml(yaml_content, source="test")
+        df = self.extractor.extract_from_input(yaml_content, source="test")
         
         self.assertEqual(len(df), 3)  # 2 components + 1 metadata
         
@@ -70,7 +73,7 @@ class TestYAMLExtractor(unittest.TestCase):
             """
         )
         
-        df = self.extractor.extract_entities_from_yaml(yaml_content, source="test")
+        df = self.extractor.extract_from_input(yaml_content, source="test")
         
         comp1 = df.iloc[0]
         self.assertEqual(comp1["component_type"], "component1")
@@ -78,7 +81,7 @@ class TestYAMLExtractor(unittest.TestCase):
 
     def test_empty_yaml(self):
         """Test extraction of empty YAML."""
-        df = self.extractor.extract_entities_from_yaml("", source="test")
+        df = self.extractor.extract_from_input("", source="test")
         self.assertEqual(len(df), 0)
 
     def test_invalid_yaml(self):
@@ -86,9 +89,36 @@ class TestYAMLExtractor(unittest.TestCase):
         invalid_yaml = "invalid: yaml: content: ["
         
         with self.assertRaises(ValueError) as context:
-            self.extractor.extract_entities_from_yaml(invalid_yaml, source="test")
+            self.extractor.extract_from_input(invalid_yaml, source="test")
         
         self.assertIn("Error parsing YAML from test", str(context.exception))
+
+    def test_extract_from_file(self):
+        """Test extraction from a file using the extract() method."""
+        # Create a temporary YAML file for testing
+        
+        yaml_content = dedent(
+            """
+            test_entity:
+              - component1: value1
+              - component2: value2
+            """
+        )
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp_file:
+            tmp_file.write(yaml_content)
+            tmp_file_path = tmp_file.name
+        
+        try:
+            df = self.extractor.extract(tmp_file_path)
+            self.assertEqual(len(df), 3)  # 2 components + 1 metadata
+            self.assertEqual(df.iloc[0]["entity"], "test_entity")
+            
+            # Check that source is the filepath
+            metadata_row = df[df["component_type"] == "metadata"].iloc[0]
+            self.assertEqual(metadata_row["component"]["source"], tmp_file_path)
+        finally:
+            os.unlink(tmp_file_path)
 
 
 if __name__ == "__main__":

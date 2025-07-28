@@ -41,12 +41,12 @@ class ExtractSystem:
         for pattern in filename_patterns:
             for filename in glob.glob(pattern):
                 with open(filename, "r", encoding="utf-8") as f:
-                    entities_i = self.yaml_extractor.extract_entities_from_yaml(f, source=filename)
+                    entities_i = self.yaml_extractor.extract_from_input(f.read(), source=filename)
                 entities.append(entities_i)
 
         # Add direct input YAML if provided
         if input_yaml is not None:
-            entities_i = self.yaml_extractor.extract_entities_from_yaml(input_yaml, source="input")
+            entities_i = self.yaml_extractor.extract_from_input(input_yaml, source="input")
             entities.append(entities_i)
 
         entities = pd.concat(entities, ignore_index=True)
