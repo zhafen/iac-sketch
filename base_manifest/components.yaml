@@ -109,7 +109,7 @@ default_fields:
     entity [str]:
         description: The entity associated with the component.
         nullable: False
-    comp_ind [int]:
+    comp_key [int]:
         description: |
             The index of the component, amongst the components that define the entity.
         nullable: False

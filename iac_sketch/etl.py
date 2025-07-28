@@ -69,8 +69,8 @@ class ExtractSystem:
         # We also record the mapping of components to entities in the "compinst"
         # component. We take the time to use the same format as the other components.
         registry["compinst"] = entities[
-            ["entity", "comp_ind", "component_type"]
-        ].set_index(["entity", "comp_ind"])
+            ["entity", "comp_key", "component_type"]
+        ].set_index(["entity", "comp_key"])
 
         return registry
 

@@ -51,7 +51,7 @@ class ParseSystem:
             entity_comps.append(
                 {
                     "entity": entity,
-                    "comp_ind": len(entity_comps),
+                    "comp_key": len(entity_comps),
                     "component_entity": "metadata",
                     "component": {
                         # Increase by one to account for the metadata component
@@ -97,7 +97,7 @@ class ParseSystem:
 
             row = {
                 "entity": entity,
-                "comp_ind": i,
+                "comp_key": i,
                 "component_entity": comp_entity,
                 "component": comp,
             }
@@ -174,9 +174,9 @@ class ParseSystem:
         )
 
         # Get the new comp index, using the metadata
-        link_df["comp_ind"] = link_df.groupby("entity").cumcount()
+        link_df["comp_key"] = link_df.groupby("entity").cumcount()
         merged_links = link_df.merge(registry["metadata"], on="entity", how="left")
-        link_df["comp_ind"] += merged_links["n_comps"]
+        link_df["comp_key"] += merged_links["n_comps"]
 
         # Also update the metadata
         n_new_comps = link_df.reset_index()["entity"].value_counts()

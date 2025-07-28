@@ -98,7 +98,7 @@ class YAMLExtractor:
                 raise format_error
             row = {
                 "entity": entity,
-                "comp_ind": i,
+                "comp_key": str(i),
                 "component_type": comp_entity,
                 "component": comp,
             }
@@ -107,7 +107,7 @@ class YAMLExtractor:
         extracted_comps.append(
             {
                 "entity": entity,
-                "comp_ind": len(extracted_comps),
+                "comp_key": str(len(extracted_comps)),
                 "component_type": "metadata",
                 "component": {
                     "source": source,

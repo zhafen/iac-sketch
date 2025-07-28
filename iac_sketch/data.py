@@ -184,7 +184,7 @@ class Registry:
     The Registry manages a collection of component DataFrames, where each DataFrame
     represents components of a specific type. Each entity can have multiple components
     associated with it, and each component is uniquely identified by an entity and
-    component index (comp_ind) pair.
+    component key (comp_key) pair.
 
     Two special components are supported:
     - 'compinsts': Master index tracking all components across all DataFrames
@@ -194,7 +194,7 @@ class Registry:
     ----------
     components : dict[str, pd.DataFrame]
         Dictionary mapping component type names to their respective DataFrames.
-        Each DataFrame should be indexed by ('entity', 'comp_ind') multi-index.
+        Each DataFrame should be indexed by ('entity', 'comp_key') multi-index.
 
     Attributes
     ----------
@@ -314,7 +314,7 @@ class Registry:
         key : str
             The component type name being updated.
         comp_df : pd.DataFrame
-            The component DataFrame with 'entity' and 'comp_ind' columns.
+            The component DataFrame with 'entity' and 'comp_key' columns.
         mode : str, default 'upsert'
             The update mode:
             - 'upsert': Merge with existing compinsts, keeping latest duplicates
@@ -323,7 +323,7 @@ class Registry:
 
         Notes
         -----
-        The method assumes comp_df has 'entity' and 'comp_ind' columns and creates
+        The method assumes comp_df has 'entity' and 'comp_key' columns and creates
         new rows in compinsts with these values plus the component_type.
         """
 
@@ -341,7 +341,7 @@ class Registry:
             )
 
         # Sync component indices with compinsts
-        value = self.sync_comp_inds(key, value, mode)
+        value = self.sync_comp_keys(key, value, mode)
 
         # Add indices
         value = self.set_index(key, value)
@@ -349,7 +349,7 @@ class Registry:
         # Store
         self.components[key] = value
 
-    def sync_comp_inds(
+    def sync_comp_keys(
         self, key: str, value: pd.DataFrame, mode: str = "upsert"
     ) -> pd.DataFrame:
 
@@ -357,8 +357,8 @@ class Registry:
         # This should already be done in set, but if we're using this method
         # independently, we want to ensure the index is reset.
         value = self.reset_index(value)
-        if "comp_ind" not in value.columns:
-            value["comp_ind"] = pd.NA
+        if "comp_key" not in value.columns:
+            value["comp_key"] = pd.NA
 
         # Skip if compinst is not created yet
         if "compinst" not in self.components:
@@ -369,7 +369,7 @@ class Registry:
 
         # Prepare new rows from comp_df for compinst
         # Store the original index to map back to comp_df later
-        new_rows = value[["entity", "comp_ind"]].copy()
+        new_rows = value[["entity", "comp_key"]].copy()
         new_rows["component_type"] = key
         new_rows["original_index"] = value.index  # Track original comp_df row indices
 
@@ -380,55 +380,55 @@ class Registry:
         # Concatenate new rows to compinst
         compinst = pd.concat([compinst, new_rows])
 
-        # Replace nan comp_inds with a monotonic index, starting from the largest
-        # existing comp_ind value for a given entity
-        if compinst["comp_ind"].isna().any():
+        # Replace nan comp_keys with a monotonic index, starting from the largest
+        # existing comp_key value for a given entity
+        if compinst["comp_key"].isna().any():
 
             # Group by entity to handle each entity separately
             filled_groups = []
             for _, group in compinst.groupby("entity", group_keys=True):
 
-                # Find rows with NaN comp_ind
-                nan_mask = group["comp_ind"].isna()
+                # Find rows with NaN comp_key
+                nan_mask = group["comp_key"].isna()
                 if nan_mask.any():
-                    # Get the maximum existing comp_ind for this entity
-                    max_comp_ind = group["comp_ind"].dropna().max()
-                    # If no existing comp_ind, start from 0
-                    if pd.isna(max_comp_ind):
-                        max_comp_ind = -1
+                    # Get the maximum existing comp_key for this entity
+                    max_comp_key = group["comp_key"].dropna().max()
+                    # If no existing comp_key, start from 0
+                    if pd.isna(max_comp_key):
+                        max_comp_key = -1
                     # Fill NaN values with monotonic sequence starting from max + 1
                     nan_count = nan_mask.sum()
                     new_indices = range(
-                        int(max_comp_ind) + 1, int(max_comp_ind) + 1 + nan_count
+                        int(max_comp_key) + 1, int(max_comp_key) + 1 + nan_count
                     )
-                    group.loc[nan_mask, "comp_ind"] = new_indices
+                    group.loc[nan_mask, "comp_key"] = new_indices
 
                 filled_groups.append(group)
 
             compinst = pd.concat(filled_groups)
 
-            # Propagate filled comp_ind values back to comp_df
+            # Propagate filled comp_key values back to comp_df
             # Filter for rows that were just added (those with original_index values)
             new_rows_mask = compinst["original_index"].notna()
             new_rows = compinst[new_rows_mask].copy()
             # Update comp_df using vectorized assignment
-            value.loc[new_rows["original_index"], "comp_ind"] = new_rows["comp_ind"]
+            value.loc[new_rows["original_index"], "comp_key"] = new_rows["comp_key"]
 
-        # Clean up: drop duplicates, indices, and ensure comp_ind is of type int
+        # Clean up: drop duplicates, indices, and ensure comp_key is of type int
         # There's probably a better way to do this than calling drop_duplicates twice
         value = value.drop_duplicates(
-            subset=["entity", "comp_ind"],
+            subset=["entity", "comp_key"],
             keep="last",
         ).reset_index(drop=True)
-        value["comp_ind"] = value["comp_ind"].astype(int)
+        value["comp_key"] = value["comp_key"].astype(int)
         compinst = compinst.drop_duplicates(
-            subset=["entity", "comp_ind"],
+            subset=["entity", "comp_key"],
             keep="last",
         ).reset_index(drop=True)
-        compinst["comp_ind"] = compinst["comp_ind"].astype(int)
+        compinst["comp_key"] = compinst["comp_key"].astype(int)
 
         # Return compinst to the original format and set it
-        compinst = compinst.set_index(["entity", "comp_ind"])
+        compinst = compinst.set_index(["entity", "comp_key"])
         compinst = compinst[["component_type"]]
         compinst = compinst.sort_index()
         self.components["compinst"] = compinst
@@ -438,7 +438,7 @@ class Registry:
 
     def reset_index(self, value: pd.DataFrame) -> pd.DataFrame:
         """We have a special reset_index method because we want to drop the index only
-        when it's not set to 'entity' or ['entity', 'comp_ind'].
+        when it's not set to 'entity' or ['entity', 'comp_key'].
 
         Parameters
         ----------
@@ -452,7 +452,7 @@ class Registry:
         """
 
         drop = (
-            list(value.index.names) != ["entity", "comp_ind"]
+            list(value.index.names) != ["entity", "comp_key"]
         ) and value.index.name != "entity"
         return value.reset_index(drop=drop)
 
@@ -481,8 +481,8 @@ class Registry:
             # For components with multiplicity upper bound of 1, index by entity only
             value = value.set_index("entity")
         else:
-            # For components with multiplicity > 1, use multi-index (entity, comp_ind)
-            value = value.set_index(["entity", "comp_ind"])
+            # For components with multiplicity > 1, use multi-index (entity, comp_key)
+            value = value.set_index(["entity", "comp_key"])
 
         return value.sort_index()
 
@@ -525,7 +525,7 @@ class Registry:
         -----
         When joining multiple components:
         - If join_on is None, components must be indexed by 'entity' or
-          ['entity', 'comp_ind']
+          ['entity', 'comp_key']
         - If join_on is specified, components are merged on that column
         - Column name conflicts are resolved with suffixes
         """

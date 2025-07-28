@@ -74,12 +74,12 @@ class TestRegistry(unittest.TestCase):
         components = {
             "comp1": pd.DataFrame({
                 "entity": ["entity1", "entity2"],
-                "comp_ind": [0, 0],
+                "comp_key": [0, 0],
                 "field1": [1, 2],
             }),
             "comp2": pd.DataFrame({
                 "entity": ["entity1"],
-                "comp_ind": [1],
+                "comp_key": [1],
                 "field2": ["a"],
             }),
         }
@@ -92,20 +92,20 @@ class TestRegistry(unittest.TestCase):
         components = {
             "comp_a": pd.DataFrame({
                 "entity": ["entity1", "entity2"],
-                "comp_ind": [0, 0],
+                "comp_key": [0, 0],
                 "field_1": [1, 2],
             }),
             "compinst": pd.DataFrame({
                 "entity": ["entity1", "entity2"],
-                "comp_ind": [0, 0],
+                "comp_key": [0, 0],
                 "component_type": ["comp_a", "comp_a"],
-            }).set_index(["entity", "comp_ind"]),
+            }).set_index(["entity", "comp_key"]),
         }
         registry = data.Registry(components)
         
         new_component = pd.DataFrame({
             "entity": ["entity1", "entity3"],
-            "comp_ind": [0, 0],
+            "comp_key": [0, 0],
             "field_1": [1, -2],
         })
         
@@ -113,14 +113,14 @@ class TestRegistry(unittest.TestCase):
 
         expected = pd.DataFrame({
             "entity": ["entity1", "entity3"],
-            "comp_ind": [0, 0],
+            "comp_key": [0, 0],
             "field_1": [1, -2],
-        }).set_index(["entity", "comp_ind"])
+        }).set_index(["entity", "comp_key"])
         expected_compinsts = pd.DataFrame({
             "entity": ["entity1", "entity3"],
-            "comp_ind": [0, 0],
+            "comp_key": [0, 0],
             "component_type": ["comp_a", "comp_a"],
-        }).set_index(["entity", "comp_ind"])
+        }).set_index(["entity", "comp_key"])
 
         pd.testing.assert_frame_equal(registry["comp_a"], expected)
         pd.testing.assert_frame_equal(registry["compinst"], expected_compinsts)
@@ -130,20 +130,20 @@ class TestRegistry(unittest.TestCase):
         components = {
             "comp_a": pd.DataFrame({
                 "entity": ["entity1", "entity2"],
-                "comp_ind": [0, 0],
+                "comp_key": [0, 0],
                 "field_1": [1, 2],
             }),
             "compinst": pd.DataFrame({
                 "entity": ["entity1", "entity2"],
-                "comp_ind": [0, 0],
+                "comp_key": [0, 0],
                 "component_type": ["comp_a", "comp_a"],
-            }).set_index(["entity", "comp_ind"]),
+            }).set_index(["entity", "comp_key"]),
         }
         registry = data.Registry(components)
         
         new_component = pd.DataFrame({
             "entity": ["entity1", "entity3"],
-            "comp_ind": [0, 0],
+            "comp_key": [0, 0],
             "field_1": [-1, -2],
         })
 
@@ -151,45 +151,45 @@ class TestRegistry(unittest.TestCase):
 
         expected = pd.DataFrame({
             "entity": ["entity1", "entity2", "entity3"],
-            "comp_ind": [0, 0, 0],
+            "comp_key": [0, 0, 0],
             "field_1": [-1, 2, -2],
-        }).set_index(["entity", "comp_ind"])
+        }).set_index(["entity", "comp_key"])
         expected_compinsts = pd.DataFrame({
             "entity": ["entity1", "entity2", "entity3"],
-            "comp_ind": [0, 0, 0],
+            "comp_key": [0, 0, 0],
             "component_type": ["comp_a", "comp_a", "comp_a"],
-        }).set_index(["entity", "comp_ind"])
+        }).set_index(["entity", "comp_key"])
 
         pd.testing.assert_frame_equal(registry["comp_a"], expected)
         pd.testing.assert_frame_equal(registry["compinst"], expected_compinsts)
 
-    def test_sync_comp_inds(self):
+    def test_sync_comp_keys(self):
         components = {
             "comp_a": pd.DataFrame({
                 "entity": ["entity1", "entity1", "entity2", "entity2", "entity2", "entity3"],
-                "comp_ind": [0, pd.NA, 0, 0, pd.NA, pd.NA],
+                "comp_key": [0, pd.NA, 0, 0, pd.NA, pd.NA],
                 "field_1": [1, 1, 2, 2, 2, 3],
             }),
             "compinst": pd.DataFrame({
                 "entity": ["entity1", "entity2",],
-                "comp_ind": [0, 0],
+                "comp_key": [0, 0],
                 "component_type": ["comp_a", "comp_a"],
-            }).set_index(["entity", "comp_ind"]),
+            }).set_index(["entity", "comp_key"]),
         }
         registry = data.Registry(components)
         
         expected = pd.DataFrame({
             "entity": ["entity1", "entity1", "entity2", "entity2", "entity3"],
-            "comp_ind": [0, 1, 0, 1, 0],
+            "comp_key": [0, 1, 0, 1, 0],
             "field_1": [1, 1, 2, 2, 3],
         })
         expected_compinsts = pd.DataFrame({
             "entity": ["entity1", "entity1", "entity2", "entity2", "entity3"],
-            "comp_ind": [0, 1, 0, 1, 0],
+            "comp_key": [0, 1, 0, 1, 0],
             "component_type": ["comp_a"] * 5,
-        }).set_index(["entity", "comp_ind"])
+        }).set_index(["entity", "comp_key"])
 
-        actual = registry.sync_comp_inds("comp_a", registry["comp_a"], mode="upsert")
+        actual = registry.sync_comp_keys("comp_a", registry["comp_a"], mode="upsert")
 
         pd.testing.assert_frame_equal(actual, expected)
         pd.testing.assert_frame_equal(registry["compinst"], expected_compinsts)
@@ -200,7 +200,7 @@ class TestRegistry(unittest.TestCase):
         # We'll test with this dataframe
         comp_a = pd.DataFrame({
             "entity": ["entity1", "entity2"],
-            "comp_ind": [0, 0],
+            "comp_key": [0, 0],
             "field_1": [1, 2],
         })
 
@@ -210,7 +210,7 @@ class TestRegistry(unittest.TestCase):
         # Test for when comp_a has a few options for indices
         actual = registry.reset_index(comp_a)
         pd.testing.assert_frame_equal(actual, expected)
-        actual = registry.reset_index(comp_a.set_index(["entity", "comp_ind"]))
+        actual = registry.reset_index(comp_a.set_index(["entity", "comp_key"]))
         pd.testing.assert_frame_equal(actual, expected)
         actual = registry.reset_index(comp_a.set_index(["entity"]))
         pd.testing.assert_frame_equal(actual, expected)
@@ -220,12 +220,12 @@ class TestView(unittest.TestCase):
         components = {
             "comp1": pd.DataFrame({
                 "entity": ["entity1", "entity2"],
-                "comp_ind": [0, 0],
+                "comp_key": [0, 0],
                 "field1": [1, 2],
             }),
             "comp2": pd.DataFrame({
                 "entity": ["entity1"],
-                "comp_ind": [1],
+                "comp_key": [1],
                 "field2": ["a"],
             }),
         }
@@ -245,12 +245,12 @@ class TestView(unittest.TestCase):
         components = {
             "comp1": pd.DataFrame({
                 "entity": ["entity1", "entity1", "entity2"],
-                "comp_ind": [0, 2, 0],
+                "comp_key": [0, 2, 0],
                 "field1": [0, 1, 2],
             }),
             "comp2": pd.DataFrame({
                 "entity": ["entity1"],
-                "comp_ind": [1],
+                "comp_key": [1],
                 "field2": ["a"],
             }),
         }
@@ -270,12 +270,12 @@ class TestView(unittest.TestCase):
         components = {
             "comp1": pd.DataFrame({
                 "entity": ["entity1", "entity1", "entity2"],
-                "comp_ind": [0, 2, 0],
+                "comp_key": [0, 2, 0],
                 "field1": [0, 1, 2],
             }),
             "comp2": pd.DataFrame({
                 "entity": ["entity1", "entity1",],
-                "comp_ind": [1, 3],
+                "comp_key": [1, 3],
                 "field2": ["a", "b"],
             }),
         }
@@ -295,17 +295,17 @@ class TestView(unittest.TestCase):
         components = {
             "comp1": pd.DataFrame({
                 "entity": ["entity1", "entity1", "entity2"],
-                "comp_ind": [0, 2, 0],
+                "comp_key": [0, 2, 0],
                 "field1": [0, 1, 2],
             }),
             "comp2": pd.DataFrame({
                 "entity": ["entity1", "entity1",],
-                "comp_ind": [1, 3],
+                "comp_key": [1, 3],
                 "field2": ["a", "b"],
             }),
             "comp3": pd.DataFrame({
                 "entity": ["entity1", "entity2",],
-                "comp_ind": [4, 1],
+                "comp_key": [4, 1],
                 "field3": [-1, -2],
             }),
         }

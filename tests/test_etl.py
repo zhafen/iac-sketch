@@ -91,12 +91,12 @@ class TestPreprocessTransformers(unittest.TestCase):
                     [
                         {
                             "entity": "my_entity",
-                            "comp_ind": 0,
+                            "comp_key": 0,
                             "component": {"value": "This entity is a test entity."},
                         },
                         {
                             "entity": "my_other_entity",
-                            "comp_ind": 0,
+                            "comp_key": 0,
                             "component": {
                                 "value": "This entity is also a test entity."
                             },
@@ -114,16 +114,16 @@ class TestPreprocessTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_entity",
-                    "comp_ind": 0,
+                    "comp_key": 0,
                     "value": "This entity is a test entity.",
                 },
                 {
                     "entity": "my_other_entity",
-                    "comp_ind": 0,
+                    "comp_key": 0,
                     "value": "This entity is also a test entity.",
                 },
             ]
-        ).set_index(["entity", "comp_ind"])
+        ).set_index(["entity", "comp_key"])
         assert_frame_equal(registry["description"], expected)
 
     def test_component_normalizer_complex(self):
@@ -133,12 +133,12 @@ class TestPreprocessTransformers(unittest.TestCase):
                     [
                         {
                             "entity": "my_time",
-                            "comp_ind": 0,
+                            "comp_key": 0,
                             "component": {"value": "2023-10-01"},
                         },
                         {
                             "entity": "my_other_time",
-                            "comp_ind": 0,
+                            "comp_key": 0,
                             "component": {
                                 "value": "1970-01-01",
                                 "seconds": 0,
@@ -159,20 +159,20 @@ class TestPreprocessTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_other_time",
-                    "comp_ind": 0,
+                    "comp_key": 0,
                     "value": "1970-01-01",
                     "seconds": 0.0,
                     "timezone": "UTC",
                 },
                 {
                     "entity": "my_time",
-                    "comp_ind": 0,
+                    "comp_key": 0,
                     "value": "2023-10-01",
                     "seconds": np.nan,
                     "timezone": np.nan,
                 },
             ]
-        ).set_index(["entity", "comp_ind"])
+        ).set_index(["entity", "comp_key"])
         assert_frame_equal(actual, expected)
 
     def test_component_normalizer_for_component_component(self):
@@ -183,14 +183,14 @@ class TestPreprocessTransformers(unittest.TestCase):
                     [
                         {
                             "entity": "my_component",
-                            "comp_ind": 0,
+                            "comp_key": 0,
                             "component": {
                                 "multiplicity": "1",
                             },
                         },
                         {
                             "entity": "my_other_component",
-                            "comp_ind": 0,
+                            "comp_key": 0,
                             "component": pd.NA,
                         },
                     ]
@@ -202,16 +202,16 @@ class TestPreprocessTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_component",
-                    "comp_ind": 0,
+                    "comp_key": 0,
                     "multiplicity": "1",
                 },
                 {
                     "entity": "my_other_component",
-                    "comp_ind": 0,
+                    "comp_key": 0,
                     "multiplicity": pd.NA,
                 },
             ]
-        ).set_index(["entity", "comp_ind"])
+        ).set_index(["entity", "comp_key"])
         assert_frame_equal(registry["component"], expected)
 
     def test_component_def_extractor(self):
@@ -234,9 +234,9 @@ class TestPreprocessTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_other_component",
-                    # comp_ind is set to 4 because there are three components
+                    # comp_key is set to 4 because there are three components
                     # defined above and one metadata component, so the next is 4
-                    "comp_ind": 4,
+                    "comp_key": 4,
                     "fields": {
                         "my_field": data.Field(
                             name="my_field",
@@ -260,9 +260,9 @@ class TestPreprocessTransformers(unittest.TestCase):
                 },
                 {
                     "entity": "my_simple_component",
-                    # comp_ind is set to 2 because there is one component
+                    # comp_key is set to 2 because there is one component
                     # defined above and one metadata component, so the next is 2
-                    "comp_ind": 2,
+                    "comp_key": 2,
                     "fields": {},
                     "is_defined": True,
                     "unparsed_fields": {},
@@ -271,9 +271,9 @@ class TestPreprocessTransformers(unittest.TestCase):
                 },
                 {
                     "entity": "this_is_a_fictional_component",
-                    # comp_ind is set to 0 because this entity is first defined
+                    # comp_key is set to 0 because this entity is first defined
                     # during the component definition extraction
-                    "comp_ind": 0,
+                    "comp_key": 0,
                     "fields": {},
                     "is_defined": False,
                     "unparsed_fields": {},
@@ -281,7 +281,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "errors": "Component definition does not exist. ",
                 },
             ]
-        ).set_index(["entity", "comp_ind"])
+        ).set_index(["entity", "comp_key"])
 
         actual = registry["compdef"].copy()
 
@@ -310,14 +310,14 @@ class TestPreprocessTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_component",
-                    "comp_ind": 1,
+                    "comp_key": 1,
                     "fields": {
                         "entity": data.Field(
                             name="entity",
                             dtype="str",
                         ),
-                        "comp_ind": data.Field(
-                            name="comp_ind",
+                        "comp_key": data.Field(
+                            name="comp_key",
                             dtype="int",
                             coerce=True,
                         ),
@@ -348,13 +348,13 @@ class TestPreprocessTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_entity",
-                    "comp_ind": 0.0,
+                    "comp_key": 0.0,
                     "my_field": 42,
                     "my_other_field": True,
                 },
                 {
                     "entity": "my_other_entity",
-                    "comp_ind": 1.0,
+                    "comp_key": 1.0,
                     "my_field": -1,
                     "my_other_field": 0,
                 },
@@ -375,13 +375,13 @@ class TestPreprocessTransformers(unittest.TestCase):
             [
                 {
                     "entity": "my_entity",
-                    "comp_ind": 0,
+                    "comp_key": 0,
                     "my_field": 42,
                     "my_other_field": True,
                 },
                 {
                     "entity": "my_other_entity",
-                    "comp_ind": 1,
+                    "comp_key": 1,
                     "my_field": -1,
                     "my_other_field": False,
                 },
@@ -408,13 +408,13 @@ class TestSystemTransformers(unittest.TestCase):
                     [
                         {
                             "entity": "my_workflow",
-                            "comp_ind": 0,
+                            "comp_key": 0,
                             "value": "my_first_task --> my_second_task\nmy_second_task --> my_third_task",
                             "link_type": "depended_on_by",
                         },
                         {
                             "entity": "my_other_workflow",
-                            "comp_ind": 0,
+                            "comp_key": 0,
                             "value": "my_first_task --> my_third_task",
                             "link_type": "depended_on_by",
                         },
@@ -423,7 +423,7 @@ class TestSystemTransformers(unittest.TestCase):
                 "compinst": pd.DataFrame(
                     {
                         "entity": ["my_workflow", "my_other_workflow"],
-                        "comp_ind": [0, 0],
+                        "comp_key": [0, 0],
                         "component_type": ["links", "links"],
                     }
                 ),
@@ -443,28 +443,28 @@ class TestSystemTransformers(unittest.TestCase):
                 [
                     {
                         "entity": "my_workflow",
-                        "comp_ind": 1,
+                        "comp_key": 1,
                         "link_type": "depended_on_by",
                         "source": "my_first_task",
                         "target": "my_second_task",
                     },
                     {
                         "entity": "my_workflow",
-                        "comp_ind": 2,
+                        "comp_key": 2,
                         "link_type": "depended_on_by",
                         "source": "my_second_task",
                         "target": "my_third_task",
                     },
                     {
                         "entity": "my_other_workflow",
-                        "comp_ind": 1,
+                        "comp_key": 1,
                         "link_type": "depended_on_by",
                         "source": "my_first_task",
                         "target": "my_third_task",
                     },
                 ]
             )
-            .set_index(["entity", "comp_ind"])
+            .set_index(["entity", "comp_key"])
             .sort_index()
         )
         assert_frame_equal(actual, expected)
@@ -522,27 +522,27 @@ class TestSystemTransformers(unittest.TestCase):
 
         actual = registry["link"]
 
-        # comp_inds get set at runtime, so we don't check them here
+        # comp_keys get set at runtime, so we don't check them here
         expected = (
             pd.DataFrame(
                 [
                     {
                         "entity": "requirement_0_0",
-                        "comp_ind": pd.NA,
+                        "comp_key": pd.NA,
                         "link_type": "parent",
                         "source": "requirement_0_0",
                         "target": "requirement_0",
                     },
                     {
                         "entity": "task_0",
-                        "comp_ind": pd.NA,
+                        "comp_key": pd.NA,
                         "link_type": "satisfies",
                         "source": "task_0",
                         "target": "requirement_0",
                     },
                 ]
             )
-            .set_index(["entity", "comp_ind"])
+            .set_index(["entity", "comp_key"])
             .sort_index()
         )
 
@@ -588,13 +588,13 @@ class TestSystemTransformers(unittest.TestCase):
         registry = self.transform_sys.build_graph_from_links(registry)
         actual = registry["node"]
 
-        # This is the first time these entities show up, so comp_ind is 0 for all
+        # This is the first time these entities show up, so comp_key is 0 for all
         expected = pd.DataFrame(
             [
-                {"entity": "task_0", "comp_ind": 0, "connected_component_group": 0},
-                {"entity": "task_1", "comp_ind": 0,"connected_component_group": 0},
-                {"entity": "task_2", "comp_ind": 0, "connected_component_group": 1},
-                {"entity": "task_3", "comp_ind": 0, "connected_component_group": 1},
+                {"entity": "task_0", "comp_key": 0, "connected_component_group": 0},
+                {"entity": "task_1", "comp_key": 0,"connected_component_group": 0},
+                {"entity": "task_2", "comp_key": 0, "connected_component_group": 1},
+                {"entity": "task_3", "comp_key": 0, "connected_component_group": 1},
             ]
         ).set_index("entity")
         assert_frame_equal(actual.loc[expected.index, expected.columns], expected)

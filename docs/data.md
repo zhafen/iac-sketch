@@ -57,7 +57,7 @@ What is documentation? It contains
 
 Currently I'm leaning towards an Entity-Component-System-like yaml formulation for defining infrastructure. For storing the data, I was thinking about having it stored as relational data. So we would need a converter from ECS-yaml to relational data. I've looked around for a little bit, but I haven't found anything trhat uses this formulation. The reason I'm leaning towards it is that makes it really easy to describe arbitrary objects. I *think* in this framework that each component instance is a resource.
 
-For uniquely identifying component instances I was going to have the entity they are associated with as well as an index counting which number component they are for that entity. So the ID for a given component is (entity_id,entity_index), and every component table would have that.
+For uniquely identifying component instances I was going to have the entity they are associated with as well as a key identifying which component they are for that entity. So the ID for a given component is (entity_id,component_key), and every component table would have that.
 
 All this said and done, why do I want the infrastructure saved in 3NF? What benefit does that provide? Why not keep it as yaml?
 Well, for one, I definitely want the user-defined tables to be created, so they can be used.
