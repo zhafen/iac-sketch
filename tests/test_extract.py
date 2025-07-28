@@ -1,7 +1,7 @@
 import ast
 import unittest
 
-from iac_sketch import extract
+from iac_sketch.extract import extract_python
 from textwrap import dedent
 
 
@@ -9,7 +9,7 @@ class TestPythonExtractor(unittest.TestCase):
     """Test suite for the ComponentVisitor class from extract.py"""
 
     def setUp(self):
-        self.extractor = extract.PythonExtractor()
+        self.extractor = extract_python.PythonExtractor()
 
     def test_extract_function(self):
 
