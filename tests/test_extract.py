@@ -146,8 +146,12 @@ class TestPythonExtractor(unittest.TestCase):
             """
         )
         entities = self.extractor.extract_from_input(input_python).set_index(
-            "entity", "comp_key"
+            ["entity", "comp_key"]
         )
 
-        # Check first function call
-        comp = entities.loc["direct_input", "1"]
+        # Check that there is a "Call" component at the below addresses
+        assert entities.loc[("direct_input", "0"), "component_type"] == "Call"
+        assert (
+            entities.loc[("direct_input.my_second_function", "0"), "component_type"]
+            == "Call"
+        )

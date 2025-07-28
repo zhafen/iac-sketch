@@ -14,6 +14,7 @@ class PythonExtractor:
             "Module",
             "Import",
             "ImportFrom",
+            "Call",
         ],
         field_types: list[str] = [
             "alias",
@@ -48,11 +49,28 @@ class PythonExtractor:
 class IdAssigner(ast.NodeTransformer):
     """Assigns unique identifiers to AST nodes."""
 
+    def __init__(
+        self,
+        entity_types: list[str] = [
+            "FunctionDef",
+            "ClassDef",
+            "Module",
+            "Import",
+            "ImportFrom",
+            "Call",
+        ],
+    ):
+        self.entity_types = tuple(getattr(ast, t) for t in entity_types)
+
     def set_root(self, root: str):
         """Set the root source for ID assignment."""
         self.root = root
         self.path = []
+
+        # Various counters
         self.comp_counts = {}
+        self.entity = ""
+        self.comp_key = self.root
 
     def assign_ids(self, tree: ast.AST) -> ast.AST:
         """Assign IDs to all nodes in the AST."""
@@ -62,24 +80,30 @@ class IdAssigner(ast.NodeTransformer):
     def visit(self, node):
         """Visit a node and assign it an ID."""
 
+        if not isinstance(node, self.entity_types):
+            node.entity = self.entity
+            node.comp_key = self.comp_key
+            node = self.generic_visit(node)
+            return node
+
         # Get the entity
-        entity = ".".join(self.path)
+        self.entity = ".".join(self.path)
 
         # Get the component key based on the node type
         if isinstance(node, ast.Module):
-            comp_key = self.root
+            self.comp_key = self.root
         elif hasattr(node, "name"):
-            comp_key = node.name
+            self.comp_key = node.name
         else:
-            entity = ".".join(self.path)
-            comp_key = str(self.comp_counts.setdefault(entity, 0))
-            self.comp_counts[entity] += 1
+            self.entity = ".".join(self.path)
+            self.comp_key = str(self.comp_counts.setdefault(self.entity, 0))
+            self.comp_counts[self.entity] += 1
 
         # Set the attributes for the node
-        node.entity = entity
-        node.comp_key = comp_key
+        node.entity = self.entity
+        node.comp_key = self.comp_key
 
-        self.path.append(comp_key)
+        self.path.append(self.comp_key)
         node = self.generic_visit(node)
         self.path.pop()
 
@@ -97,6 +121,7 @@ class ComponentExtractor(ast.NodeVisitor):
             "Module",
             "Import",
             "ImportFrom",
+            "Call",
         ],
         field_types: list[str] = [
             "alias",
@@ -169,7 +194,9 @@ class ComponentExtractor(ast.NodeVisitor):
             pass
         # For AST nodes, convert to a dict of fields or a reference
         elif isinstance(field_value, self.field_types):
-            field_value = dict(ast.iter_fields(field_value))
+            field_value = {
+                k: self.parse_field(v) for k, v in ast.iter_fields(field_value)
+            }
         elif isinstance(field_value, ast.AST):
             field_value = self.get_node_path(field_value)
         else:
