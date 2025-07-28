@@ -11,7 +11,7 @@ import os
 
 from . import data
 from . import transform
-from .extract import YAMLExtractor
+from .extract import YAMLExtractor, PythonExtractor
 
 
 # Extraction system: handles reading and parsing entities from YAML
@@ -19,6 +19,7 @@ class ExtractSystem:
 
     def __init__(self):
         self.yaml_extractor = YAMLExtractor()
+        self.python_extractor = PythonExtractor()
 
     def extract_entities(
         self, filename_patterns: str | List[str] = [], input_yaml: str = None
@@ -30,18 +31,30 @@ class ExtractSystem:
         if isinstance(filename_patterns, str):
             filename_patterns = [filename_patterns]
 
-        # Always include all YAML files in the base_manifest directory
-        # (one level up from this file)
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        base_manifest_pattern = f"{base_dir}/base_manifest/*.yaml"
-        filename_patterns.append(base_manifest_pattern)
+        # Always include base manifest and source files
+        source_dir = os.path.dirname(os.path.abspath(__file__))
+        base_dir = os.path.dirname(source_dir)
+        filename_patterns += [
+            f"{base_dir}/base_manifest/*.yaml",
+            f"{base_dir}/base_manifest/*.yml",
+            f"{source_dir}/**/*.py",
+        ]
 
         # Iterate over the files
         entities = []
         for pattern in filename_patterns:
             for filename in glob.glob(pattern):
-                with open(filename, "r", encoding="utf-8") as f:
-                    entities_i = self.yaml_extractor.extract_from_input(f.read(), source=filename)
+
+                # Choose extractor based on file type
+                if filename.endswith((".yaml", ".yml")):
+                    extractor = YAMLExtractor()
+                elif filename.endswith(".py"):
+                    extractor = PythonExtractor()
+                else:
+                    continue
+
+                # Perform extraction
+                entities_i = extractor.extract(filename)
                 entities.append(entities_i)
 
         # Add direct input YAML if provided
