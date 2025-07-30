@@ -236,7 +236,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "entity": "my_other_component",
                     # comp_key is set to 4 because there are three components
                     # defined above and one metadata component, so the next is 4
-                    "comp_key": 4,
+                    "comp_key": '4',
                     "fields": {
                         "my_field": data.Field(
                             name="my_field",
@@ -262,7 +262,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "entity": "my_simple_component",
                     # comp_key is set to 2 because there is one component
                     # defined above and one metadata component, so the next is 2
-                    "comp_key": 2,
+                    "comp_key": '2',
                     "fields": {},
                     "is_defined": True,
                     "unparsed_fields": {},
@@ -273,7 +273,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "entity": "this_is_a_fictional_component",
                     # comp_key is set to 0 because this entity is first defined
                     # during the component definition extraction
-                    "comp_key": 0,
+                    "comp_key": '0',
                     "fields": {},
                     "is_defined": False,
                     "unparsed_fields": {},

@@ -420,12 +420,12 @@ class Registry:
             subset=["entity", "comp_key"],
             keep="last",
         ).reset_index(drop=True)
-        value["comp_key"] = value["comp_key"].astype(int)
+        value["comp_key"] = value["comp_key"].astype(str)
         compinst = compinst.drop_duplicates(
             subset=["entity", "comp_key"],
             keep="last",
         ).reset_index(drop=True)
-        compinst["comp_key"] = compinst["comp_key"].astype(int)
+        compinst["comp_key"] = compinst["comp_key"].astype(str)
 
         # Return compinst to the original format and set it
         compinst = compinst.set_index(["entity", "comp_key"])
