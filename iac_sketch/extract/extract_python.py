@@ -1,4 +1,5 @@
 import ast
+import os
 
 import pandas as pd
 
@@ -28,7 +29,7 @@ class PythonExtractor:
         with open(filepath, "r", encoding="utf-8") as file:
             input_python = file.read()
 
-        return self.extract_from_input(input_python, filepath[:-3])
+        return self.extract_from_input(input_python, os.path.basename(filepath)[:-3])
 
     def extract_from_input(
         self, input_python: str, input_name: str = "direct_input"
