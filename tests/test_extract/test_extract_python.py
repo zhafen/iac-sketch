@@ -160,5 +160,23 @@ class TestPythonExtractor(unittest.TestCase):
         # Use the current file as input
         filepath = __file__
         entities = self.extractor.extract(filepath)
-        assert False, "Need to finish."
+        entities = entities.set_index(["entity", "comp_key"])
 
+        # Test finding this function
+        assert entities.loc[
+            (
+                "tests.test_extract.test_extract_python.TestPythonExtractor",
+                "test_real_code",
+            ),
+            "component_type",
+        ] == "FunctionDef"
+
+        # Test finding the call
+        row = entities.loc[
+            (
+                "tests.test_extract.test_extract_python.TestPythonExtractor.test_real_code",
+                "0",
+            )
+        ]
+        assert row["component_type"] == "Call"
+        assert row["function"] == "self.extractor.extract"
