@@ -29,7 +29,8 @@ class PythonExtractor:
         with open(filepath, "r", encoding="utf-8") as file:
             input_python = file.read()
 
-        return self.extract_from_input(input_python, os.path.basename(filepath)[:-3])
+        input_name = os.path.relpath(filepath)[:-3]
+        return self.extract_from_input(input_python, input_name)
 
     def extract_from_input(
         self, input_python: str, input_name: str = "direct_input"

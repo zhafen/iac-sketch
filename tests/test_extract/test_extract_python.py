@@ -155,3 +155,10 @@ class TestPythonExtractor(unittest.TestCase):
             entities.loc[("direct_input.my_second_function", "0"), "component_type"]
             == "Call"
         )
+
+    def test_real_code(self):
+        # Use the current file as input
+        filepath = __file__
+        entities = self.extractor.extract(filepath)
+        assert False, "Need to finish."
+
