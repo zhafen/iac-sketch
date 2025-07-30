@@ -236,7 +236,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "entity": "my_other_component",
                     # comp_key is set to 4 because there are three components
                     # defined above and one metadata component, so the next is 4
-                    "comp_key": '4',
+                    "comp_key": "4",
                     "fields": {
                         "my_field": data.Field(
                             name="my_field",
@@ -262,7 +262,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "entity": "my_simple_component",
                     # comp_key is set to 2 because there is one component
                     # defined above and one metadata component, so the next is 2
-                    "comp_key": '2',
+                    "comp_key": "2",
                     "fields": {},
                     "is_defined": True,
                     "unparsed_fields": {},
@@ -273,7 +273,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "entity": "this_is_a_fictional_component",
                     # comp_key is set to 0 because this entity is first defined
                     # during the component definition extraction
-                    "comp_key": '0',
+                    "comp_key": "0",
                     "fields": {},
                     "is_defined": False,
                     "unparsed_fields": {},
@@ -408,13 +408,13 @@ class TestSystemTransformers(unittest.TestCase):
                     [
                         {
                             "entity": "my_workflow",
-                            "comp_key": 0,
+                            "comp_key": "0",
                             "value": "my_first_task --> my_second_task\nmy_second_task --> my_third_task",
                             "link_type": "depended_on_by",
                         },
                         {
                             "entity": "my_other_workflow",
-                            "comp_key": 0,
+                            "comp_key": "0",
                             "value": "my_first_task --> my_third_task",
                             "link_type": "depended_on_by",
                         },
@@ -423,7 +423,7 @@ class TestSystemTransformers(unittest.TestCase):
                 "compinst": pd.DataFrame(
                     {
                         "entity": ["my_workflow", "my_other_workflow"],
-                        "comp_key": [0, 0],
+                        "comp_key": ["0", "0"],
                         "component_type": ["links", "links"],
                     }
                 ),
@@ -443,21 +443,21 @@ class TestSystemTransformers(unittest.TestCase):
                 [
                     {
                         "entity": "my_workflow",
-                        "comp_key": 1,
+                        "comp_key": "1",
                         "link_type": "depended_on_by",
                         "source": "my_first_task",
                         "target": "my_second_task",
                     },
                     {
                         "entity": "my_workflow",
-                        "comp_key": 2,
+                        "comp_key": "2",
                         "link_type": "depended_on_by",
                         "source": "my_second_task",
                         "target": "my_third_task",
                     },
                     {
                         "entity": "my_other_workflow",
-                        "comp_key": 1,
+                        "comp_key": "1",
                         "link_type": "depended_on_by",
                         "source": "my_first_task",
                         "target": "my_third_task",
@@ -591,10 +591,10 @@ class TestSystemTransformers(unittest.TestCase):
         # This is the first time these entities show up, so comp_key is 0 for all
         expected = pd.DataFrame(
             [
-                {"entity": "task_0", "comp_key": 0, "connected_component_group": 0},
-                {"entity": "task_1", "comp_key": 0,"connected_component_group": 0},
-                {"entity": "task_2", "comp_key": 0, "connected_component_group": 1},
-                {"entity": "task_3", "comp_key": 0, "connected_component_group": 1},
+                {"entity": "task_0", "comp_key": "0", "connected_component_group": 0},
+                {"entity": "task_1", "comp_key": "0", "connected_component_group": 0},
+                {"entity": "task_2", "comp_key": "0", "connected_component_group": 1},
+                {"entity": "task_3", "comp_key": "0", "connected_component_group": 1},
             ]
         ).set_index("entity")
         assert_frame_equal(actual.loc[expected.index, expected.columns], expected)

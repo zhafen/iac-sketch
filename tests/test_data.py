@@ -167,12 +167,12 @@ class TestRegistry(unittest.TestCase):
         components = {
             "comp_a": pd.DataFrame({
                 "entity": ["entity1", "entity1", "entity2", "entity2", "entity2", "entity3"],
-                "comp_key": [0, pd.NA, 0, 0, pd.NA, pd.NA],
-                "field_1": [1, 1, 2, 2, 2, 3],
+                "comp_key": ['named_key', pd.NA, '0', '0', pd.NA, pd.NA],
+                "field_1": [0, 1, 0, 0, 1, 0],
             }),
             "compinst": pd.DataFrame({
                 "entity": ["entity1", "entity2",],
-                "comp_key": [0, 0],
+                "comp_key": ['named_key', '0'],
                 "component_type": ["comp_a", "comp_a"],
             }).set_index(["entity", "comp_key"]),
         }
@@ -180,12 +180,12 @@ class TestRegistry(unittest.TestCase):
         
         expected = pd.DataFrame({
             "entity": ["entity1", "entity1", "entity2", "entity2", "entity3"],
-            "comp_key": [0, 1, 0, 1, 0],
-            "field_1": [1, 1, 2, 2, 3],
+            "comp_key": ['named_key', '0', '0', '1', '0'],
+            "field_1": [0, 1, 0, 1, 0],
         })
         expected_compinsts = pd.DataFrame({
             "entity": ["entity1", "entity1", "entity2", "entity2", "entity3"],
-            "comp_key": [0, 1, 0, 1, 0],
+            "comp_key": ['0', 'named_key', '0', '1', '0'],
             "component_type": ["comp_a"] * 5,
         }).set_index(["entity", "comp_key"])
 

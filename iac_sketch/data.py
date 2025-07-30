@@ -3,6 +3,7 @@ import re
 from dataclasses import dataclass
 from typing import Optional, Any, Type
 
+import numpy as np
 import pandas as pd
 import pandera.pandas as pa
 from pandera.backends.pandas.components import ColumnBackend
@@ -392,15 +393,17 @@ class Registry:
                 nan_mask = group["comp_key"].isna()
                 if nan_mask.any():
                     # Get the maximum existing comp_key for this entity
-                    max_comp_key = group["comp_key"].dropna().max()
+                    max_comp_key = pd.to_numeric(
+                        group["comp_key"], errors="coerce"
+                    ).max(skipna=True)
                     # If no existing comp_key, start from 0
                     if pd.isna(max_comp_key):
                         max_comp_key = -1
                     # Fill NaN values with monotonic sequence starting from max + 1
                     nan_count = nan_mask.sum()
-                    new_indices = range(
+                    new_indices = np.arange(
                         int(max_comp_key) + 1, int(max_comp_key) + 1 + nan_count
-                    )
+                    ).astype(str)
                     group.loc[nan_mask, "comp_key"] = new_indices
 
                 filled_groups.append(group)
@@ -430,7 +433,7 @@ class Registry:
         # Return compinst to the original format and set it
         compinst = compinst.set_index(["entity", "comp_key"])
         compinst = compinst[["component_type"]]
-        compinst = compinst.sort_index()
+        compinst = compinst.sort_index(ascending=True)
         self.components["compinst"] = compinst
 
         # Indices for value are handled later
