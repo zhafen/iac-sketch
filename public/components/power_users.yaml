@@ -13,7 +13,17 @@ get_data_steward_approval:
 - description: Someone has to get data steward approval.
 - procedure: >
     if assignee_is_analyst():
-            analyst submits for approval
+        analyst submits for approval
     else: # E.g. power user, imaging request
-            manager submits for approval
+        manager submits for approval
 - task
+
+power_user_vm:
+- description: Owner is a Virtual Machine that the Power Users use to access in Cloud.
+- component
+
+power_user_permissions:
+- devops_basic_license
+- devops_project_access
+- vm_access
+- data_access
