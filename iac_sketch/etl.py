@@ -3,22 +3,23 @@ ETL workflow for registry processing, based on base_manifest/etl.yaml.
 """
 
 import copy
-
-import yaml
 import networkx as nx
 import pandas as pd
 from typing import List, Dict, Callable
-
-import yaml.parser
-from . import data
 import glob
 import os
 
+from . import data
 from . import transform
+from .extract import YAMLExtractor, PythonExtractor
 
 
 # Extraction system: handles reading and parsing entities from YAML
 class ExtractSystem:
+
+    def __init__(self):
+        self.yaml_extractor = YAMLExtractor()
+        self.python_extractor = PythonExtractor()
 
     def extract_entities(
         self, filename_patterns: str | List[str] = [], input_yaml: str = None
@@ -30,111 +31,40 @@ class ExtractSystem:
         if isinstance(filename_patterns, str):
             filename_patterns = [filename_patterns]
 
-        # Always include all YAML files in the base_manifest directory
-        # (one level up from this file)
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        base_manifest_pattern = f"{base_dir}/base_manifest/*.yaml"
-        filename_patterns.append(base_manifest_pattern)
+        # Always include base manifest and source files
+        source_dir = os.path.dirname(os.path.abspath(__file__))
+        base_dir = os.path.dirname(source_dir)
+        filename_patterns += [
+            f"{base_dir}/base_manifest/*.yaml",
+            f"{base_dir}/base_manifest/*.yml",
+            f"{source_dir}/**/*.py",
+        ]
 
         # Iterate over the files
         entities = []
         for pattern in filename_patterns:
             for filename in glob.glob(pattern):
-                with open(filename, "r", encoding="utf-8") as f:
-                    entities_i = self.extract_entities_from_yaml(f, source=filename)
+
+                # Choose extractor based on file type
+                if filename.endswith((".yaml", ".yml")):
+                    extractor = YAMLExtractor()
+                elif filename.endswith(".py"):
+                    extractor = PythonExtractor()
+                else:
+                    continue
+
+                # Perform extraction
+                entities_i = extractor.extract(filename)
                 entities.append(entities_i)
 
         # Add direct input YAML if provided
         if input_yaml is not None:
-            entities_i = self.extract_entities_from_yaml(input_yaml, source="input")
+            entities_i = self.yaml_extractor.extract_from_input(input_yaml, source="input")
             entities.append(entities_i)
 
         entities = pd.concat(entities, ignore_index=True)
 
         return self.load_entities_to_registry(entities)
-
-    def extract_entities_from_yaml(
-        self,
-        input_yaml: str,
-        source: str = None,
-    ) -> pd.DataFrame:
-
-        try:
-            input_yaml = yaml.safe_load(input_yaml)
-        except yaml.parser.ParserError as e:
-            raise ValueError(f"Error parsing YAML from {source}") from e
-
-        if input_yaml is None:
-            return pd.DataFrame()
-
-        entities = []
-        for entity, comps in input_yaml.items():
-            # Check if the entity already exists
-            if entity in entities:
-                raise KeyError(f"Entity {entity} is defined in multiple files.")
-            # Get a list containing each component
-            entity_comps = self.parse_components_list(entity, comps, source=source)
-            entities += entity_comps
-
-        return pd.DataFrame(entities)
-
-    def parse_components_list(
-        self, entity: str, comps: list, source: str = None
-    ) -> list:
-        extracted_comps = []
-        for i, entry in enumerate(comps):
-            format_error = ValueError(
-                f"Entity component {entity}.{i} is not formatted correctly."
-            )
-            # When just given a flag
-            if isinstance(entry, str):
-                comp_entity = entry
-                comp = pd.NA
-            # When given values for a component
-            elif isinstance(entry, dict):
-                # Check formatting
-                if len(entry) != 1:
-                    raise format_error
-                comp_entity, comp = list(entry.items())[0]
-
-                # Format the component itself
-                # If comp is just a value, wrap it in a dictionary
-                if not isinstance(comp, dict):
-                    comp = {"value": comp}
-
-                # If the component has a key that is the same as the entity,
-                # we assume that is the value for the component.
-                if comp_entity in comp:
-                    # Can't have both though
-                    if "value" in comp:
-                        raise format_error
-                    # Rename the key to "value"
-                    comp["value"] = comp.pop(comp_entity)
-
-            # We should only have dictionaries or strings
-            else:
-                raise format_error
-            row = {
-                "entity": entity,
-                "comp_ind": i,
-                "component_type": comp_entity,
-                "component": comp,
-            }
-            extracted_comps.append(row)
-        # Metadata component
-        extracted_comps.append(
-            {
-                "entity": entity,
-                "comp_ind": len(extracted_comps),
-                "component_type": "metadata",
-                "component": {
-                    "source": source,
-                    # Increase by one to account for the metadata component
-                    "n_comps": len(extracted_comps) + 1,
-                },
-            }
-        )
-        return extracted_comps
 
     def load_entities_to_registry(self, entities: pd.DataFrame) -> data.Registry:
 
@@ -152,8 +82,8 @@ class ExtractSystem:
         # We also record the mapping of components to entities in the "compinst"
         # component. We take the time to use the same format as the other components.
         registry["compinst"] = entities[
-            ["entity", "comp_ind", "component_type"]
-        ].set_index(["entity", "comp_ind"])
+            ["entity", "comp_key", "component_type"]
+        ].set_index(["entity", "comp_key"])
 
         return registry
 

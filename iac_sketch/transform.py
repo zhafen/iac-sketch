@@ -95,7 +95,7 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
         # Parse the fields
         X = X.apply(self._parse_fields, axis="columns")
 
-        # All component definitions include an "entity" column and a "comp_ind" column
+        # All component definitions include an "entity" column and a "comp_key" column
         # We pull the definitions from a "default_fields" component.
         default_fields = X.loc[X["entity"] == "default_fields", "fields"].iloc[0]
         X["fields"] = X["fields"].apply(lambda d: {**default_fields, **d})
@@ -201,9 +201,9 @@ class LinksParser(BaseEstimator, TransformerMixin):
     ) -> pd.DataFrame:
 
         # This transformer produces new components,
-        # so we indicate that with nan comp_inds
+        # so we indicate that with nan comp_keys
         X = registry.reset_index(X)
-        X["comp_ind"] = pd.NA
+        X["comp_key"] = pd.NA
 
         # Parse the links column
         exploded_links = (
@@ -274,15 +274,15 @@ class LinkCollector(BaseEstimator, TransformerMixin):
             df_i = registry.view(link_type)
 
             # Every component flagged as a link_type should have a 'value' column
-            # and a multiindex of entity, comp_ind. We massage those into a DataFrame
-            # with multiindex (with nan comp_ind) and a source and target column.
+            # and a multiindex of entity, comp_key. We massage those into a DataFrame
+            # with multiindex (with nan comp_key) and a source and target column.
             df_i = df_i.reset_index()
             df_i = df_i.rename(columns={"value": "target"})
             df_i["source"] = df_i["entity"]
             # This will get filled in to an appropriate value later
-            df_i["comp_ind"] = pd.NA
+            df_i["comp_key"] = pd.NA
             df_i["link_type"] = link_type
-            df_i = df_i[["entity", "comp_ind", "source", "target", "link_type"]]
+            df_i = df_i[["entity", "comp_key", "source", "target", "link_type"]]
 
             return df_i
 
