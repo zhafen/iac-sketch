@@ -194,7 +194,13 @@ class ComponentExtractor(ast.NodeVisitor):
         # For primitives, return the value directly
         elif not hasattr(field_value, "__dict__"):
             pass
-        # For AST nodes, convert to a dict of fields or a reference
+        # For Name AST nodes, return the name
+        elif isinstance(field_value, ast.Name):
+            field_value = field_value.id
+        # For Attribute AST nodes, recurse
+        elif isinstance(field_value, ast.Attribute):
+            field_value = self.parse_field(field_value.value) + f".{field_value.attr}"
+        # For other AST nodes, convert to a dict of fields or a reference
         elif isinstance(field_value, self.field_types):
             field_value = {
                 k: self.parse_field(v) for k, v in ast.iter_fields(field_value)

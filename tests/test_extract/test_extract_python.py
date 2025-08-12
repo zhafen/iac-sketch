@@ -132,7 +132,7 @@ class TestPythonExtractor(unittest.TestCase):
         assert comp["component"]["module"] == "math"
         assert comp["component"]["names"] == [{"name": "sqrt", "asname": None}]
 
-    def test_calls(self):
+    def test_extract_calls(self):
 
         input_python = dedent(
             """
@@ -156,6 +156,31 @@ class TestPythonExtractor(unittest.TestCase):
             == "Call"
         )
 
+    def test_extract_calls_attributes(self):
+
+        input_python = dedent(
+            """
+            class MyClass:
+                def my_function(self, x):
+                    return x + 1
+
+                def my_function_wrapper(self, x):
+                    return self.my_function(x)
+            """
+        )
+        entities = self.extractor.extract_from_input(input_python).set_index(
+            ["entity", "comp_key"]
+        )
+
+        # DEBUG
+        import ast
+        tree = ast.parse(input_python)
+
+        # Check that there is a "Call" component at the below addresses
+        ind = ("direct_input.MyClass.my_function_wrapper", "0")
+        assert entities.loc[ind, "component_type"] == "Call"
+        assert entities.loc[ind, "component"]["func"] == "self.my_function"
+
     def test_real_code(self):
         # Use the current file as input
         filepath = __file__
@@ -165,7 +190,7 @@ class TestPythonExtractor(unittest.TestCase):
         # Test finding this function
         assert entities.loc[
             (
-                "tests.test_extract.test_extract_python.TestPythonExtractor",
+                "tests/test_extract/test_extract_python.TestPythonExtractor",
                 "test_real_code",
             ),
             "component_type",
@@ -174,9 +199,9 @@ class TestPythonExtractor(unittest.TestCase):
         # Test finding the call
         row = entities.loc[
             (
-                "tests.test_extract.test_extract_python.TestPythonExtractor.test_real_code",
+                "tests/test_extract/test_extract_python.TestPythonExtractor.test_real_code",
                 "0",
             )
         ]
         assert row["component_type"] == "Call"
-        assert row["function"] == "self.extractor.extract"
+        assert row["component"]["func"] == "self.extractor.extract"
