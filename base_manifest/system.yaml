@@ -2,6 +2,9 @@ iac_sketch_infrastructure:
 - description: The iac_sketch package code.
 - infrastructure
 
+iac_sketch_pitch:
+- description: The motivating pitch for IaC Sketch.
+
 can_execute_tests:
 - description: iac_sketch must run all tests that validate requirements.
 - requirement: iac_sketch_infrastructure

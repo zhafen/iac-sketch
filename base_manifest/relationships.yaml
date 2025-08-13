@@ -67,3 +67,10 @@ alternative_to:
     directed: False
 - fields:
     value [entity]: The entity the owner entity is an alternative to.
+
+child_component:
+- description:
+    If a component definition includes this tag then components of that type have
+    parent-child relationships with their entities. For example, this is the case
+    for Python components.
+- component

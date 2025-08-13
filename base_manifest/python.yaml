@@ -1,0 +1,23 @@
+FunctionDef:
+- component
+- child_component
+
+ClassDef:
+- component
+- child_component
+
+Module:
+- component
+- child_component
+
+Import:
+- component
+- child_component
+
+ImportFrom:
+- component
+- child_component
+
+Call:
+- component
+- child_component
