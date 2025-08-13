@@ -172,10 +172,6 @@ class TestPythonExtractor(unittest.TestCase):
             ["entity", "comp_key"]
         )
 
-        # DEBUG
-        import ast
-        tree = ast.parse(input_python)
-
         # Check that there is a "Call" component at the below addresses
         ind = ("direct_input.MyClass.my_function_wrapper", "0")
         assert entities.loc[ind, "component_type"] == "Call"

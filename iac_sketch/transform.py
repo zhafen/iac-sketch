@@ -248,6 +248,19 @@ class LinkCollector(BaseEstimator, TransformerMixin):
             )
         X = X.reset_index()
 
+        # Set up parent-child links between all python entities and their components
+        python_compinsts = registry.reset_index(registry.view("compinst")).merge(
+            registry.reset_index(registry.view("python")),
+            left_on="component_type",
+            right_on="entity",
+            how="inner",
+            suffixes=("", "_python"),
+        )
+        python_compinsts = python_compinsts.rename(
+            columns={"entity": "target", "comp_key": "source"}
+        )[["source", "target"]]
+        python_compinsts["link_type"] = "parent"
+
         # Check that link_types has the right index
         link_types = registry.view("link_type")
         assert link_types.index.names == [
