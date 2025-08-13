@@ -29,18 +29,24 @@ class PythonExtractor:
         with open(filepath, "r", encoding="utf-8") as file:
             input_python = file.read()
 
-        input_name = os.path.relpath(filepath)[:-3]
-        return self.extract_from_input(input_python, input_name)
+        root_entity, root_comp_key = os.path.relpath(filepath)[:-3].rsplit("/", 1)
+        return self.extract_from_input(input_python, root_entity, root_comp_key)
 
     def extract_from_input(
-        self, input_python: str, input_name: str = "direct_input"
+        self,
+        input_python: str,
+        root_entity: str = "direct_input",
+        root_comp_key: str = "input",
     ) -> pd.DataFrame:
         """Extract components from Python code."""
         tree = ast.parse(input_python)
 
         # First pass: assign IDs
-        self.id_assigner.set_root(input_name)
-        tree = self.id_assigner.assign_ids(tree)
+        tree = self.id_assigner.assign_ids(
+            tree,
+            root_entity=root_entity,
+            root_comp_key=root_comp_key
+        )
 
         # Second pass: extract components
         entities = self.component_extractor.extract_components(tree)
@@ -64,18 +70,16 @@ class IdAssigner(ast.NodeTransformer):
     ):
         self.entity_types = tuple(getattr(ast, t) for t in entity_types)
 
-    def set_root(self, root: str):
-        """Set the root source for ID assignment."""
-        self.root = root
-        self.path = []
-
-        # Various counters
-        self.comp_counts = {}
-        self.entity = ""
-        self.comp_key = self.root
-
-    def assign_ids(self, tree: ast.AST) -> ast.AST:
+    def assign_ids(self, tree: ast.Module, root_entity: str, root_comp_key: str) -> ast.Module:
         """Assign IDs to all nodes in the AST."""
+
+        # Variables modified while iterating
+        self.path = []
+        self.comp_counts = {}
+        self.entity = root_entity
+        self.comp_key = root_comp_key
+
+        # Actually assign the ids
         tree = self.visit(tree)
         return tree
 
@@ -88,13 +92,12 @@ class IdAssigner(ast.NodeTransformer):
             node = self.generic_visit(node)
             return node
 
-        # Get the entity
-        self.entity = ".".join(self.path)
-
         # Get the component key based on the node type
         if isinstance(node, ast.Module):
-            self.comp_key = self.root
+            # Use the root values
+            pass
         elif hasattr(node, "name"):
+            self.entity = ".".join(self.path)
             self.comp_key = node.name
         else:
             self.entity = ".".join(self.path)
