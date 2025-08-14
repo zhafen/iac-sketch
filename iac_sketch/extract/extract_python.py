@@ -35,7 +35,7 @@ class PythonExtractor:
     def extract_from_input(
         self,
         input_python: str,
-        root_entity: str = "direct_input.parent_module",
+        root_entity: str = "direct_input/module",
     ) -> pd.DataFrame:
         """Extract components from Python code."""
         module_node = ast.parse(input_python)
@@ -68,16 +68,18 @@ class IdAssigner(ast.NodeTransformer):
     ):
         self.entity_types = tuple(getattr(ast, t) for t in entity_types)
 
-    def assign_ids(self, module_node: ast.Module, root_path: str = "direct_input.parent_module") -> ast.Module:
+    def assign_ids(
+        self, module_node: ast.Module, root_path: str = "direct_input/module"
+    ) -> ast.Module:
         """Assign IDs to all nodes in the AST."""
 
         if not isinstance(module_node, ast.Module):
             raise TypeError("assign_ids only takes objects of type ast.Module as input")
 
         # Variables modified while iterating
-        self.path = []
+        self.root_entity, self.root_comp_key = os.path.split(root_path)
+        self.path = [self.root_entity]
         self.comp_counts = {}
-        self.root_path = root_path
 
         # Actually assign the ids
         module_node = self.visit(module_node)
@@ -96,7 +98,8 @@ class IdAssigner(ast.NodeTransformer):
 
         # Get the component key based on the node type
         if isinstance(node, ast.Module):
-            self.entity, self.comp_key = self.root_path.rsplit(".", 1)
+            self.entity = self.root_entity
+            self.comp_key = self.root_comp_key
         elif hasattr(node, "name"):
             self.comp_key = node.name
         else:

@@ -1,4 +1,4 @@
-import ast
+import os
 import unittest
 
 from iac_sketch.extract import extract_python
@@ -25,13 +25,13 @@ class TestPythonExtractor(unittest.TestCase):
         # Module component
         comp = entities.iloc[0]
         assert comp["entity"] == "direct_input"
-        assert comp["comp_key"] == "input"
+        assert comp["comp_key"] == "module"
         assert comp["component_type"] == "Module"
-        assert comp["component"]["body"] == ["direct_input.input.my_function"]
+        assert comp["component"]["body"] == ["direct_input.module.my_function"]
 
         # Function component
         comp = entities.iloc[1]
-        assert comp["entity"] == "direct_input.input"
+        assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "my_function"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_function"
@@ -54,32 +54,32 @@ class TestPythonExtractor(unittest.TestCase):
 
         # Module component
         comp = entities.iloc[0]
-        assert comp["entity"] == ""
-        assert comp["comp_key"] == "direct_input"
+        assert comp["entity"] == "direct_input"
+        assert comp["comp_key"] == "module"
         assert comp["component_type"] == "Module"
-        assert comp["component"]["body"] == ["direct_input.MyClass"]
+        assert comp["component"]["body"] == ["direct_input.module.MyClass"]
 
         # Class component
         comp = entities.iloc[1]
-        assert comp["entity"] == "direct_input"
+        assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "MyClass"
         assert comp["component_type"] == "ClassDef"
         assert comp["component"]["name"] == "MyClass"
         assert comp["component"]["body"] == [
-            "direct_input.MyClass.__init__",
-            "direct_input.MyClass.my_method",
+            "direct_input.module.MyClass.__init__",
+            "direct_input.module.MyClass.my_method",
         ]
 
         # Constructor component
         comp = entities.iloc[2]
-        assert comp["entity"] == "direct_input.MyClass"
+        assert comp["entity"] == "direct_input.module.MyClass"
         assert comp["comp_key"] == "__init__"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "__init__"
 
         # Method component
         comp = entities.iloc[3]
-        assert comp["entity"] == "direct_input.MyClass"
+        assert comp["entity"] == "direct_input.module.MyClass"
         assert comp["comp_key"] == "my_method"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_method"
@@ -98,25 +98,25 @@ class TestPythonExtractor(unittest.TestCase):
 
         # Module component
         comp = entities.iloc[0]
-        assert comp["entity"] == ""
-        assert comp["comp_key"] == "direct_input"
+        assert comp["entity"] == "direct_input"
+        assert comp["comp_key"] == "module"
         assert comp["component_type"] == "Module"
         assert comp["component"]["body"] == [
-            "direct_input.0",
-            "direct_input.1",
-            "direct_input.2",
+            "direct_input.module.0",
+            "direct_input.module.1",
+            "direct_input.module.2",
         ]
 
         # Import os component
         comp = entities.iloc[1]
-        assert comp["entity"] == "direct_input"
+        assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "0"
         assert comp["component_type"] == "Import"
         assert comp["component"]["names"] == [{"name": "os", "asname": None}]
 
         # Import sys, ast component
         comp = entities.iloc[2]
-        assert comp["entity"] == "direct_input"
+        assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "1"
         assert comp["component_type"] == "Import"
         assert comp["component"]["names"] == [
@@ -126,7 +126,7 @@ class TestPythonExtractor(unittest.TestCase):
 
         # Import math component
         comp = entities.iloc[3]
-        assert comp["entity"] == "direct_input"
+        assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "2"
         assert comp["component_type"] == "ImportFrom"
         assert comp["component"]["module"] == "math"
@@ -150,9 +150,9 @@ class TestPythonExtractor(unittest.TestCase):
         )
 
         # Check that there is a "Call" component at the below addresses
-        assert entities.loc[("direct_input", "0"), "component_type"] == "Call"
+        assert entities.loc[("direct_input.module", "0"), "component_type"] == "Call"
         assert (
-            entities.loc[("direct_input.my_second_function", "0"), "component_type"]
+            entities.loc[("direct_input.module.my_second_function", "0"), "component_type"]
             == "Call"
         )
 
@@ -173,7 +173,7 @@ class TestPythonExtractor(unittest.TestCase):
         )
 
         # Check that there is a "Call" component at the below addresses
-        ind = ("direct_input.MyClass.my_function_wrapper", "0")
+        ind = ("direct_input.module.MyClass.my_function_wrapper", "0")
         assert entities.loc[ind, "component_type"] == "Call"
         assert entities.loc[ind, "component"]["func"] == "self.my_function"
 
@@ -181,12 +181,13 @@ class TestPythonExtractor(unittest.TestCase):
         # Use the current file as input
         filepath = __file__
         entities = self.extractor.extract(filepath)
+        dirname = os.path.dirname(os.path.relpath(filepath))
         entities = entities.set_index(["entity", "comp_key"])
 
         # Test finding this function
         assert entities.loc[
             (
-                "tests/test_extract/test_extract_python.TestPythonExtractor",
+                f"{dirname}.test_extract_python.TestPythonExtractor",
                 "test_real_code",
             ),
             "component_type",
@@ -195,7 +196,7 @@ class TestPythonExtractor(unittest.TestCase):
         # Test finding the call
         row = entities.loc[
             (
-                "tests/test_extract/test_extract_python.TestPythonExtractor.test_real_code",
+                f"{dirname}.test_extract_python.TestPythonExtractor.test_real_code",
                 "0",
             )
         ]
