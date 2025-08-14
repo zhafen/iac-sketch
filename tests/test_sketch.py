@@ -42,3 +42,8 @@ class TestArchitect(unittest.TestCase):
             )
 
         assert tests.loc[expected_tests, "test_passed"].all()
+
+class TestArchitectExampleCode(TestArchitect):
+
+    def setUp(self):
+        self.architect = sketch.Architect("./tests/test_data/example_manifest/*.yaml")
