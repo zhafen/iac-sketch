@@ -24,14 +24,14 @@ class TestPythonExtractor(unittest.TestCase):
 
         # Module component
         comp = entities.iloc[0]
-        assert comp["entity"] == ""
-        assert comp["comp_key"] == "direct_input"
+        assert comp["entity"] == "direct_input"
+        assert comp["comp_key"] == "input"
         assert comp["component_type"] == "Module"
-        assert comp["component"]["body"] == ["direct_input.my_function"]
+        assert comp["component"]["body"] == ["direct_input.input.my_function"]
 
         # Function component
         comp = entities.iloc[1]
-        assert comp["entity"] == "direct_input"
+        assert comp["entity"] == "direct_input.input"
         assert comp["comp_key"] == "my_function"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_function"
