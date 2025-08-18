@@ -125,7 +125,7 @@ class TransformSystem:
                     result,
                     mode=mode,
                 )
-            except AssertionError as e:
+            except Exception as e:
                 raise ValueError(
                     f"Transformer {transformer} failed to transform component "
                     f"'{target_comp}' with source '{source_view}'"
