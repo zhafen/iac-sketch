@@ -205,28 +205,26 @@ class LinksParser(BaseEstimator, TransformerMixin):
         X = registry.reset_index(X)
         X["comp_key"] = pd.NA
 
-        # Parse the links column
-        exploded_links = (
-            X["value"]
-            # Split on newlines
-            .str.strip()
-            .str.split("\n")
-            .explode()
-            # Split on arrows
-            .str.strip()
-            .str.split("-->", expand=True)
-            # Rename columns
+        # Parse and check formatting
+        parsed_links = X["value"].str.strip().str.split("\n").explode()
+        correctly_formatted = parsed_links.str.match(r'^\w+\s*-->\s*\w+$')
+        if not correctly_formatted.all():
+            raise ValueError(
+                "Found malformed 'links' components. All components should be one or "
+                "more lines of the form 'source --> target'. "
+                f"First error: \"{parsed_links[~correctly_formatted].iloc[0]}\""
+            )
+
+        # Split into columns
+        split_links = (
+            parsed_links.str.split("-->", expand=True)
             .rename(columns={0: "source", 1: "target"})
         )
         # Strip whitespace
-        for col in exploded_links.columns:
-            exploded_links[col] = exploded_links[col].str.strip()
-        if len(exploded_links.columns) > 2:
-            raise ValueError(
-                "Links column is not formatted correctly. Did you use a pipe, |? "
-            )
+        for col in split_links.columns:
+            split_links[col] = split_links[col].str.strip()
         # Add the parsed results back to the original DataFrame
-        X_out = X.join(exploded_links).reset_index(drop=True).drop(columns="value")
+        X_out = X.join(split_links).reset_index(drop=True).drop(columns="value")
 
         return X_out
 
