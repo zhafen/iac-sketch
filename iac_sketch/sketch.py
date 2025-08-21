@@ -1,8 +1,10 @@
 import importlib
 
+from IPython.display import display
 import pandas as pd
 
-from . import data, etl
+from . import etl
+import textwrap
 
 
 class Architect:
@@ -33,7 +35,10 @@ class Architect:
         self.registry = self.transform_sys.apply_postprocess_transforms(self.registry)
         return self.registry
 
-    def validate_registry(self) -> tuple[bool, dict[str, pd.DataFrame]]:
+    def validate_registry(
+        self,
+        show: bool = True,
+    ) -> tuple[bool, dict[str, pd.DataFrame]]:
         """
 
         iac_sketch
@@ -42,12 +47,22 @@ class Architect:
         """
 
         # Prepare summary dataframe
-        tests = self.registry.view(["test", "code"])
+        tests = self.registry.view(["test", "code", "satisfies"])
         tests["errors"] = pd.NA
         tests["test_passed"] = pd.NA
 
+        # Join requirements
+        requirements = self.registry.view(["requirement", "description"])
+        tests = tests.reset_index().merge(
+            requirements,
+            left_on="satisfies.value",
+            right_on="entity",
+            how="left",
+        ).sort_values("requirement.priority", ascending=False)
+
         test_results = {}
-        for entity, row in tests.iterrows():
+        for _, row in tests.iterrows():
+            entity = row["entity"]
 
             # Skip when there's no test code
             if pd.isna(row["code.value"]):
@@ -66,6 +81,22 @@ class Architect:
                 test_results[entity] = test_result
                 tests.loc[entity, "test_passed"] = test_result.empty
                 tests.loc[entity, "errors"] = ""
+
+                # Print results
+                if show:
+                    print(f"{entity}:")
+                    print(
+                        f"requirement: {row['satisfies.value']}    priority: {row['requirement.priority']}"
+                    )
+                    wrapped_desc = "\n    ".join(
+                        textwrap.wrap(str(row["description.value"]), width=76)
+                    )
+                    print(f"description: {wrapped_desc}")
+                    if test_result.empty:
+                        print("Test passed!")
+                    else:
+                        display(test_results[entity])
+                    print("")
 
             # A bare except is okay here because we're logging.
             except Exception as e:  # pylint: disable=W0718
