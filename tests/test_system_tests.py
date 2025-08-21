@@ -32,8 +32,8 @@ class TestSystemTests(unittest.TestCase):
 
         assert invalid_reqs.empty
 
-    def test_no_todos(self):
+    def test_no_forbidden_components(self):
 
-        invalid_reqs = system_tests.test_no_todos(self.registry)
+        invalid_reqs = system_tests.test_no_forbidden_components(self.registry)
 
         assert invalid_reqs.empty

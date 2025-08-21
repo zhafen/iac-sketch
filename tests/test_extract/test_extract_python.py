@@ -1,8 +1,10 @@
 import os
+from textwrap import dedent
 import unittest
 
+import pandas as pd
+
 from iac_sketch.extract import extract_python
-from textwrap import dedent
 
 
 class TestPythonExtractor(unittest.TestCase):
@@ -23,14 +25,14 @@ class TestPythonExtractor(unittest.TestCase):
         assert len(entities) == 2
 
         # Module component
-        comp = entities.iloc[0]
+        comp = entities[0]
         assert comp["entity"] == "direct_input"
         assert comp["comp_key"] == "module"
         assert comp["component_type"] == "Module"
         assert comp["component"]["body"] == ["direct_input.module.my_function"]
 
         # Function component
-        comp = entities.iloc[1]
+        comp = entities[1]
         assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "my_function"
         assert comp["component_type"] == "FunctionDef"
@@ -53,14 +55,14 @@ class TestPythonExtractor(unittest.TestCase):
         assert len(entities) == 4
 
         # Module component
-        comp = entities.iloc[0]
+        comp = entities[0]
         assert comp["entity"] == "direct_input"
         assert comp["comp_key"] == "module"
         assert comp["component_type"] == "Module"
         assert comp["component"]["body"] == ["direct_input.module.MyClass"]
 
         # Class component
-        comp = entities.iloc[1]
+        comp = entities[1]
         assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "MyClass"
         assert comp["component_type"] == "ClassDef"
@@ -71,14 +73,14 @@ class TestPythonExtractor(unittest.TestCase):
         ]
 
         # Constructor component
-        comp = entities.iloc[2]
+        comp = entities[2]
         assert comp["entity"] == "direct_input.module.MyClass"
         assert comp["comp_key"] == "__init__"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "__init__"
 
         # Method component
-        comp = entities.iloc[3]
+        comp = entities[3]
         assert comp["entity"] == "direct_input.module.MyClass"
         assert comp["comp_key"] == "my_method"
         assert comp["component_type"] == "FunctionDef"
@@ -98,20 +100,20 @@ class TestPythonExtractor(unittest.TestCase):
         assert len(entities) == 3
 
         # Function component
-        comp = entities.iloc[1]
+        comp = entities[1]
         assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "my_function"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_function"
 
         # Docstring component
-        comp = entities.iloc[2]
+        comp = entities[2]
         assert comp["entity"] == "direct_input.module.my_function"
         assert comp["comp_key"] == "docstring"
         assert comp["component_type"] == "docstring"
         assert comp["component"]["value"] == "Arbitrary docstring\nsplit by lines."
 
-        comp = entities.iloc[2]
+        comp = entities[2]
 
     def test_extract_docstring_components(self):
 
@@ -129,27 +131,33 @@ class TestPythonExtractor(unittest.TestCase):
             """
         )
         entities = self.extractor.extract_from_input(input_python)
-        assert len(entities) == 4
+        assert len(entities) == 5
 
         # Function component
-        comp = entities.iloc[1]
+        comp = entities[1]
         assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "my_function"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_function"
 
         # Docstring component
-        comp = entities.iloc[2]
+        comp = entities[2]
         assert comp["entity"] == "direct_input.module.my_function"
         assert comp["comp_key"] == "docstring"
         assert comp["component_type"] == "docstring"
 
         # Yaml components in the docstring
-        comp = entities.iloc[3]
+        comp = entities[3]
         assert comp["entity"] == "direct_input.module.my_function"
         assert comp["comp_key"] == "0"
         assert comp["component_type"] == "status"
         assert comp["component"]["value"] == "in production"
+
+        # Metadata from yaml component
+        comp = entities[4]
+        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["comp_key"] == "1"
+        assert comp["component_type"] == "metadata"
 
     def test_extract_import(self):
 
@@ -164,7 +172,7 @@ class TestPythonExtractor(unittest.TestCase):
         assert len(entities) == 4
 
         # Module component
-        comp = entities.iloc[0]
+        comp = entities[0]
         assert comp["entity"] == "direct_input"
         assert comp["comp_key"] == "module"
         assert comp["component_type"] == "Module"
@@ -175,14 +183,14 @@ class TestPythonExtractor(unittest.TestCase):
         ]
 
         # Import os component
-        comp = entities.iloc[1]
+        comp = entities[1]
         assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "0"
         assert comp["component_type"] == "Import"
         assert comp["component"]["names"] == [{"name": "os", "asname": None}]
 
         # Import sys, ast component
-        comp = entities.iloc[2]
+        comp = entities[2]
         assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "1"
         assert comp["component_type"] == "Import"
@@ -192,7 +200,7 @@ class TestPythonExtractor(unittest.TestCase):
         ]
 
         # Import math component
-        comp = entities.iloc[3]
+        comp = entities[3]
         assert comp["entity"] == "direct_input.module"
         assert comp["comp_key"] == "2"
         assert comp["component_type"] == "ImportFrom"
@@ -212,7 +220,8 @@ class TestPythonExtractor(unittest.TestCase):
                 return my_function(y) * 2
             """
         )
-        entities = self.extractor.extract_from_input(input_python).set_index(
+        entities = self.extractor.extract_from_input(input_python)
+        entities = pd.DataFrame(entities).set_index(
             ["entity", "comp_key"]
         )
 
@@ -235,7 +244,8 @@ class TestPythonExtractor(unittest.TestCase):
                     return self.my_function(x)
             """
         )
-        entities = self.extractor.extract_from_input(input_python).set_index(
+        entities = self.extractor.extract_from_input(input_python)
+        entities = pd.DataFrame(entities).set_index(
             ["entity", "comp_key"]
         )
 
@@ -249,7 +259,7 @@ class TestPythonExtractor(unittest.TestCase):
         filepath = __file__
         entities = self.extractor.extract(filepath)
         dirname = os.path.dirname(os.path.relpath(filepath))
-        entities = entities.set_index(["entity", "comp_key"])
+        entities = pd.DataFrame(entities).set_index(["entity", "comp_key"])
 
         # Test finding this function
         assert entities.loc[

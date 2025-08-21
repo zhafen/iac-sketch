@@ -218,6 +218,7 @@ class ComponentExtractor(ast.NodeVisitor):
                         input_yaml,
                         source="docstring",
                     )
+                    self.entities += yaml_entities
                 except Exception as e:  # pylint: disable=W0718
                     component = {
                         "entity": f"{entity}.{comp_key}",
@@ -226,7 +227,6 @@ class ComponentExtractor(ast.NodeVisitor):
                         "component": {"value": str(e)},
                     }
                     self.entities.append(component)
-                self.entities += yaml_entities
 
         # Visit children
         self.generic_visit(node)
