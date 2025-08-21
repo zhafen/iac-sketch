@@ -52,6 +52,14 @@ parent:
 - fields:
     value [entity]: The parent entity to the owner entity.
 
+child:
+- description: The target entity is the child of the source entity.
+- component
+- link_type:
+    reverse: parent
+- fields:
+    value [entity]: The child entity to the owner entity.
+
 depends_on:
 - description: The source entity depends on the target entity.
 - component
@@ -59,6 +67,14 @@ depends_on:
     reverse: depended_on_by
 - fields:
     value [entity]: The entity the owner entity depends on.
+
+depended_on_by:
+- description: The source entity is depended on by the target entity.
+- component
+- link_type:
+    reverse: depends_on
+- fields:
+    value [entity]: The entity the owner entity is depended on by.
 
 alternative_to:
 - description: The source entity is an alternative to the target entity.
