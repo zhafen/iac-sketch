@@ -153,15 +153,15 @@ test_fully_connected:
 - satisfies: fully_connected
 - status: "in development"
 
-no_todos:
-- description: No existing [todo] components.
+no_forbidden_components:
+- description: No [error], [todo], or other "forbidden" components.
 - requirement:
-    priority: 0.3
+    priority: 0.5
 
-test_no_todos:
-- description: If this test passes then the no_todos condition is fulfilled.
+test_no_forbidden_components:
+- description: If this test passes then the no_forbidden_components condition is fulfilled.
 - test
-- code: iac_sketch.system_tests.test_no_todos
+- code: iac_sketch.system_tests.test_no_forbidden_components
 - satisfies: no_todos
 - status: "in development"
 

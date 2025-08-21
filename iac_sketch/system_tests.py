@@ -36,7 +36,10 @@ def test_connected(registry: data.Registry) -> pd.DataFrame:
 
     return registry.view("node").query("connected_component_group != 0")
 
-def test_no_todos(registry: data.Registry) -> pd.DataFrame:
+def test_no_forbidden_components(
+    registry: data.Registry,
+    forbidden_components: list[str] = ["todo", "error"],
+) -> pd.DataFrame:
 
-    # All components that have todo components
-    return registry.view("todo")
+    compinst = registry.view("compinst")
+    return compinst.loc[compinst["component_type"].isin(forbidden_components)]
