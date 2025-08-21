@@ -84,6 +84,35 @@ class TestPythonExtractor(unittest.TestCase):
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_method"
 
+    def test_extract_docstring(self):
+
+        docstring = "This is an arbitrary docstring\nsplit by lines."
+        input_python = dedent(
+            f"""
+            def my_function(x):
+                '''{docstring}'''
+                return x + 1
+            """
+        )
+        entities = self.extractor.extract_from_input(input_python)
+        assert len(entities) == 3
+
+        # Function component
+        comp = entities.iloc[1]
+        assert comp["entity"] == "direct_input.module"
+        assert comp["comp_key"] == "my_function"
+        assert comp["component_type"] == "FunctionDef"
+        assert comp["component"]["name"] == "my_function"
+
+        # Docstring component
+        comp = entities.iloc[2]
+        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["comp_key"] == "docstring"
+        assert comp["component_type"] == "docstring"
+        assert comp["component"]["value"] == docstring
+
+        comp = entities.iloc[2]
+
     def test_extract_import(self):
 
         input_python = dedent(
