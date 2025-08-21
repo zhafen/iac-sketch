@@ -3,3 +3,9 @@ code:
 - component
 - fields:
     value [str]: Path to the code.
+
+url:
+- description: A url used for reference.
+- component
+- fields:
+    value [str]: The url.

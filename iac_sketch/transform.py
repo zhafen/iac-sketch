@@ -246,7 +246,7 @@ class LinkCollector(BaseEstimator, TransformerMixin):
             )
         X = X.reset_index()
 
-        # Set up parent-child links between all python entities and their components
+        # Set up parent-child links for all components with a "child_component" flag
         child_compinsts = registry.reset_index(registry.view("compinst")).merge(
             registry.reset_index(registry.view("child_component")),
             left_on="component_type",
