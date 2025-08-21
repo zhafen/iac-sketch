@@ -21,7 +21,7 @@ class YAMLExtractor:
 
     def extract_from_input(
         self, input_yaml: str, source: str = "input"
-    ) -> pd.DataFrame:
+    ) -> list[dict]:
         """Extract components from YAML content.
         
         Args:
@@ -37,7 +37,7 @@ class YAMLExtractor:
             raise ValueError(f"Error parsing YAML from {source}") from e
 
         if parsed_yaml is None:
-            return pd.DataFrame()
+            return []
 
         entities = []
         for entity, comps in parsed_yaml.items():
@@ -48,7 +48,7 @@ class YAMLExtractor:
             entity_comps = self.parse_components_list(entity, comps, source=source)
             entities += entity_comps
 
-        return pd.DataFrame(entities)
+        return entities
 
     def parse_components_list(
         self, entity: str, comps: list, source: str = None

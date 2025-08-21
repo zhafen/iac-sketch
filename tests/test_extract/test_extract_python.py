@@ -113,6 +113,44 @@ class TestPythonExtractor(unittest.TestCase):
 
         comp = entities.iloc[2]
 
+    def test_extract_docstring_components(self):
+
+        input_python = dedent(
+            """
+            def my_function(x):
+                '''Arbitrary docstring
+                split by lines.
+
+                iac_sketch
+                ----------
+                - status: "in production"
+                '''
+                return x + 1
+            """
+        )
+        entities = self.extractor.extract_from_input(input_python)
+        assert len(entities) == 4
+
+        # Function component
+        comp = entities.iloc[1]
+        assert comp["entity"] == "direct_input.module"
+        assert comp["comp_key"] == "my_function"
+        assert comp["component_type"] == "FunctionDef"
+        assert comp["component"]["name"] == "my_function"
+
+        # Docstring component
+        comp = entities.iloc[2]
+        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["comp_key"] == "docstring"
+        assert comp["component_type"] == "docstring"
+
+        # Yaml components in the docstring
+        comp = entities.iloc[3]
+        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["comp_key"] == "0"
+        assert comp["component_type"] == "status"
+        assert comp["component"]["value"] == "in production"
+
     def test_extract_import(self):
 
         input_python = dedent(

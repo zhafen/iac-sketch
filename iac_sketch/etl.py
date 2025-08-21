@@ -55,14 +55,14 @@ class ExtractSystem:
 
                 # Perform extraction
                 entities_i = extractor.extract(filename)
-                entities.append(entities_i)
+                entities += entities_i
 
         # Add direct input YAML if provided
         if input_yaml is not None:
             entities_i = self.yaml_extractor.extract_from_input(input_yaml, source="input")
-            entities.append(entities_i)
+            entities += entities_i
 
-        entities = pd.concat(entities, ignore_index=True)
+        entities = pd.DataFrame(entities)
 
         return self.load_entities_to_registry(entities)
 

@@ -1,7 +1,10 @@
 import ast
 import os
+import re
 
 import pandas as pd
+
+from .extract_yaml import YAMLExtractor
 
 
 class PythonExtractor:
@@ -80,9 +83,11 @@ class IdAssigner(ast.NodeTransformer):
 
         if not isinstance(module_node, ast.Module):
             raise TypeError("assign_ids only takes objects of type ast.Module as input")
+        self.root_entity, self.root_comp_key = os.path.split(root_path)
 
         # Variables modified while iterating
-        self.root_entity, self.root_comp_key = os.path.split(root_path)
+        self.entity = self.root_entity
+        self.comp_key = self.root_comp_key
         self.path = [self.root_entity]
         self.comp_counts = {}
 
@@ -141,13 +146,13 @@ class ComponentExtractor(ast.NodeVisitor):
     ):
         self.entity_types = tuple(getattr(ast, t) for t in entity_types)
         self.field_types = tuple(getattr(ast, t) for t in field_types)
+        self.yaml_extractor = YAMLExtractor()
 
     def extract_components(self, tree: ast.AST) -> pd.DataFrame:
         """Extract components from the AST."""
         self.entities = []
         self.visit(tree)
-        entities_df = pd.DataFrame(self.entities)
-        return entities_df
+        return self.entities
 
     def get_node_id(self, node):
         """Get the entity and component key for a node."""
@@ -199,6 +204,16 @@ class ComponentExtractor(ast.NodeVisitor):
                 "component": {"value": docstring},
             }
             self.entities.append(component)
+
+            # Parse the docstring yaml, if it exists.
+            docstring_yaml = re.split(r"iac_sketch\n-+\n", docstring, maxsplit=1)
+            if len(docstring_yaml) > 1:
+                input_yaml = f"{entity}.{comp_key}:\n{docstring_yaml[1]}"
+                yaml_entities = self.yaml_extractor.extract_from_input(
+                    input_yaml,
+                    source="docstring",
+                )
+                self.entities += yaml_entities
 
         # Visit children
         self.generic_visit(node)
