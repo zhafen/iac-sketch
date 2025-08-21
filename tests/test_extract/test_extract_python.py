@@ -86,11 +86,11 @@ class TestPythonExtractor(unittest.TestCase):
 
     def test_extract_docstring(self):
 
-        docstring = "This is an arbitrary docstring\nsplit by lines."
         input_python = dedent(
-            f"""
+            """
             def my_function(x):
-                '''{docstring}'''
+                '''Arbitrary docstring
+                split by lines.'''
                 return x + 1
             """
         )
@@ -109,7 +109,7 @@ class TestPythonExtractor(unittest.TestCase):
         assert comp["entity"] == "direct_input.module.my_function"
         assert comp["comp_key"] == "docstring"
         assert comp["component_type"] == "docstring"
-        assert comp["component"]["value"] == docstring
+        assert comp["component"]["value"] == "Arbitrary docstring\nsplit by lines."
 
         comp = entities.iloc[2]
 

@@ -189,6 +189,17 @@ class ComponentExtractor(ast.NodeVisitor):
         }
         self.entities.append(component)
 
+        # Get the docstring as a component
+        if docstring := ast.get_docstring(node):
+            comp["docstring"] = docstring
+            component = {
+                "entity": f"{entity}.{comp_key}",
+                "comp_key": "docstring",
+                "component_type": "docstring",
+                "component": {"value": docstring},
+            }
+            self.entities.append(component)
+
         # Visit children
         self.generic_visit(node)
 
