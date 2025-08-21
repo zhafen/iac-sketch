@@ -162,7 +162,7 @@ test_no_forbidden_components:
 - description: If this test passes then the no_forbidden_components condition is fulfilled.
 - test
 - code: iac_sketch.system_tests.test_no_forbidden_components
-- satisfies: no_todos
+- satisfies: no_forbidden_components
 - status: "in development"
 
 codemia:

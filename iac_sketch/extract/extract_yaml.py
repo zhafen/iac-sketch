@@ -12,7 +12,7 @@ class YAMLExtractor:
     def __init__(self):
         pass
 
-    def extract(self, filepath: str) -> pd.DataFrame:
+    def extract(self, filepath: str) -> list[dict]:
         """Extract components from a YAML file."""
         with open(filepath, "r", encoding="utf-8") as file:
             input_yaml = file.read()
@@ -29,7 +29,7 @@ class YAMLExtractor:
             source: Source identifier for the YAML (filename, "input", etc.)
             
         Returns:
-            DataFrame with extracted entities and components
+            list of extracted entities and components
         """
         try:
             parsed_yaml = yaml.safe_load(input_yaml)

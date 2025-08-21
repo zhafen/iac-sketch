@@ -12,7 +12,8 @@ class PythonExtractor:
 
     iac_sketch
     ----------
-    satisfies: minimizes_structure_repetition
+    - satisfies: minimizes_structure_repetition
+    - status: in production
     """
 
     def __init__(
@@ -32,7 +33,7 @@ class PythonExtractor:
         self.id_assigner = IdAssigner()
         self.component_extractor = ComponentExtractor(entity_types, field_types)
 
-    def extract(self, filepath: str) -> pd.DataFrame:
+    def extract(self, filepath: str) -> list[dict]:
         """Extract components from a Python file."""
         with open(filepath, "r", encoding="utf-8") as file:
             input_python = file.read()
@@ -44,7 +45,7 @@ class PythonExtractor:
         self,
         input_python: str,
         root_entity: str = "direct_input/module",
-    ) -> pd.DataFrame:
+    ) -> list[dict]:
         """Extract components from Python code."""
         module_node = ast.parse(input_python)
 
@@ -148,7 +149,7 @@ class ComponentExtractor(ast.NodeVisitor):
         self.field_types = tuple(getattr(ast, t) for t in field_types)
         self.yaml_extractor = YAMLExtractor()
 
-    def extract_components(self, tree: ast.AST) -> pd.DataFrame:
+    def extract_components(self, tree: ast.AST) -> list[dict]:
         """Extract components from the AST."""
         self.entities = []
         self.visit(tree)
