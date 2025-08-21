@@ -57,7 +57,7 @@ class PythonExtractor:
         # Second pass: extract components
         entities = self.component_extractor.extract_components(module_node)
 
-        return pd.DataFrame(entities)
+        return entities
 
 
 class IdAssigner(ast.NodeTransformer):
@@ -195,7 +195,11 @@ class ComponentExtractor(ast.NodeVisitor):
         self.entities.append(component)
 
         # Get the docstring as a component
-        if docstring := ast.get_docstring(node):
+        try:
+            docstring = ast.get_docstring(node)
+        except TypeError:
+            docstring = None
+        if docstring is not None:
             comp["docstring"] = docstring
             component = {
                 "entity": f"{entity}.{comp_key}",
@@ -209,10 +213,19 @@ class ComponentExtractor(ast.NodeVisitor):
             docstring_yaml = re.split(r"iac_sketch\n-+\n", docstring, maxsplit=1)
             if len(docstring_yaml) > 1:
                 input_yaml = f"{entity}.{comp_key}:\n{docstring_yaml[1]}"
-                yaml_entities = self.yaml_extractor.extract_from_input(
-                    input_yaml,
-                    source="docstring",
-                )
+                try:
+                    yaml_entities = self.yaml_extractor.extract_from_input(
+                        input_yaml,
+                        source="docstring",
+                    )
+                except Exception as e:  # pylint: disable=W0718
+                    component = {
+                        "entity": f"{entity}.{comp_key}",
+                        "comp_key": "docstring_error",
+                        "component_type": "error",
+                        "component": {"value": str(e)},
+                    }
+                    self.entities.append(component)
                 self.entities += yaml_entities
 
         # Visit children
