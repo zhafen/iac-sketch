@@ -68,14 +68,14 @@ perform_registry_etl:
 extract_entities:
 - description: Load the entities.
 - task
-- subtask_of: perform_registry_etl
+- parent: perform_registry_etl
 - input:
     filename_patterns [list[str]]: Files matching these patterns are loaded.
     input_yaml [str]: Optional yaml-formatted input string.
 - output:
     registry [registry]:
-- subtask: extract_entities_from_yaml
-- subtask: load_entities_to_registry
+- child: extract_entities_from_yaml
+- child: load_entities_to_registry
 
 extract_entities_from_yaml:
 - description: Read the entities from a yaml string or stream.
@@ -85,7 +85,7 @@ extract_entities_from_yaml:
     source [str]: Optional label of where the yaml came from.
 - output:
     registry [registry]: 
-- subtask: parse_components_list
+- child: parse_components_list
 - code: iac_sketch.etl.ExtractSystem.extract_entities_from_yaml
 
 parse_components_list:

@@ -12,6 +12,7 @@ requirement:
     multiplicity: "0..1"
 - fields:
     value [entity]: The infrastructure this requirement is for.
+    priority [float] = 0.5: Value ranging from 0 (not a priority) to 1 (top priority).
 
 status:
 - description: Tracks progress.
@@ -27,6 +28,12 @@ status:
             - done
             - on hold
             - cancelled
+
+todo:
+- description: A descriptive note regarding something to be addressed.
+- component
+- fields:
+    value [str]: A description of the thing to address.
 
 satisfies:
 - description: The source (owner) entity satisfies the target entity.
@@ -138,6 +145,18 @@ test_fully_connected:
 - test
 - code: iac_sketch.system_tests.test_connected
 - satisfies: fully_connected
+- status: "in development"
+
+no_todos:
+- description: No outstanding things left to complete.
+- requirement:
+    priority: 0.3
+
+test_no_todos:
+- description: If this test passes then the no_todos condition is fulfilled.
+- test
+- code: iac_sketch.system_tests.test_no_todos
+- satisfies: no_todos
 - status: "in development"
 
 codemia:

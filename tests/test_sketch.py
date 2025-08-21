@@ -25,6 +25,7 @@ class TestArchitect(unittest.TestCase):
             "test_fully_implemented",
             "test_fully_defined",
             "test_fully_connected",
+            "test_no_todos",
         ]
         for test_name in expected_tests:
             assert test_name in test_results, (

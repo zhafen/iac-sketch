@@ -73,4 +73,7 @@ child_component:
     If a component definition includes this tag then components of that type have
     parent-child relationships with their entities. For example, this is the case
     for Python components.
+- todo: >
+    Consider if we can roll this up into a more general solution. For example,
+    we might include a "default_components" component for component definitions.
 - component

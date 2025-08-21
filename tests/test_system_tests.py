@@ -31,3 +31,9 @@ class TestSystemTests(unittest.TestCase):
         invalid_reqs = system_tests.test_connected(self.registry)
 
         assert invalid_reqs.empty
+
+    def test_no_todos(self):
+
+        invalid_reqs = system_tests.test_no_todos(self.registry)
+
+        assert invalid_reqs.empty

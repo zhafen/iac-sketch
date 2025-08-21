@@ -18,7 +18,6 @@ def test_designed(registry: data.Registry) -> pd.DataFrame:
         .query("source.isna()")
     )
 
-
 def test_implemented(registry: data.Registry) -> pd.DataFrame:
 
     # All requirements where the satisfies component status is not 'done'
@@ -36,3 +35,8 @@ def test_defined(registry: data.Registry) -> pd.DataFrame:
 def test_connected(registry: data.Registry) -> pd.DataFrame:
 
     return registry.view("node").query("connected_component_group != 0")
+
+def test_no_todos(registry: data.Registry) -> pd.DataFrame:
+
+    # All components that have todo components
+    return registry.view("todo")
