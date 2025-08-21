@@ -5,7 +5,12 @@ import pandas as pd
 
 
 class PythonExtractor:
-    """Main class that orchestrates ID assignment and component extraction."""
+    """Main class that orchestrates ID assignment and component extraction.
+
+    iac_sketch
+    ----------
+    satisfies: minimizes_structure_repetition
+    """
 
     def __init__(
         self,

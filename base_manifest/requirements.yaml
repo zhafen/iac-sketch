@@ -17,7 +17,7 @@ requirement:
         default: 0.5
 
 status:
-- description: Tracks progress.
+- description: Tracks implementation progress.
 - component:
     multiplicity: "0..1"
 - fields:
@@ -27,7 +27,7 @@ status:
             - in design
             - in development
             - in review
-            - done
+            - in production
             - on hold
             - cancelled
 
@@ -113,11 +113,11 @@ test_fully_designed:
 - status: "in development"
 
 fully_implemented:
-- description: >
+- description: |
     Each [requirement] entity has at least one [satisfies] entity and they must
     meet the following conditions:
     1. If a [test] entity, it must have an implementation that passes when executed.
-    2. If a [task] entity, it must have a status of "done".
+    2. If a [task] entity, it must have a status of "in production".
 - requirement:
     priority: 0.7
 

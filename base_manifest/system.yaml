@@ -40,13 +40,6 @@ minimizes_structure_repetition:
     Possible solutions:
     1. Automatically retrieve structure from the code.
     2. Use the structure in the yaml to define code execution order
-        (may conflict with the minimal_workflow_orchestration_functionality requirement)
-- requirement: iac_sketch_infrastructure
-
-minimal_workflow_orchestration_functionality:
-- description: >
-    There are many highly-functional workflow orchestrators out there.
-    We do not want to re-invent the wheel.
 - requirement: iac_sketch_infrastructure
 
 perform_registry_etl:
