@@ -24,17 +24,17 @@ class TestYAMLExtractor(unittest.TestCase):
             """
         )
         
-        df = self.extractor.extract_from_input(yaml_content, source="test")
+        entities = self.extractor.extract_from_input(yaml_content, source="test")
         
-        self.assertEqual(len(df), 3)  # 2 components + 1 metadata
-        self.assertEqual(df.iloc[0]["entity"], "test_entity")
-        self.assertEqual(df.iloc[0]["component_type"], "component1")
-        self.assertTrue(pd.isna(df.iloc[0]["component"]))
+        self.assertEqual(len(entities), 3)  # 2 components + 1 metadata
+        self.assertEqual(entities[0]["entity"], "test_entity")
+        self.assertEqual(entities[0]["component_type"], "component1")
+        self.assertTrue(pd.isna(entities[0]["component"]))
         
         # Check metadata component
-        metadata_row = df[df["component_type"] == "metadata"].iloc[0]
-        self.assertEqual(metadata_row["component"]["source"], "test")
-        self.assertEqual(metadata_row["component"]["n_comps"], 3)
+        metadata_entity = entities[-1]
+        self.assertEqual(metadata_entity["component"]["source"], "test")
+        self.assertEqual(metadata_entity["component"]["n_comps"], 3)
 
     def test_extract_yaml_with_values(self):
         """Test extraction of YAML with component values."""
@@ -48,17 +48,17 @@ class TestYAMLExtractor(unittest.TestCase):
             """
         )
         
-        df = self.extractor.extract_from_input(yaml_content, source="test")
+        entities = self.extractor.extract_from_input(yaml_content, source="test")
         
-        self.assertEqual(len(df), 3)  # 2 components + 1 metadata
+        self.assertEqual(len(entities), 3)  # 2 components + 1 metadata
         
         # Check first component
-        comp1 = df.iloc[0]
+        comp1 = entities[0]
         self.assertEqual(comp1["component_type"], "component1")
         self.assertEqual(comp1["component"]["value"], "value1")
         
         # Check second component
-        comp2 = df.iloc[1]
+        comp2 = entities[1]
         self.assertEqual(comp2["component_type"], "component2")
         self.assertEqual(comp2["component"]["value"], "value2")
         self.assertEqual(comp2["component"]["extra_field"], "extra_value")
@@ -73,9 +73,9 @@ class TestYAMLExtractor(unittest.TestCase):
             """
         )
         
-        df = self.extractor.extract_from_input(yaml_content, source="test")
+        entities = self.extractor.extract_from_input(yaml_content, source="test")
         
-        comp1 = df.iloc[0]
+        comp1 = entities[0]
         self.assertEqual(comp1["component_type"], "component1")
         self.assertEqual(comp1["component"]["value"], "entity_value")
 
@@ -110,13 +110,13 @@ class TestYAMLExtractor(unittest.TestCase):
             tmp_file_path = tmp_file.name
         
         try:
-            df = self.extractor.extract(tmp_file_path)
-            self.assertEqual(len(df), 3)  # 2 components + 1 metadata
-            self.assertEqual(df.iloc[0]["entity"], "test_entity")
+            entities = self.extractor.extract(tmp_file_path)
+            self.assertEqual(len(entities), 3)  # 2 components + 1 metadata
+            self.assertEqual(entities[0]["entity"], "test_entity")
             
             # Check that source is the filepath
-            metadata_row = df[df["component_type"] == "metadata"].iloc[0]
-            self.assertEqual(metadata_row["component"]["source"], tmp_file_path)
+            metadata_entity = entities[-1]
+            self.assertEqual(metadata_entity["component"]["source"], tmp_file_path)
         finally:
             os.unlink(tmp_file_path)
 
