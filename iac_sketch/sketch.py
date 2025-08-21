@@ -34,6 +34,12 @@ class Architect:
         return self.registry
 
     def validate_registry(self) -> tuple[bool, dict[str, pd.DataFrame]]:
+        """
+
+        iac_sketch
+        ----------
+        todo: Order tests by their priority.
+        """
 
         # Prepare summary dataframe
         tests = self.registry.view(["test", "code"])

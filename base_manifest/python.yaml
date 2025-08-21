@@ -2,6 +2,7 @@ FunctionDef:
 - component
 - child_component
 - url: https://docs.python.org/3/library/ast.html#ast.FunctionDef
+- todo: Allow components to be defined in the doc strings.
 
 ClassDef:
 - component
