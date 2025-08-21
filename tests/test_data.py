@@ -59,6 +59,12 @@ class TestField(unittest.TestCase):
         assert field.multiplicity == "0..*"
 
     def test_default_provided(self):
+        """
+
+        iac_sketch
+        ----------
+        todo: Shortcut default handling only works for strings currently.
+        """
 
         field_key = "my_field [str] = 0..*"
         field_value = "This is my field"
