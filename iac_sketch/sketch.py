@@ -44,6 +44,7 @@ class Architect:
     def validate_registry(
         self,
         show: bool = True,
+        print_width: int = 80,
     ) -> tuple[bool, dict[str, pd.DataFrame]]:
         """
 
@@ -132,20 +133,20 @@ class Architect:
 
             # Print results
             if show:
-                print(f"{entity}:")
+                print(f"entity: {entity}")
                 print(
-                    f"requirement: {row['satisfies.value']}    priority: {row['requirement.priority']}"
+                    f"requirement: {row['satisfies.value']}\npriority: {row['requirement.priority']}"
                 )
                 wrapped_desc = "\n    ".join(
-                    textwrap.wrap(str(row["description.value"]), width=76)
+                    textwrap.wrap(str(row["description.value"]), width=print_width - 4)
                 )
                 print(f"description: {wrapped_desc}")
-                if tests.loc[entity, "test_passed"]:
-                    print("Test passed!")
-                elif (error := tests.loc[entity, "errors"]) != "":
-                    print(f"Test failed: {error}")
+                print(f"test_passed: {tests.loc[entity, 'test_passed']}")
+                if (error := tests.loc[entity, "errors"]) != "":
+                    print(f"errors: {error}")
                 else:
+                    print("test_results:")
                     display(test_results[entity])
-                print("")
+                print("-" * print_width + "\n")
 
         return tests, test_results
