@@ -39,11 +39,13 @@ class ExtractSystem:
 
         # Always include base manifest and source files
         source_dir = os.path.dirname(os.path.abspath(__file__))
-        base_dir = os.path.dirname(source_dir)
+        filename_patterns = [
+            "../base_manifest/*.yaml",
+            "../base_manifest/*.yml",
+            "./**/*.py",
+        ]
         filename_patterns += [
-            f"{base_dir}/base_manifest/*.yaml",
-            f"{base_dir}/base_manifest/*.yml",
-            f"{source_dir}/**/*.py",
+            os.path.abspath(f"{source_dir}/{pattern}") for pattern in filename_patterns
         ]
 
         # Iterate over the files
@@ -68,7 +70,9 @@ class ExtractSystem:
 
         # Add direct input YAML if provided
         if input_yaml is not None:
-            entities_i = self.yaml_extractor.extract_from_input(input_yaml, source="input")
+            entities_i = self.yaml_extractor.extract_from_input(
+                input_yaml, source="input"
+            )
             entities += entities_i
 
         entities = pd.DataFrame(entities)
@@ -171,9 +175,7 @@ class TransformSystem:
             # and it receives a view that joins the "component" and "fields"
             # components.
             components_mapping={
-                "compdef": data.View(
-                    ["component", "fields"], join_how="outer"
-                )
+                "compdef": data.View(["component", "fields"], join_how="outer")
             },
         )
 

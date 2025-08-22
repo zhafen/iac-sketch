@@ -140,12 +140,13 @@ class Architect:
                 wrapped_desc = "\n    ".join(
                     textwrap.wrap(str(row["description.value"]), width=print_width - 4)
                 )
-                print(f"description: {wrapped_desc}")
-                print(f"test_passed: {tests.loc[entity, 'test_passed']}")
+                print(f"description:\n    {wrapped_desc}")
+                test_passed = tests.loc[entity, 'test_passed']
+                print(f"test_passed: {test_passed}")
                 if (error := tests.loc[entity, "errors"]) != "":
                     print(f"errors: {error}")
-                else:
-                    print("test_results:")
+                if not test_passed:
+                    print("failed_components:")
                     display(test_results[entity])
                 print("-" * print_width + "\n")
 
