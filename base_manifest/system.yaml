@@ -2,34 +2,30 @@ iac_sketch_infrastructure:
 - description: The iac_sketch package code.
 - infrastructure
 
-iac_sketch_pitch:
-- description: The motivating pitch for IaC Sketch.
-
-can_execute_tests:
-- description: iac_sketch must run all tests that validate requirements.
+is_a_useful_product:
+- description: Fundamentally, iac_sketch must serve a purpose.
 - requirement: iac_sketch_infrastructure
 
-executes_tests:
-- description: Runs all tests that satisfy requirements.
-- task
-- satisfies: can_execute_tests
+functions:
+- description: The product must work.
+- requirement: iac_sketch_infrastructure
+- parent: is_a_useful_product
 
-test_executes_tests:
-- description: The test that validates that executes_tests works.
-- test
-- satisfies: can_execute_tests
+is_in_demand:
+- description: The functionality provided must be useful.
+- requirement: iac_sketch_infrastructure
+- parent: is_a_useful_product
 
 can_perform_registry_etl:
 - description: iac_sketch must perform ETL on the manifest, returning a registry.
 - requirement: iac_sketch_infrastructure
 
-test_perform_registry_etl:
-- description: A test that validates we can perform the registry etl.
-- test
-- satisfies: can_perform_registry_etl
+can_execute_tests:
+- description: iac_sketch must run all tests that validate requirements.
+- requirement: iac_sketch_infrastructure
 
 can_document_workflows:
-- description: iac_sketch must provide a method to document workflows
+- description: iac_sketch must provide a method to document workflows.
 - requirement: iac_sketch_infrastructure
 
 minimizes_structure_repetition:

@@ -29,6 +29,14 @@ class Architect:
     ):
         """
         Main ETL workflow: extract, load, preprocess, system transforms, user transforms.
+
+        Components
+        ----------
+        - status: in production
+        - satisfies: can_perform_registry_etl
+        - todo: >
+            Point to the unit test for this, instead of checking the status listed in
+            the docstring.
         """
         filename_patterns = (
             filename_patterns if filename_patterns else self.filename_patterns
@@ -50,6 +58,11 @@ class Architect:
 
         Components
         ----------
+        - status: in production
+        - satisfies: can_execute_tests
+        - todo: >
+            Point to the unit test for this, instead of checking the status listed in
+            the docstring.
         - todo: >
             Currently we're only set up to run tests that are not part of a class.
             We may want to hook into pytest to extend the functionality, or we could
