@@ -1,6 +1,6 @@
 import pandas as pd
 
-from . import data
+from iac_sketch import data
 
 
 def test_designed(registry: data.Registry) -> pd.DataFrame:

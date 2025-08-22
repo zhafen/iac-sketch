@@ -52,7 +52,12 @@ class Architect:
         - todo: >
             Currently we're only set up to run tests that are not part of a class.
             We may want to hook into pytest to extend the functionality, or we could
-            just add a minor addition to check if the module is a parent and if so, run that.
+            just add a minor addition to check if the module is a parent and if so,
+            run that.
+        - todo: >
+            Tests that are imported as Python code are currently run as if they were
+            solitary scripts, and do not work if there's a relative import
+            in the module. Fix this?
         """
 
         # Prepare summary dataframe
@@ -62,15 +67,20 @@ class Architect:
 
         # Join requirements
         requirements = self.registry.view(["requirement", "description"])
-        tests = tests.reset_index().merge(
-            requirements,
-            left_on="satisfies.value",
-            right_on="entity",
-            how="left",
-        ).sort_values(
-            "requirement.priority",
-            ascending=False,
-        ).set_index("entity")
+        tests = (
+            tests.reset_index()
+            .merge(
+                requirements,
+                left_on="satisfies.value",
+                right_on="entity",
+                how="left",
+            )
+            .sort_values(
+                "requirement.priority",
+                ascending=False,
+            )
+            .set_index("entity")
+        )
 
         test_results = {}
         for entity, row in tests.iterrows():
@@ -79,7 +89,7 @@ class Architect:
             try:
                 # Try loading the test code from the code path
                 if not pd.isna(row["code.value"]):
-                    module_path, test_func_name = row["code.value"].rsplit(".", 1)
+                    module_path, test_func_name = row["code.value"].rsplit()
                 # If this is a function itself, we load the code from its module
                 elif not pd.isna(row["FunctionDef.name"]):
                     split_entity = entity.split(".")
@@ -91,12 +101,16 @@ class Architect:
                     elif len(split_entity) < 2:
                         raise ValueError("Could not parse entity for module path.")
                     module_filepath, test_func_name = split_entity
-                    module_filepath = os.path.abspath(f"{self.root_dir}/{module_path}")
+                    module_filepath = os.path.abspath(
+                        f"{self.root_dir}/{module_filepath}"
+                    )
                     module_dir, module_path = os.path.split(module_filepath)
                     sys.path.append(module_dir)
                 # Skip when there's no test code
                 else:
-                    test_results[entity] = pd.DataFrame([{"error": "No test code found."}])
+                    test_results[entity] = pd.DataFrame(
+                        [{"error": "No test code found."}]
+                    )
                     tests.loc[entity, "test_passed"] = False
                     tests.loc[entity, "errors"] = "ImportError: No test code found."
                     continue
@@ -111,25 +125,27 @@ class Architect:
                 tests.loc[entity, "test_passed"] = test_result.empty
                 tests.loc[entity, "errors"] = ""
 
-                # Print results
-                if show:
-                    print(f"{entity}:")
-                    print(
-                        f"requirement: {row['satisfies.value']}    priority: {row['requirement.priority']}"
-                    )
-                    wrapped_desc = "\n    ".join(
-                        textwrap.wrap(str(row["description.value"]), width=76)
-                    )
-                    print(f"description: {wrapped_desc}")
-                    if test_result.empty:
-                        print("Test passed!")
-                    else:
-                        display(test_results[entity])
-                    print("")
-
             # A bare except is okay here because we're logging.
             except Exception as e:  # pylint: disable=W0718
                 tests.loc[entity, "test_passed"] = False
                 tests.loc[entity, "errors"] = e
+
+            # Print results
+            if show:
+                print(f"{entity}:")
+                print(
+                    f"requirement: {row['satisfies.value']}    priority: {row['requirement.priority']}"
+                )
+                wrapped_desc = "\n    ".join(
+                    textwrap.wrap(str(row["description.value"]), width=76)
+                )
+                print(f"description: {wrapped_desc}")
+                if tests.loc[entity, "test_passed"]:
+                    print("Test passed!")
+                elif (error := tests.loc[entity, "errors"]) != "":
+                    print(f"Test failed: {error}")
+                else:
+                    display(test_results[entity])
+                print("")
 
         return tests, test_results
