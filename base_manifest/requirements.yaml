@@ -105,13 +105,6 @@ fully_designed:
 - requirement:
     priority: 0.9
 
-test_fully_designed:
-- description: If this test passes then the fully_designed requirement is fulfilled.
-- test
-- code: iac_sketch.system_tests.test_designed
-- satisfies: fully_designed
-- status: "in development"
-
 fully_implemented:
 - description: |
     Each [requirement] entity has at least one [satisfies] entity and they must
@@ -121,24 +114,10 @@ fully_implemented:
 - requirement:
     priority: 0.7
 
-test_fully_implemented:
-- description: If this test passes then the fully_implemented condition is fulfilled.
-- test
-- code: iac_sketch.system_tests.test_implemented
-- satisfies: fully_implemented
-- status: "in development"
-
 fully_defined:
 - description: All [compdef] entities are defined and valid.
 - requirement:
     priority: 0.8
-
-test_fully_defined:
-- description: If this test passes then the fully_defined condition is fulfilled.
-- test
-- code: iac_sketch.system_tests.test_defined
-- satisfies: fully_defined
-- status: "in development"
 
 fully_connected:
 - description: >
@@ -146,24 +125,10 @@ fully_connected:
 - requirement:
     priority: 0.4
 
-test_fully_connected:
-- description: If this test passes then the fully_connected condition is fulfilled.
-- test
-- code: iac_sketch.system_tests.test_connected
-- satisfies: fully_connected
-- status: "in development"
-
 no_forbidden_components:
 - description: No [error], [todo], or other "forbidden" components.
 - requirement:
     priority: 0.5
-
-test_no_forbidden_components:
-- description: If this test passes then the no_forbidden_components condition is fulfilled.
-- test
-- code: iac_sketch.system_tests.test_no_forbidden_components
-- satisfies: no_forbidden_components
-- status: "in development"
 
 codemia:
 - description: A related product. Advertises system design interview practice.
