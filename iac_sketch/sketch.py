@@ -47,11 +47,14 @@ class Architect:
 
         Components
         ----------
-        todo: Order tests by their priority.
+        - todo: >
+            Currently we're only set up to run tests that are not part of a class.
+            We may want to hook into pytest to extend the functionality, or we could
+            just add a minor addition to check if the module is a parent and if so, run that.
         """
 
         # Prepare summary dataframe
-        tests = self.registry.view(["test", "code", "satisfies"])
+        tests = self.registry.view(["test", "code", "satisfies", "FunctionDef"])
         tests["errors"] = pd.NA
         tests["test_passed"] = pd.NA
 
@@ -69,12 +72,13 @@ class Architect:
             entity = row["entity"]
 
             # Skip when there's no test code
-            if pd.isna(row["code.value"]):
-                continue
+            if not pd.isna(row["code.value"]):
+                module_path, test_func_name = row["code.value"].rsplit(".", 1)
+            elif not pd.isna(row["FunctionDef"]):
+                pass
 
             try:
                 # Get the test function from the code path
-                module_path, test_func_name = row["code.value"].rsplit(".", 1)
                 module = importlib.import_module(module_path)
                 test_func = getattr(module, test_func_name)
 
