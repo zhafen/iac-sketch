@@ -22,8 +22,14 @@ class ExtractSystem:
         self.python_extractor = PythonExtractor()
 
     def extract_entities(
-        self, filename_patterns: str | List[str] = [], input_yaml: str = None
+        self,
+        filename_patterns: str | List[str] = [],
+        root_dir: str = None,
+        input_yaml: str = None,
     ) -> data.Registry:
+
+        if root_dir is None:
+            root_dir = os.getcwd()
 
         # Ensure we don't modify the original list
         filename_patterns = copy.copy(filename_patterns)
@@ -42,8 +48,11 @@ class ExtractSystem:
 
         # Iterate over the files
         entities = []
+        self.filenames = []
         for pattern in filename_patterns:
-            for filename in glob.glob(pattern):
+            filenames = glob.glob(pattern, recursive=True)
+            for filename in filenames:
+                self.filenames.append(filename)
 
                 # Choose extractor based on file type
                 if filename.endswith((".yaml", ".yml")):
@@ -54,7 +63,7 @@ class ExtractSystem:
                     continue
 
                 # Perform extraction
-                entities_i = extractor.extract(filename)
+                entities_i = extractor.extract(filename, root_dir=root_dir)
                 entities += entities_i
 
         # Add direct input YAML if provided

@@ -1,6 +1,7 @@
 """
 YAML extraction functionality for parsing component definitions from YAML files.
 """
+import os
 
 import yaml
 import pandas as pd
@@ -12,12 +13,13 @@ class YAMLExtractor:
     def __init__(self):
         pass
 
-    def extract(self, filepath: str) -> list[dict]:
+    def extract(self, filepath: str, root_dir: str) -> list[dict]:
         """Extract components from a YAML file."""
         with open(filepath, "r", encoding="utf-8") as file:
             input_yaml = file.read()
 
-        return self.extract_from_input(input_yaml, source=filepath)
+        source = os.path.relpath(filepath, root_dir)
+        return self.extract_from_input(input_yaml, source=source)
 
     def extract_from_input(
         self, input_yaml: str, source: str = "input"

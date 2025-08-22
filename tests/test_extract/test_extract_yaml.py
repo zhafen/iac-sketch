@@ -23,14 +23,14 @@ class TestYAMLExtractor(unittest.TestCase):
               - component2
             """
         )
-        
+
         entities = self.extractor.extract_from_input(yaml_content, source="test")
-        
+
         self.assertEqual(len(entities), 3)  # 2 components + 1 metadata
         self.assertEqual(entities[0]["entity"], "test_entity")
         self.assertEqual(entities[0]["component_type"], "component1")
         self.assertTrue(pd.isna(entities[0]["component"]))
-        
+
         # Check metadata component
         metadata_entity = entities[-1]
         self.assertEqual(metadata_entity["component"]["source"], "test")
@@ -47,16 +47,16 @@ class TestYAMLExtractor(unittest.TestCase):
                   extra_field: extra_value
             """
         )
-        
+
         entities = self.extractor.extract_from_input(yaml_content, source="test")
-        
+
         self.assertEqual(len(entities), 3)  # 2 components + 1 metadata
-        
+
         # Check first component
         comp1 = entities[0]
         self.assertEqual(comp1["component_type"], "component1")
         self.assertEqual(comp1["component"]["value"], "value1")
-        
+
         # Check second component
         comp2 = entities[1]
         self.assertEqual(comp2["component_type"], "component2")
@@ -72,9 +72,9 @@ class TestYAMLExtractor(unittest.TestCase):
                   component1: entity_value
             """
         )
-        
+
         entities = self.extractor.extract_from_input(yaml_content, source="test")
-        
+
         comp1 = entities[0]
         self.assertEqual(comp1["component_type"], "component1")
         self.assertEqual(comp1["component"]["value"], "entity_value")
@@ -87,16 +87,16 @@ class TestYAMLExtractor(unittest.TestCase):
     def test_invalid_yaml(self):
         """Test extraction of invalid YAML raises appropriate error."""
         invalid_yaml = "invalid: yaml: content: ["
-        
+
         with self.assertRaises(ValueError) as context:
             self.extractor.extract_from_input(invalid_yaml, source="test")
-        
+
         self.assertIn("Error parsing YAML from test", str(context.exception))
 
     def test_extract_from_file(self):
         """Test extraction from a file using the extract() method."""
         # Create a temporary YAML file for testing
-        
+
         yaml_content = dedent(
             """
             test_entity:
@@ -104,19 +104,24 @@ class TestYAMLExtractor(unittest.TestCase):
               - component2: value2
             """
         )
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp_file:
+
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".yaml", delete=False
+        ) as tmp_file:
             tmp_file.write(yaml_content)
             tmp_file_path = tmp_file.name
-        
+
         try:
-            entities = self.extractor.extract(tmp_file_path)
+            entities = self.extractor.extract(tmp_file_path, root_dir=os.getcwd())
             self.assertEqual(len(entities), 3)  # 2 components + 1 metadata
             self.assertEqual(entities[0]["entity"], "test_entity")
-            
+
             # Check that source is the filepath
             metadata_entity = entities[-1]
-            self.assertEqual(metadata_entity["component"]["source"], tmp_file_path)
+            self.assertEqual(
+                metadata_entity["component"]["source"],
+                os.path.relpath(tmp_file_path, os.getcwd())
+            )
         finally:
             os.unlink(tmp_file_path)
 

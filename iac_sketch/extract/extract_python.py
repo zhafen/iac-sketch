@@ -38,12 +38,12 @@ class PythonExtractor:
             docstring_yaml_delimiter=docstring_yaml_delimiter,
         )
 
-    def extract(self, filepath: str) -> list[dict]:
+    def extract(self, filepath: str, root_dir: str) -> list[dict]:
         """Extract components from a Python file."""
         with open(filepath, "r", encoding="utf-8") as file:
             input_python = file.read()
 
-        root_entity = os.path.relpath(filepath)[:-3]
+        root_entity = os.path.relpath(filepath, root_dir)[:-3]
         return self.extract_from_input(input_python, root_entity)
 
     def extract_from_input(

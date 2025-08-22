@@ -1,10 +1,10 @@
 import importlib
+import textwrap
 
 from IPython.display import display
 import pandas as pd
 
 from . import etl
-import textwrap
 
 
 class Architect:
@@ -12,10 +12,12 @@ class Architect:
     def __init__(
         self,
         filename_patterns: str | list[str] = [],
+        root_dir: str = None,
         extract_sys: etl.ExtractSystem = None,
         transform_sys: etl.TransformSystem = None,
     ):
         self.filename_patterns = filename_patterns
+        self.root_dir = root_dir
         self.extract_sys = extract_sys if extract_sys else etl.ExtractSystem()
         self.transform_sys = transform_sys if transform_sys else etl.TransformSystem()
 
@@ -29,7 +31,9 @@ class Architect:
         filename_patterns = (
             filename_patterns if filename_patterns else self.filename_patterns
         )
-        self.registry = self.extract_sys.extract_entities(filename_patterns)
+        self.registry = self.extract_sys.extract_entities(
+            filename_patterns, root_dir=self.root_dir
+        )
         self.registry = self.transform_sys.apply_preprocess_transforms(self.registry)
         self.registry = self.transform_sys.apply_system_transforms(self.registry)
         self.registry = self.transform_sys.apply_postprocess_transforms(self.registry)
