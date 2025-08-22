@@ -61,7 +61,7 @@ class TestField(unittest.TestCase):
     def test_default_provided(self):
         """
 
-        iac_sketch
+        Components
         ----------
         todo: Shortcut default handling only works for strings currently.
         """

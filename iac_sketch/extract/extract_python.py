@@ -10,7 +10,7 @@ from .extract_yaml import YAMLExtractor
 class PythonExtractor:
     """Main class that orchestrates ID assignment and component extraction.
 
-    iac_sketch
+    Components
     ----------
     - satisfies: minimizes_structure_repetition
     - status: in production
@@ -29,9 +29,14 @@ class PythonExtractor:
         field_types: list[str] = [
             "alias",
         ],
+        docstring_yaml_delimiter: str = r"Components\n-+\n",
     ):
         self.id_assigner = IdAssigner()
-        self.component_extractor = ComponentExtractor(entity_types, field_types)
+        self.component_extractor = ComponentExtractor(
+            entity_types=entity_types,
+            field_types=field_types,
+            docstring_yaml_delimiter=docstring_yaml_delimiter,
+        )
 
     def extract(self, filepath: str) -> list[dict]:
         """Extract components from a Python file."""
@@ -144,10 +149,12 @@ class ComponentExtractor(ast.NodeVisitor):
         field_types: list[str] = [
             "alias",
         ],
+        docstring_yaml_delimiter: str = r"Components\n-+\n",
     ):
         self.entity_types = tuple(getattr(ast, t) for t in entity_types)
         self.field_types = tuple(getattr(ast, t) for t in field_types)
         self.yaml_extractor = YAMLExtractor()
+        self.docstring_yaml_delimiter = docstring_yaml_delimiter
 
     def extract_components(self, tree: ast.AST) -> list[dict]:
         """Extract components from the AST."""
@@ -211,7 +218,9 @@ class ComponentExtractor(ast.NodeVisitor):
             self.entities.append(component)
 
             # Parse the docstring yaml, if it exists.
-            docstring_yaml = re.split(r"iac_sketch\n-+\n", docstring, maxsplit=1)
+            docstring_yaml = re.split(
+                self.docstring_yaml_delimiter, docstring, maxsplit=1
+            )
             if len(docstring_yaml) > 1:
                 input_yaml = f"{entity}.{comp_key}:\n{docstring_yaml[1]}"
                 try:

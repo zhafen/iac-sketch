@@ -41,7 +41,7 @@ class Architect:
     ) -> tuple[bool, dict[str, pd.DataFrame]]:
         """
 
-        iac_sketch
+        Components
         ----------
         todo: Order tests by their priority.
         """

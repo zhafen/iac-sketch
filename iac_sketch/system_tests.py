@@ -4,6 +4,18 @@ from . import data
 
 
 def test_designed(registry: data.Registry) -> pd.DataFrame:
+    """_summary_
+
+    Parameters
+    ----------
+    registry : data.Registry
+        _description_
+
+    Components
+    ----------
+    - test
+    - satisfies: fully_designed
+    """
 
     # Get all requirements that are not satisfied by any component
     return (
