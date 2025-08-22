@@ -264,7 +264,7 @@ class TestPythonExtractor(unittest.TestCase):
         # Test finding this function
         assert entities.loc[
             (
-                f"{dirname}.test_extract_python.TestPythonExtractor.test_real_code",
+                f"{dirname}/test_extract_python.TestPythonExtractor.test_real_code",
                 "abstracted_code",
             ),
             "component_type",
@@ -273,7 +273,7 @@ class TestPythonExtractor(unittest.TestCase):
         # Test finding the call
         row = entities.loc[
             (
-                f"{dirname}.test_extract_python.TestPythonExtractor.test_real_code.0",
+                f"{dirname}/test_extract_python.TestPythonExtractor.test_real_code.0",
                 "abstracted_code",
             )
         ]
