@@ -226,7 +226,7 @@ class TestPythonExtractor(unittest.TestCase):
         )
 
         # Check that there is a "Call" component at the below addresses
-        assert entities.loc[("direct_input.my_function.0", "abstracted_code"), "component_type"] == "Call"
+        assert entities.loc[("direct_input.0", "abstracted_code"), "component_type"] == "Call"
         assert (
             entities.loc[("direct_input.my_second_function.0", "abstracted_code"), "component_type"]
             == "Call"

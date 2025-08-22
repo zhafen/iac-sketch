@@ -129,9 +129,10 @@ class IdAssigner(ast.NodeTransformer):
 
         # Store the full entity path with the node
         if parent_entity is not None:
-            node.entity = f"{parent_entity}.{entity_name}"
+            self.entity = f"{parent_entity}.{entity_name}"
         else:
-            node.entity = entity_name
+            self.entity = entity_name
+        node.entity = self.entity
 
         # Visit child nodes
         self.path.append(entity_name)
