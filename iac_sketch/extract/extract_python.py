@@ -49,7 +49,7 @@ class PythonExtractor:
     def extract_from_input(
         self,
         input_python: str,
-        root_entity: str = "direct_input/module",
+        root_entity: str = "direct_input",
     ) -> list[dict]:
         """Extract components from Python code."""
         module_node = ast.parse(input_python)
@@ -57,7 +57,7 @@ class PythonExtractor:
         # First pass: assign IDs
         module_node = self.id_assigner.assign_ids(
             module_node,
-            root_path=root_entity,
+            root_entity=root_entity,
         )
 
         # Second pass: extract components
@@ -83,19 +83,18 @@ class IdAssigner(ast.NodeTransformer):
         self.entity_types = tuple(getattr(ast, t) for t in entity_types)
 
     def assign_ids(
-        self, module_node: ast.Module, root_path: str = "direct_input/module"
+        self, module_node: ast.Module, root_entity: str = "direct_input"
     ) -> ast.Module:
         """Assign IDs to all nodes in the AST."""
 
         if not isinstance(module_node, ast.Module):
             raise TypeError("assign_ids only takes objects of type ast.Module as input")
-        self.root_entity, self.root_comp_key = os.path.split(root_path)
+        self.root_entity = root_entity
 
         # Variables modified while iterating
-        self.entity = self.root_entity
-        self.comp_key = self.root_comp_key
-        self.path = [self.root_entity]
-        self.comp_counts = {}
+        self.entity = None
+        self.path = []
+        self.entity_counts = {}
 
         # Actually assign the ids
         module_node = self.visit(module_node)
@@ -104,29 +103,38 @@ class IdAssigner(ast.NodeTransformer):
     def visit(self, node):
         """Visit a node and assign it an ID."""
 
+        # For types not explicitly tracked, we consider them as part of the
+        # same entity as their parent
         if not isinstance(node, self.entity_types):
             node.entity = self.entity
-            node.comp_key = self.comp_key
             node = self.generic_visit(node)
             return node
 
-        self.entity = ".".join(self.path)
-
-        # Get the component key based on the node type
-        if isinstance(node, ast.Module):
-            self.entity = self.root_entity
-            self.comp_key = self.root_comp_key
-        elif hasattr(node, "name"):
-            self.comp_key = node.name
+        # Determine the parent entity
+        if len(self.path) == 0:
+            parent_entity = None
         else:
-            self.comp_key = str(self.comp_counts.setdefault(self.entity, 0))
-            self.comp_counts[self.entity] += 1
+            parent_entity = ".".join(self.path)
 
-        # Set the attributes for the node
-        node.entity = self.entity
-        node.comp_key = self.comp_key
+        # Determine the entity name
+        if isinstance(node, ast.Module):
+            entity_name = self.root_entity
+        else:
+            # If the node has a name, use it; otherwise, use a count
+            if hasattr(node, "name"):
+                entity_name = node.name
+            else:
+                entity_name = str(self.entity_counts.setdefault(parent_entity, 0))
+                self.entity_counts[parent_entity] += 1
 
-        self.path.append(self.comp_key)
+        # Store the full entity path with the node
+        if parent_entity is not None:
+            node.entity = f"{parent_entity}.{entity_name}"
+        else:
+            node.entity = entity_name
+
+        # Visit child nodes
+        self.path.append(entity_name)
         node = self.generic_visit(node)
         self.path.pop()
 
@@ -162,22 +170,15 @@ class ComponentExtractor(ast.NodeVisitor):
         self.visit(tree)
         return self.entities
 
-    def get_node_id(self, node):
+    def get_node_entity(self, node):
         """Get the entity and component key for a node."""
 
-        if not hasattr(node, "entity") or not hasattr(node, "comp_key"):
+        if not hasattr(node, "entity"):
             raise ValueError(
-                "Node must have 'entity' and 'comp_key' attributes. "
-                "Run IdAssigner first."
+                "Node must have 'entity' attributes. Run IdAssigner first."
             )
 
-        return node.entity, node.comp_key
-
-    def get_node_path(self, node):
-        """Get the full path for a node."""
-        entity, comp_key = self.get_node_id(node)
-        node_path = f"{entity}.{comp_key}"
-        return node_path
+        return node.entity
 
     def visit(self, node):
         """Visit a node and extract component if it's an entity type."""
@@ -185,8 +186,8 @@ class ComponentExtractor(ast.NodeVisitor):
             self.generic_visit(node)
             return
 
-        # Get the entity and component key
-        entity, comp_key = self.get_node_id(node)
+        # Get the entity
+        entity = self.get_node_entity(node)
 
         # Create a component representing the node
         comp = {}
@@ -196,7 +197,7 @@ class ComponentExtractor(ast.NodeVisitor):
         # Format and store
         component = {
             "entity": entity,
-            "comp_key": comp_key,
+            "comp_key": "abstracted_code",
             "component_type": node.__class__.__name__,
             "component": comp,
         }
@@ -210,7 +211,7 @@ class ComponentExtractor(ast.NodeVisitor):
         if docstring is not None:
             comp["docstring"] = docstring
             component = {
-                "entity": f"{entity}.{comp_key}",
+                "entity": entity,
                 "comp_key": "docstring",
                 "component_type": "docstring",
                 "component": {"value": docstring},
@@ -222,7 +223,7 @@ class ComponentExtractor(ast.NodeVisitor):
                 self.docstring_yaml_delimiter, docstring, maxsplit=1
             )
             if len(docstring_yaml) > 1:
-                input_yaml = f"{entity}.{comp_key}:\n{docstring_yaml[1]}"
+                input_yaml = f"{entity}:\n{docstring_yaml[1]}"
                 try:
                     yaml_entities = self.yaml_extractor.extract_from_input(
                         input_yaml,
@@ -231,7 +232,7 @@ class ComponentExtractor(ast.NodeVisitor):
                     self.entities += yaml_entities
                 except Exception as e:  # pylint: disable=W0718
                     component = {
-                        "entity": f"{entity}.{comp_key}",
+                        "entity": entity,
                         "comp_key": "docstring_error",
                         "component_type": "error",
                         "component": {"value": str(e)},
@@ -265,7 +266,7 @@ class ComponentExtractor(ast.NodeVisitor):
                 k: self.parse_field(v) for k, v in ast.iter_fields(field_value)
             }
         elif isinstance(field_value, ast.AST):
-            field_value = self.get_node_path(field_value)
+            field_value = self.get_node_entity(field_value)
         else:
             raise ValueError(f"Unsupported field type: {type(field_value)}")
 

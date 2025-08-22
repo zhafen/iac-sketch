@@ -26,14 +26,14 @@ class TestPythonExtractor(unittest.TestCase):
 
         # Module component
         comp = entities[0]
-        assert comp["entity"] == "direct_input.module"
-        assert comp["comp_key"] == "abstracted_python"
+        assert comp["entity"] == "direct_input"
+        assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "Module"
-        assert comp["component"]["body"] == ["direct_input.module.my_function"]
+        assert comp["component"]["body"] == ["direct_input.my_function"]
 
         # Function component
         comp = entities[1]
-        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["entity"] == "direct_input.my_function"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_function"
@@ -56,32 +56,32 @@ class TestPythonExtractor(unittest.TestCase):
 
         # Module component
         comp = entities[0]
-        assert comp["entity"] == "direct_input.module"
+        assert comp["entity"] == "direct_input"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "Module"
-        assert comp["component"]["body"] == ["direct_input.module.MyClass"]
+        assert comp["component"]["body"] == ["direct_input.MyClass"]
 
         # Class component
         comp = entities[1]
-        assert comp["entity"] == "direct_input.module.MyClass"
+        assert comp["entity"] == "direct_input.MyClass"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "ClassDef"
         assert comp["component"]["name"] == "MyClass"
         assert comp["component"]["body"] == [
-            "direct_input.module.MyClass.__init__",
-            "direct_input.module.MyClass.my_method",
+            "direct_input.MyClass.__init__",
+            "direct_input.MyClass.my_method",
         ]
 
         # Constructor component
         comp = entities[2]
-        assert comp["entity"] == "direct_input.module.MyClass.__init__"
+        assert comp["entity"] == "direct_input.MyClass.__init__"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "__init__"
 
         # Method component
         comp = entities[3]
-        assert comp["entity"] == "direct_input.module.MyClass.my_method"
+        assert comp["entity"] == "direct_input.MyClass.my_method"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_method"
@@ -101,14 +101,14 @@ class TestPythonExtractor(unittest.TestCase):
 
         # Function component
         comp = entities[1]
-        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["entity"] == "direct_input.my_function"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_function"
 
         # Docstring component
         comp = entities[2]
-        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["entity"] == "direct_input.my_function"
         assert comp["comp_key"] == "docstring"
         assert comp["component_type"] == "docstring"
         assert comp["component"]["value"] == "Arbitrary docstring\nsplit by lines."
@@ -135,27 +135,27 @@ class TestPythonExtractor(unittest.TestCase):
 
         # Function component
         comp = entities[1]
-        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["entity"] == "direct_input.my_function"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "FunctionDef"
         assert comp["component"]["name"] == "my_function"
 
         # Docstring component
         comp = entities[2]
-        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["entity"] == "direct_input.my_function"
         assert comp["comp_key"] == "docstring"
         assert comp["component_type"] == "docstring"
 
         # Yaml components in the docstring
         comp = entities[3]
-        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["entity"] == "direct_input.my_function"
         assert comp["comp_key"] == "0"
         assert comp["component_type"] == "status"
         assert comp["component"]["value"] == "in production"
 
         # Metadata from yaml component
         comp = entities[4]
-        assert comp["entity"] == "direct_input.module.my_function"
+        assert comp["entity"] == "direct_input.my_function"
         assert comp["comp_key"] == "1"
         assert comp["component_type"] == "metadata"
 
@@ -173,25 +173,25 @@ class TestPythonExtractor(unittest.TestCase):
 
         # Module component
         comp = entities[0]
-        assert comp["entity"] == "direct_input.module"
+        assert comp["entity"] == "direct_input"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "Module"
         assert comp["component"]["body"] == [
-            "direct_input.module.0",
-            "direct_input.module.1",
-            "direct_input.module.2",
+            "direct_input.0",
+            "direct_input.1",
+            "direct_input.2",
         ]
 
         # Import os component
         comp = entities[1]
-        assert comp["entity"] == "direct_input.module.0"
+        assert comp["entity"] == "direct_input.0"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "Import"
         assert comp["component"]["names"] == [{"name": "os", "asname": None}]
 
         # Import sys, ast component
         comp = entities[2]
-        assert comp["entity"] == "direct_input.module.1"
+        assert comp["entity"] == "direct_input.1"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "Import"
         assert comp["component"]["names"] == [
@@ -201,7 +201,7 @@ class TestPythonExtractor(unittest.TestCase):
 
         # Import math component
         comp = entities[3]
-        assert comp["entity"] == "direct_input.module.2"
+        assert comp["entity"] == "direct_input.2"
         assert comp["comp_key"] == "abstracted_code"
         assert comp["component_type"] == "ImportFrom"
         assert comp["component"]["module"] == "math"
@@ -226,9 +226,9 @@ class TestPythonExtractor(unittest.TestCase):
         )
 
         # Check that there is a "Call" component at the below addresses
-        assert entities.loc[("direct_input.module.my_function.0", "abstracted_code"), "component_type"] == "Call"
+        assert entities.loc[("direct_input.my_function.0", "abstracted_code"), "component_type"] == "Call"
         assert (
-            entities.loc[("direct_input.module.my_second_function.0", "abstracted_code"), "component_type"]
+            entities.loc[("direct_input.my_second_function.0", "abstracted_code"), "component_type"]
             == "Call"
         )
 
@@ -250,7 +250,7 @@ class TestPythonExtractor(unittest.TestCase):
         )
 
         # Check that there is a "Call" component at the below addresses
-        ind = ("direct_input.module.MyClass.my_function_wrapper.0", "abstracted_code")
+        ind = ("direct_input.MyClass.my_function_wrapper.0", "abstracted_code")
         assert entities.loc[ind, "component_type"] == "Call"
         assert entities.loc[ind, "component"]["func"] == "self.my_function"
 
