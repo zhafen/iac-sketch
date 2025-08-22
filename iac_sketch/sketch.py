@@ -1,4 +1,6 @@
 import importlib
+import os
+import sys
 import textwrap
 
 from IPython.display import display
@@ -65,24 +67,43 @@ class Architect:
             left_on="satisfies.value",
             right_on="entity",
             how="left",
-        ).sort_values("requirement.priority", ascending=False)
+        ).sort_values(
+            "requirement.priority",
+            ascending=False,
+        ).set_index("entity")
 
         test_results = {}
-        for _, row in tests.iterrows():
-            entity = row["entity"]
+        for entity, row in tests.iterrows():
 
-            # Skip when there's no test code
-            if not pd.isna(row["code.value"]):
-                module_path, test_func_name = row["code.value"].rsplit(".", 1)
-            elif not pd.isna(row["FunctionDef"]):
-                pass
-
+            # Very generous exception block because we're logging errors
             try:
-                # Get the test function from the code path
+                # Try loading the test code from the code path
+                if not pd.isna(row["code.value"]):
+                    module_path, test_func_name = row["code.value"].rsplit(".", 1)
+                # If this is a function itself, we load the code from its module
+                elif not pd.isna(row["FunctionDef.name"]):
+                    split_entity = entity.split(".")
+                    if len(split_entity) > 2:
+                        raise ValueError(
+                            "Can only use test functions at the global "
+                            "level of a module."
+                        )
+                    elif len(split_entity) < 2:
+                        raise ValueError("Could not parse entity for module path.")
+                    module_filepath, test_func_name = split_entity
+                    module_filepath = os.path.abspath(f"{self.root_dir}/{module_path}")
+                    module_dir, module_path = os.path.split(module_filepath)
+                    sys.path.append(module_dir)
+                # Skip when there's no test code
+                else:
+                    test_results[entity] = pd.DataFrame([{"error": "No test code found."}])
+                    tests.loc[entity, "test_passed"] = False
+                    tests.loc[entity, "errors"] = "ImportError: No test code found."
+                    continue
+
+                # Call the test function
                 module = importlib.import_module(module_path)
                 test_func = getattr(module, test_func_name)
-
-                # Call the test function if it is callable
                 test_result: pd.DataFrame = test_func(self.registry)
 
                 # Store results
@@ -108,6 +129,7 @@ class Architect:
 
             # A bare except is okay here because we're logging.
             except Exception as e:  # pylint: disable=W0718
+                tests.loc[entity, "test_passed"] = False
                 tests.loc[entity, "errors"] = e
 
         return tests, test_results
