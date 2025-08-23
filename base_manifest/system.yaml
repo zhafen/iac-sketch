@@ -6,27 +6,63 @@ is_a_useful_product:
 - description: Fundamentally, iac_sketch must serve a purpose.
 - requirement: iac_sketch_infrastructure
 
-functions:
-- description: The product must work.
-- requirement: iac_sketch_infrastructure
+records_system_architecture:
+- requirement
 - parent: is_a_useful_product
 
-is_in_demand:
-- description: The functionality provided must be useful.
-- requirement: iac_sketch_infrastructure
+facilitates_system_design:
+- requirement
 - parent: is_a_useful_product
+
+enables_iterative_system_decomposition:
+- description: >
+    The requirements and components of complicated systems are rarely known all at
+    once, but are assembled over time in an iterative process. This process includes
+    gathering functional requirements from the stakeholders, identifying technical
+    requirements/constraints, trial and error, and more. One of the goals of
+    iac_sketch is to provide a constant, living source of truth that can be used for
+    both the formalized design and also components and requirements not yet
+    incorporated.
+- requirement
+- parent: facilitates_system_design
+
+facilitates_a_source_of_truth:
+- requirement
+- parent: enables_iterative_system_decomposition
+
+can_incorporate_poorly_formed_components:
+- requirement
+- parent: enables_iterative_system_decomposition
+
+validates_system_architecture:
+- description: >
+    iac_sketch must provide a series of automated tests that ensure the system
+    architecture meets requirements.
+- requirement
+- parent: is_a_useful_product
+
+documents_system_architecture:
+- description: >
+    At any given time the code that defines the system must be able to be compiled and
+    turned into a digestable, clear, format.
+- requirement
+- parent: is_a_useful_product
+
+is_not_confusing_to_use:
+- requirement: iac_sketch_infrastructure
+- todo: >
+    Unfortunately, "system" and "component" are used in two different contexts
+    currently--as part of system design (where components are pieces of a system)
+    and as part of entity-component-system (where components are data).
 
 can_perform_registry_etl:
 - description: iac_sketch must perform ETL on the manifest, returning a registry.
-- requirement: iac_sketch_infrastructure
 
 can_execute_tests:
 - description: iac_sketch must run all tests that validate requirements.
-- requirement: iac_sketch_infrastructure
 
 can_document_workflows:
 - description: iac_sketch must provide a method to document workflows.
-- requirement: iac_sketch_infrastructure
 
 minimizes_structure_repetition:
 - description: >
