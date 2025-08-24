@@ -38,6 +38,11 @@ can_incorporate_poorly_formed_components:
 - requirement
 - parent: enables_iterative_system_decomposition
 
+test_can_incorporate_poorly_formed_components:
+- description: We can test this by making a test manifest that's deliberately messy.
+- test
+- satisfies: can_incorporate_poorly_formed_components
+
 validates_system_architecture:
 - description: >
     iac_sketch must provide a series of automated tests that ensure the system
@@ -77,6 +82,19 @@ documentation_uses_consistent_perspective:
 documentation_uses_consistent_terminology:
 - requirement
 - parent: documentation_quality_is_high
+
+terminology_is_internally_consistent:
+- description: >
+    For terms defined inside iac_sketch, are they used consistently throughout?
+- requirement
+- parent: documentation_uses_consistent_terminology
+
+terminology_is_externally_consistent:
+- description: >
+    Are the terms used in iac_sketch consistent with community standards?
+    For example, are the relationships for requirement diagrams sufficiently consistent?
+- requirement
+- parent: documentation_uses_consistent_terminology
 
 documentation_coverage_is_high:
 - description: Are most things documented?
