@@ -2,17 +2,17 @@ iac_sketch_infrastructure:
 - description: The iac_sketch package code.
 - infrastructure
 
-is_a_useful_product:
+is_a_useful_tool:
 - description: Fundamentally, iac_sketch must serve a purpose.
 - requirement: iac_sketch_infrastructure
 
 records_system_architecture:
 - requirement
-- parent: is_a_useful_product
+- parent: is_a_useful_tool
 
 facilitates_system_design:
 - requirement
-- parent: is_a_useful_product
+- parent: is_a_useful_tool
 
 enables_iterative_system_decomposition:
 - description: >
@@ -39,21 +39,33 @@ validates_system_architecture:
     iac_sketch must provide a series of automated tests that ensure the system
     architecture meets requirements.
 - requirement
-- parent: is_a_useful_product
+- parent: is_a_useful_tool
 
 documents_system_architecture:
 - description: >
     At any given time the code that defines the system must be able to be compiled and
     turned into a digestable, clear, format.
 - requirement
-- parent: is_a_useful_product
+- parent: is_a_useful_tool
 
 is_not_confusing_to_use:
-- requirement: iac_sketch_infrastructure
+- parent: is_a_useful_tool
 - todo: >
     Unfortunately, "system" and "component" are used in two different contexts
     currently--as part of system design (where components are pieces of a system)
     and as part of entity-component-system (where components are data).
+
+is_marketable:
+- description: >
+    Tools with larger communities gain momentum and are able to be developed further.
+- parent: is_a_useful_tool
+
+has_a_good_name:
+- description: |
+    A good name goes a long way. Suggestions:
+    - iac_sketch
+    - IaCA or iaca (infrastructure as Code Architect)
+    - manIaC
 
 can_perform_registry_etl:
 - description: iac_sketch must perform ETL on the manifest, returning a registry.

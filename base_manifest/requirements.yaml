@@ -36,6 +36,9 @@ todo:
 - component
 - fields:
     value [str]: A description of the thing to address.
+    priority [float]:
+        description: Value ranging from 0 (not a priority) to 1 (top priority).
+        default: 0.5
 
 satisfies:
 - description: The source (owner) entity satisfies the target entity.
@@ -45,13 +48,22 @@ satisfies:
 - fields:
     value [entity]: The [requirement] entity the owner entity satisfies.
 
-supports:
-- description: The source (owner) entity supports the target entity.
+satisfied_by:
+- description: The source (owner) entity is satisfied by the target entity.
 - component
 - link_type:
-    reverse: supported_by
+    reverse: satisfies
 - fields:
-    value [entity]: The entity the owner entity supports.
+    value [entity]: The [requirement] entity the owner entity is satisfied by.
+
+# TODO: Delete?
+# supports:
+# - description: The source (owner) entity supports the target entity.
+# - component
+# - link_type:
+#     reverse: supported_by
+# - fields:
+#     value [entity]: The entity the owner entity supports.
 
 task:
 - description: >
@@ -101,16 +113,14 @@ output:
 
 fully_designed:
 - description: >
-    Each [requirement] entity has at least one [satisfies] entity.
+    Each [requirement] entity has at least one [satisfies] entity or one [child] entity.
 - requirement:
     priority: 0.9
 
 fully_implemented:
 - description: |
-    Each [requirement] entity has at least one [satisfies] entity and they must
-    meet the following conditions:
-    1. If a [test] entity, it must have an implementation that passes when executed.
-    2. If a [task] entity, it must have a status of "in production".
+    Meets the same criteria as "fully_designed" and all [satisfies] entities
+    either have a test that passes when executed or have a status of "in production".
 - requirement:
     priority: 0.7
 
