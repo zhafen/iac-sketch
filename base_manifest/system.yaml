@@ -31,6 +31,10 @@ facilitates_a_source_of_truth:
 - parent: enables_iterative_system_decomposition
 
 can_incorporate_poorly_formed_components:
+- description: >
+    While gathering information it is common to come across a piece of information that
+    is clearly important, but poorly defined. We need to record such information so it
+    can be defined and incorporated when more is known.
 - requirement
 - parent: enables_iterative_system_decomposition
 
@@ -49,15 +53,39 @@ documents_system_architecture:
 - parent: is_a_useful_tool
 
 is_not_confusing_to_use:
+- requirement
 - parent: is_a_useful_tool
 - todo: >
     Unfortunately, "system" and "component" are used in two different contexts
     currently--as part of system design (where components are pieces of a system)
     and as part of entity-component-system (where components are data).
 
+has_good_documentation:
+- requirement
+- parent: is_not_confusing_to_use
+
+documentation_quality_is_high:
+- description: Who is the speaker? What are the technical terms used?
+- requirement
+- parent: has_good_documentation
+
+documentation_uses_consistent_perspective:
+- description: First person? Third person?
+- requirement
+-parent: documentation_quality_is_high
+
+documentation_uses_consistent_terminology:
+- requirement
+- parent: documentation_quality_is_high
+
+documentation_coverage_is_high:
+- description: Are most things documented?
+- parent: has_good_documentation
+
 is_marketable:
 - description: >
     Tools with larger communities gain momentum and are able to be developed further.
+- requirement
 - parent: is_a_useful_tool
 
 has_a_good_name:
@@ -66,6 +94,7 @@ has_a_good_name:
     - iac_sketch
     - IaCA or iaca (infrastructure as Code Architect)
     - manIaC
+- requirement
 
 can_perform_registry_etl:
 - description: iac_sketch must perform ETL on the manifest, returning a registry.
