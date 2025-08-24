@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import networkx as nx
@@ -75,6 +76,21 @@ class TestTransformSystem(unittest.TestCase):
         assert registry["compdef"].attrs["is_valid"], registry["compdef"].attrs[
             "errors"
         ]
+
+    def test_apply_preprocess_transforms_different_root_dir(self):
+        """Tests are meant to be run from the root directory of the repo,
+        but for this test we move into the "tests" directory and then run
+        the extraction from there.
+        """
+
+        os.chdir("tests")
+
+        registry = self.extract_sys.extract_entities(root_dir="..")
+        registry = self.transform_sys.apply_preprocess_transforms(registry)
+        assert registry["compdef"].attrs["is_valid"], registry["compdef"].attrs[
+            "errors"
+        ]
+
 
 
 class TestPreprocessTransformers(unittest.TestCase):
