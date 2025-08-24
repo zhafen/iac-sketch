@@ -44,7 +44,7 @@ class ExtractSystem:
             "../base_manifest/*.yml",
             "./**/*.py",
         ]
-        filename_patterns += [
+        filename_patterns = [
             os.path.abspath(f"{source_dir}/{pattern}") for pattern in filename_patterns
         ]
 

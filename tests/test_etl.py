@@ -81,6 +81,14 @@ class TestTransformSystem(unittest.TestCase):
         """Tests are meant to be run from the root directory of the repo,
         but for this test we move into the "tests" directory and then run
         the extraction from there.
+
+        Components
+        ----------
+        - todo:
+            value: >
+                This and the previous test should probably be part of a different test
+                class that is more comprehensive than "TestTransformSystem"
+            priority: 0.1
         """
 
         os.chdir("tests")
