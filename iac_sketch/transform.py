@@ -209,10 +209,13 @@ class LinksParser(BaseEstimator, TransformerMixin):
         parsed_links = X["value"].str.strip().str.split("\n").explode()
         correctly_formatted = parsed_links.str.match(r'^\w+\s*-->\s*\w+$')
         if not correctly_formatted.all():
+            bad_parsed_links = parsed_links.loc[~correctly_formatted]
+            first_entity = X.loc[bad_parsed_links.index[0], "entity"]
             raise ValueError(
                 "Found malformed 'links' components. All components should be one or "
-                "more lines of the form 'source --> target'. "
-                f"First error: \"{parsed_links[~correctly_formatted].iloc[0]}\""
+                "more lines of the form 'source --> target'.\n"
+                f"First error is for entity {first_entity}: "
+                f"\"{bad_parsed_links.iloc[0]}\""
             )
 
         # Split into columns
