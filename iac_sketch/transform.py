@@ -148,6 +148,12 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
 
 
 class ComponentValidator(BaseEstimator, TransformerMixin):
+    """
+
+    Components
+    ----------
+    - todo: Add validation that warns users when they try to modify a system component.
+    """
 
     def fit(self, _X, _y=None):
         return self
