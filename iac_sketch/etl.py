@@ -28,8 +28,11 @@ class ExtractSystem:
         input_yaml: str = None,
     ) -> data.Registry:
 
+        # Change working dir location to the root directory.
         if root_dir is None:
             root_dir = os.getcwd()
+        else:
+            os.chdir(root_dir)
 
         # Ensure we don't modify the original list
         filename_patterns = copy.copy(filename_patterns)
@@ -39,13 +42,10 @@ class ExtractSystem:
 
         # Always include base manifest and source files
         source_dir = os.path.dirname(os.path.abspath(__file__))
-        filename_patterns = [
-            "../base_manifest/*.yaml",
-            "../base_manifest/*.yml",
-            "./**/*.py",
-        ]
-        filename_patterns = [
-            os.path.abspath(f"{source_dir}/{pattern}") for pattern in filename_patterns
+        filename_patterns += [
+            f"{source_dir}/../base_manifest/*.yaml",
+            f"{source_dir}/../base_manifest/*.yml",
+            f"{source_dir}/**/*.py",
         ]
 
         # Iterate over the files
