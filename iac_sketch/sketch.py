@@ -107,14 +107,7 @@ class Architect:
                     module_path, test_func_name = row["code.value"].rsplit()
                 # If this is a function itself, we load the code from its module
                 elif not pd.isna(row["FunctionDef.name"]):
-                    split_entity = entity.split(".")
-                    if len(split_entity) > 2:
-                        raise ValueError(
-                            "Can only use test functions at the global "
-                            "level of a module."
-                        )
-                    elif len(split_entity) < 2:
-                        raise ValueError("Could not parse entity for module path.")
+                    split_entity = entity.rsplit(".", 1)
                     module_filepath, test_func_name = split_entity
                     module_filepath = os.path.abspath(
                         f"{self.root_dir}/{module_filepath}"
