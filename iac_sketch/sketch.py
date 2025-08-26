@@ -53,7 +53,7 @@ class Architect:
         self,
         show: bool = True,
         print_width: int = 80,
-        raise_errors: bool = False,
+        captured_exceptions = Exception,
     ) -> tuple[bool, dict[str, pd.DataFrame]]:
         """
 
@@ -141,12 +141,9 @@ class Architect:
                 tests.loc[entity, "errors"] = ""
 
             # A bare except is okay here because we're logging.
-            except Exception as e:  # pylint: disable=W0718
+            except captured_exceptions as e:  # pylint: disable=W0718
                 tests.loc[entity, "test_passed"] = False
                 tests.loc[entity, "errors"] = e
-
-                if raise_errors:
-                    raise(e)
 
             # Print results
             if show:
