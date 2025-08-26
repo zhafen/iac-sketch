@@ -53,6 +53,7 @@ class Architect:
         self,
         show: bool = True,
         print_width: int = 80,
+        raise_errors: bool = False,
     ) -> tuple[bool, dict[str, pd.DataFrame]]:
         """
 
@@ -144,6 +145,9 @@ class Architect:
                 tests.loc[entity, "test_passed"] = False
                 tests.loc[entity, "errors"] = e
 
+                if raise_errors:
+                    raise(e)
+
             # Print results
             if show:
                 print(f"entity: {entity}")
@@ -158,7 +162,7 @@ class Architect:
                 print(f"test_passed: {test_passed}")
                 if (error := tests.loc[entity, "errors"]) != "":
                     print(f"errors: {error}")
-                if not test_passed:
+                if not test_passed and entity in test_results:
                     print("failed_components:")
                     display(test_results[entity])
                 print("-" * print_width + "\n")
