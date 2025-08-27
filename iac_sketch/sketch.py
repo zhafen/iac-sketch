@@ -51,9 +51,10 @@ class Architect:
 
     def validate_registry(
         self,
+        test_kwargs: dict[str, dict] = {},
         show: bool = True,
-        print_width: int = 80,
         captured_exceptions = Exception,
+        print_width: int = 80,
     ) -> tuple[bool, dict[str, pd.DataFrame]]:
         """
 
@@ -126,7 +127,8 @@ class Architect:
                 # Call the test function
                 module = importlib.import_module(module_path)
                 test_func = getattr(module, test_func_name)
-                test_result: pd.DataFrame = test_func(self.registry)
+                test_args_i = test_kwargs.get(entity, {})
+                test_result: pd.DataFrame = test_func(self.registry, **test_args_i)
 
                 # Store results
                 test_results[entity] = test_result

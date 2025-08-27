@@ -3,7 +3,9 @@ import pandas as pd
 from iac_sketch import data
 
 
-def test_designed(registry: data.Registry) -> pd.DataFrame:
+def test_designed(
+    registry: data.Registry, allowed_infrastructure: list[str] = None
+) -> pd.DataFrame:
     """
     Parameters
     ----------
@@ -22,16 +24,18 @@ def test_designed(registry: data.Registry) -> pd.DataFrame:
     """
 
     # We start with the requirements that are not implemented
-    reqs = test_implemented(registry)
+    reqs = test_implemented(registry, allowed_infrastructure=allowed_infrastructure)
 
     # Then we just select those that don't even have a satisfies link yet
     reqs = reqs.query("`link.link_type`.isna()")
 
     return reqs
 
+
 def test_implemented(
     registry: data.Registry,
     allowed_statuses: list[str] = ["in production"],
+    allowed_infrastructure: list[str] = None,
 ) -> pd.DataFrame:
     """
     Parameters
@@ -51,20 +55,21 @@ def test_implemented(
     - todo: Add code that identifies parent nodes with unsatisfied child nodes.
     """
 
+    reqs = registry.view("requirement")
+    if allowed_infrastructure is not None:
+        is_allowed = reqs["value"].isin(allowed_infrastructure) | reqs["value"].isna()
+        reqs = reqs.loc[is_allowed]
+
     # Get entities with [requirement] components and any entities linked with
     # a [satisfies]/[satisfied_by] or [parent]/[child] link.
     # Entities without either have nan values, which will be among those returned.
-    reqs = (
-        registry.view("requirement")
-        .reset_index()
-        .merge(
-            registry.view(["link", "status"]).query(
-                "`link.link_type` in ['satisfies', 'parent']"
-            ),
-            left_on="entity",
-            right_on="link.target",
-            how="left",
-        )
+    reqs = reqs.reset_index().merge(
+        registry.view(["link", "status"]).query(
+            "`link.link_type` in ['satisfies', 'parent']"
+        ),
+        left_on="entity",
+        right_on="link.target",
+        how="left",
     )
 
     # Drop the requirements that have children
@@ -73,6 +78,7 @@ def test_implemented(
     reqs = reqs[~reqs["status.value"].isin(allowed_statuses)]
 
     return reqs
+
 
 def test_defined(registry: data.Registry) -> pd.DataFrame:
     """
