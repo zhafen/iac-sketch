@@ -51,6 +51,9 @@ parent:
     reverse: child
 - fields:
     value [entity]: The parent entity to the owner entity.
+- todo: >
+    Reverse this with child, since that produces a graph with more-consistent
+    terminology.
 
 child:
 - description: The target entity is the child of the source entity.

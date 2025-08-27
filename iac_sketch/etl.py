@@ -234,6 +234,14 @@ class TransformSystem:
         return registry
 
     def build_graph_from_links(self, registry: data.Registry) -> data.Registry:
+        """
+        Components
+        ----------
+        - todo: >
+            Probably delete this, because it makes more sense to just make graphs as
+            needed because the filtering is much more powerful *before* it's turned
+            into a graph.
+        """
 
         # Build a graph from the links
         registry.graph = nx.from_pandas_edgelist(
@@ -241,13 +249,24 @@ class TransformSystem:
             source="source",
             target="target",
             edge_key="link_type",
-            create_using=nx.DiGraph,
+            create_using=nx.MultiDiGraph,
         )
         registry.graph.add_nodes_from(registry.entities)
         registry = self.apply_transform(
             registry,
             transform.GraphAnalyzer(),
             components_mapping={"node": data.View("link")},
+            mode="overwrite",
+        )
+
+        return registry
+
+    def analyze_requirements(self, registry: data.Registry) -> data.Registry:
+
+        registry = self.apply_transform(
+            registry,
+            transform.RequirementAnalyzer(),
+            components_mapping={"requirement": data.View("requirement")},
             mode="overwrite",
         )
 

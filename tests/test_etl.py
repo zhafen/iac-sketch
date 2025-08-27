@@ -100,7 +100,6 @@ class TestTransformSystem(unittest.TestCase):
         ]
 
 
-
 class TestPreprocessTransformers(unittest.TestCase):
 
     def setUp(self):
@@ -625,3 +624,61 @@ class TestSystemTransformers(unittest.TestCase):
 
         assert hasattr(registry, "graph")
         assert isinstance(registry.graph, nx.DiGraph)
+
+    def test_analyze_requirements(self):
+        input_yaml = """
+        test_infrastructure:
+        - infrastructure
+
+        test_requirement:
+        - requirement: test_infrastructure
+
+        child_requirement:
+        - requirement
+        - parent: test_requirement
+
+        grandchild_requirement:
+        - requirement:
+            priority: 0.2
+        - parent: child_requirement
+        """
+
+        registry = self.extract_sys.extract_entities(input_yaml=input_yaml)
+        registry = self.transform_sys.apply_preprocess_transforms(registry)
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.LinksParser(),
+            components_mapping={"link": data.View("links")},
+            mode="upsert",
+        )
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.LinkCollector(),
+            components_mapping={"link": data.View("link")},
+            mode="upsert",
+        )
+        registry = self.transform_sys.build_graph_from_links(registry)
+        registry = self.transform_sys.analyze_requirements(registry)
+        actual = registry["requirement"]
+
+        # This is the first time these entities show up, so comp_key is 0 for all
+        expected = pd.DataFrame(
+            [
+                {
+                    "entity": "test_requirement",
+                    "comp_key": "0",
+                    "value": "test_infrastructure",
+                },
+                {
+                    "entity": "child_requirement",
+                    "comp_key": "0",
+                    "value": "test_infrastructure",
+                },
+                {
+                    "entity": "grandchild_requirement",
+                    "comp_key": "0",
+                    "value": "test_infrastructure",
+                },
+            ]
+        ).set_index("entity")
+        assert_frame_equal(actual.loc[expected.index, expected.columns], expected)

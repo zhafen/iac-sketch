@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Optional, Any, Type
 
 import numpy as np
+import networkx as nx
 import pandas as pd
 import pandera.pandas as pa
 from pandera.backends.pandas.components import ColumnBackend
@@ -202,6 +203,8 @@ class Registry:
     components : dict[str, pd.DataFrame]
         Dictionary storing all component DataFrames by type name.
     """
+
+    graph: nx.MultiDiGraph  # Optional graph attribute for relationships
 
     def __init__(self, components: dict[str, pd.DataFrame] = None):
         self.components = {}

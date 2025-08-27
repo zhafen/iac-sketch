@@ -213,7 +213,7 @@ class LinksParser(BaseEstimator, TransformerMixin):
 
         # Parse and check formatting
         parsed_links = X["value"].str.strip().str.split("\n").explode()
-        correctly_formatted = parsed_links.str.match(r'^\w+\s*-->\s*\w+$')
+        correctly_formatted = parsed_links.str.match(r"^\w+\s*-->\s*\w+$")
         if not correctly_formatted.all():
             bad_parsed_links = parsed_links.loc[~correctly_formatted]
             first_entity = X.loc[bad_parsed_links.index[0], "entity"]
@@ -221,13 +221,12 @@ class LinksParser(BaseEstimator, TransformerMixin):
                 "Found malformed 'links' components. All components should be one or "
                 "more lines of the form 'source --> target'.\n"
                 f"First error is for entity {first_entity}: "
-                f"\"{bad_parsed_links.iloc[0]}\""
+                f'"{bad_parsed_links.iloc[0]}"'
             )
 
         # Split into columns
-        split_links = (
-            parsed_links.str.split("-->", expand=True)
-            .rename(columns={0: "source", 1: "target"})
+        split_links = parsed_links.str.split("-->", expand=True).rename(
+            columns={0: "source", 1: "target"}
         )
         # Strip whitespace
         for col in split_links.columns:
@@ -372,17 +371,45 @@ class GraphAnalyzer(BaseEstimator, TransformerMixin):
             "GraphBuilder should only be used on the 'link' view. "
             f"Got: {X.attrs['view_components']}"
         )
-        assert hasattr(registry, "graph"), (
-            "GraphBuilder expects the registry to have a 'graph' attribute."
-        )
+        assert hasattr(
+            registry, "graph"
+        ), "GraphBuilder expects the registry to have a 'graph' attribute."
 
         # Build a nodes dataframe with information about connectivity
         connected_components = [
             _ for _ in nx.connected_components(registry.graph.to_undirected())
         ]
-        X_out = pd.DataFrame({"entity": list(registry.graph.nodes())}).set_index("entity")
+        X_out = pd.DataFrame({"entity": list(registry.graph.nodes())}).set_index(
+            "entity"
+        )
         X_out["connected_component_group"] = -1
         for i, comps in enumerate(connected_components):
             X_out.loc[list(comps), "connected_component_group"] = i
 
         return X_out
+
+
+class RequirementAnalyzer(BaseEstimator, TransformerMixin):
+    """
+    Transformer that analyzes requirements in the registry.
+    """
+
+    def fit(self, _X, _y=None):
+        return self
+
+    def transform(
+        self, X: pd.DataFrame, registry: data.Registry = None
+    ) -> pd.DataFrame:
+
+        # Filter to only parent-child relationships
+        subgraph = nx.subgraph_view(
+            registry.graph, filter_edge=lambda u, v, k: k == "parent"
+        )
+
+        # Propagate requirement values down the parent-child hierarchy
+        reqs_with_values = X.dropna(subset="value")
+        for idx, req in reqs_with_values.iterrows():
+            for d in nx.ancestors(subgraph, idx):
+                X.loc[d, "value"] = req["value"]
+
+        return X
