@@ -17,7 +17,7 @@ def test_designed(
     pd.DataFrame
         A DataFrame containing the test results.
 
-    Components
+    Metadata
     ----------
     - test
     - satisfies: fully_designed
@@ -48,7 +48,7 @@ def test_implemented(
     pd.DataFrame
         A DataFrame containing the invalid entities.
 
-    Components
+    Metadata
     ----------
     - test
     - satisfies: fully_implemented
@@ -92,7 +92,7 @@ def test_defined(registry: data.Registry) -> pd.DataFrame:
     pd.DataFrame
         A DataFrame containing the test results.
 
-    Components
+    Metadata
     ----------
     - test
     - satisfies: fully_defined
@@ -114,7 +114,7 @@ def test_connected(registry: data.Registry) -> pd.DataFrame:
     pd.DataFrame
         A DataFrame containing the test results.
 
-    Components
+    Metadata
     ----------
     - test
     - satisfies: fully_connected
@@ -141,7 +141,7 @@ def test_no_forbidden_components(
     pd.DataFrame
         A DataFrame containing the test results.
 
-    Components
+    Metadata
     ----------
     - test
     - satisfies: no_forbidden_components

@@ -243,7 +243,7 @@ class TransformSystem:
 
     def build_graph_from_links(self, registry: data.Registry) -> data.Registry:
         """
-        Components
+        Metadata
         ----------
         - todo: >
             Probably delete this, because it makes more sense to just make graphs as

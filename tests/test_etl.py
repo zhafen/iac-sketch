@@ -82,7 +82,7 @@ class TestTransformSystem(unittest.TestCase):
         but for this test we move into the "tests" directory and then run
         the extraction from there.
 
-        Components
+        Metadata
         ----------
         - todo:
             value: >

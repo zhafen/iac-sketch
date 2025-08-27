@@ -123,7 +123,7 @@ class TestPythonExtractor(unittest.TestCase):
                 '''Arbitrary docstring
                 split by lines.
 
-                Components
+                Metadata
                 ----------
                 - status: "in production"
                 '''

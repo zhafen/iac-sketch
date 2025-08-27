@@ -30,7 +30,7 @@ class Architect:
         """
         Main ETL workflow: extract, load, preprocess, system transforms, user transforms.
 
-        Components
+        Metadata
         ----------
         - status: in production
         - satisfies: can_perform_registry_etl
@@ -58,7 +58,7 @@ class Architect:
     ) -> tuple[bool, dict[str, pd.DataFrame]]:
         """
 
-        Components
+        Metadata
         ----------
         - status: in production
         - satisfies: can_execute_tests

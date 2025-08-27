@@ -150,7 +150,7 @@ class ComponentDefExtractor(BaseEstimator, TransformerMixin):
 class ComponentValidator(BaseEstimator, TransformerMixin):
     """
 
-    Components
+    Metadata
     ----------
     - todo: Add validation that warns users when they try to modify a system component.
     """

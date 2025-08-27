@@ -10,7 +10,7 @@ from .extract_yaml import YAMLExtractor
 class PythonExtractor:
     """Main class that orchestrates ID assignment and component extraction.
 
-    Components
+    Metadata
     ----------
     - satisfies: minimizes_structure_repetition
     - status: in production
@@ -29,7 +29,7 @@ class PythonExtractor:
         field_types: list[str] = [
             "alias",
         ],
-        docstring_yaml_delimiter: str = r"Components\n-+\n",
+        docstring_yaml_delimiter: str = r"Metadata\n-+\n",
     ):
         self.id_assigner = IdAssigner()
         self.component_extractor = ComponentExtractor(
@@ -158,7 +158,7 @@ class ComponentExtractor(ast.NodeVisitor):
         field_types: list[str] = [
             "alias",
         ],
-        docstring_yaml_delimiter: str = r"Components\n-+\n",
+        docstring_yaml_delimiter: str = r"Metadata\n-+\n",
     ):
         self.entity_types = tuple(getattr(ast, t) for t in entity_types)
         self.field_types = tuple(getattr(ast, t) for t in field_types)
