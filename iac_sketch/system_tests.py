@@ -148,5 +148,16 @@ def test_no_forbidden_components(
     - todo: Add priority cutoff.
     """
 
-    compinst = registry.view("compinst")
-    return compinst.loc[compinst["component_type"].isin(forbidden_components)]
+    result_dfs = []
+    for comp_type in forbidden_components:
+        if comp_type not in registry:
+            continue
+        result_df = registry.view(comp_type).reset_index()
+        result_dfs.append(result_df[["entity", "comp_key", "value"]])
+
+    if len(result_dfs) > 0:
+        result_df = pd.concat(result_dfs, ignore_index=True)
+    else:
+        result_df = pd.DataFrame()
+
+    return result_df
