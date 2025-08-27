@@ -1,0 +1,54 @@
+quality_infrastructure:
+- description: >
+    Infrastructure that's useful for the vast majority of systems, but is typically
+    not essential for the functioning of the system.
+
+has_good_documentation:
+- requirement: quality_infrastructure
+- parent: is_not_confusing_to_use
+
+documentation_quality_is_high:
+- description: Who is the speaker? What are the technical terms used?
+- requirement
+- parent: has_good_documentation
+
+documentation_uses_consistent_perspective:
+- description: First person? Third person?
+- requirement
+- parent: documentation_quality_is_high
+
+documentation_uses_consistent_terminology:
+- requirement
+- parent: documentation_quality_is_high
+
+terminology_is_internally_consistent:
+- description: >
+    For terms defined inside iac_sketch, are they used consistently throughout?
+- requirement
+- parent: documentation_uses_consistent_terminology
+
+terminology_is_externally_consistent:
+- description: >
+    Are the terms used in iac_sketch consistent with community standards?
+    For example, are the relationships for requirement diagrams sufficiently consistent?
+- requirement
+- parent: documentation_uses_consistent_terminology
+
+documentation_coverage_is_high:
+- description: Are most things documented?
+- parent: has_good_documentation
+
+is_marketable:
+- description: >
+    It doesn't matter how good the system is if you cannot convince anyone to use it.
+- requirement: quality_infrastructure
+- parent: is_a_useful_tool
+
+has_a_good_name:
+- description: |
+    A good name goes a long way. Suggestions:
+    - iac_sketch
+    - IaCA or iaca (infrastructure as Code Architect)
+    - manIaC
+- requirement
+- parent: is_marketable

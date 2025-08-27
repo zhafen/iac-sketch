@@ -658,7 +658,12 @@ class TestSystemTransformers(unittest.TestCase):
             mode="upsert",
         )
         registry = self.transform_sys.build_graph_from_links(registry)
-        registry = self.transform_sys.analyze_requirements(registry)
+        registry = self.transform_sys.apply_transform(
+            registry,
+            transform.RequirementAnalyzer(),
+            components_mapping={"requirement": data.View("requirement")},
+            mode="overwrite",
+        )
         actual = registry["requirement"]
 
         # This is the first time these entities show up, so comp_key is 0 for all

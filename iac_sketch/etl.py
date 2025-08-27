@@ -231,6 +231,14 @@ class TransformSystem:
 
         registry = self.build_graph_from_links(registry)
 
+        # Analyze requirements
+        registry = self.apply_transform(
+            registry,
+            transform.RequirementAnalyzer(),
+            components_mapping={"requirement": data.View("requirement")},
+            mode="overwrite",
+        )
+
         return registry
 
     def build_graph_from_links(self, registry: data.Registry) -> data.Registry:
@@ -256,17 +264,6 @@ class TransformSystem:
             registry,
             transform.GraphAnalyzer(),
             components_mapping={"node": data.View("link")},
-            mode="overwrite",
-        )
-
-        return registry
-
-    def analyze_requirements(self, registry: data.Registry) -> data.Registry:
-
-        registry = self.apply_transform(
-            registry,
-            transform.RequirementAnalyzer(),
-            components_mapping={"requirement": data.View("requirement")},
             mode="overwrite",
         )
 
