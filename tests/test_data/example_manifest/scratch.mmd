@@ -1,16 +1,17 @@
 flowchart TD
 
-    subgraph extract
-        open_file --> extract_from_stream
-        extract_from_stream --> update_registry
-        update_registry --> open_file
-    end
+    classDef subtask stroke:#f9f,stroke-width:#333;
 
-    extract -->|registry| transform
+    start_approval_tasks[/start_approval_tasks\]
+    finalize_approval_tasks[\finalize_approval_tasks/]
+    has_irb{{has_irb}}
     
-    subgraph transform
-        base_transform --> parsecomp_component
-        parsecomp_component --> parse_all_components
-    end
+    class e1 subtask;
 
-    
+    assign_analyst e1@--> start_approval_tasks
+    start_approval_tasks --> complete_service_agreement
+    start_approval_tasks --> has_irb
+    has_irb -->|True| complete_data_steward_approval
+    has_irb -->|False| finalize_approval_tasks
+    complete_data_steward_approval --> finalize_approval_tasks
+    complete_service_agreement --> finalize_approval_tasks

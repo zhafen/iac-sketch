@@ -1,0 +1,103 @@
+nu_role:
+- fields:
+    net_id [str]: Unique identifier for NU.
+
+nm_role:
+- fields:
+    nm_id [str]:
+    pa_id [str]: If the user has a privileged access account.
+    job_code [str]: Unique identifier for their job.
+
+fsm_analyst_role:
+- description: Individuals who fulfill data requests.
+- fields:
+    nm_id [str]:
+    nu_id [str]:
+- primary_key: nm_id
+- foreign_keys:
+    nm_id: nm_role.nm_id
+    nu_id: nu_role.nu_id
+
+ra_team_member_role:
+- todo: >
+    What *is* the data structure for identities? How do job codes, NM IDs, and security
+    groups, and privileged access accounts fit together?
+- fields:
+    nm_id [str]:
+- foreign_keys:
+    nm_id: fsm_analyst_role.nm_id
+
+power_user_role:
+- fields:
+    nm_id [str]:
+- foreign_keys:
+    nm_id: fsm_analyst_role.nm_id
+
+nm_compatible_role:
+- fields:
+    nm_id [str]: Unique identifier.
+    identity_type [categorical]:
+        description: Type of identity.
+        categories:
+            - employee
+            - person_of_interest
+            - b2b
+- todo: Do B2B accounts have an NM ID created for them? Is it their email?
+
+requester:
+- description: The person submitting the request.
+- fields:
+    nm_id [str]:
+- foreign_keys:
+    nm_id: nm_compatible_role.nm_id
+
+support_team_member:
+- description: >
+    Member of the team responsible for supporting FSM use of the NMEDW,
+    among other things.
+- fields:
+    nu_id [str]:
+- foreign_keys:
+    nu_id: nu_role.nu_id
+
+pbi_workspace_role:
+- fields:
+    user [person]: The user for the role.
+    workspace [workspace]: The PBI workspace in question.
+    role [categorical]: The PBI role.
+
+AzNPDResearchAnalyticsTeam:
+- description: Azure non-PRD security group for RA team members.
+- fields:
+    nm_id [str]:
+- foreign_keys:
+    nm_id: nm_compatible_role.nm_id
+
+AzPRDResearchAnalyticsTeam:
+- description: Azure PRD security group for RA team members.
+- fields:
+    nm_id [str]:
+- foreign_keys:
+    nm_id: nm_compatible_role.nm_id
+
+AzNPDFSMPowerUserTeam:
+- description: Azure non-PRD security group for power users.
+- fields:
+    nm_id [str]:
+- foreign_keys:
+    nm_id: nm_compatible_role.nm_id
+
+AzPRDFSMPowerUserTeam:
+- description: Azure PRD security group for power users.
+- fields:
+    nm_id [str]:
+- foreign_keys:
+    nm_id: nm_compatible_role.nm_id
+
+fsm_finance_nm_security_group:
+- name: NU FSM Finance Team - PBI Access
+- url: https://myaccount.microsoft.com/groups/ff883225-fd42-46dc-8e7c-2082a0ddb70c
+- fields:
+    nm_id [str]:
+- foreign_keys:
+    nm_id: nm_compatible_role.nm_id

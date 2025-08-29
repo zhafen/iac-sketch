@@ -22,10 +22,10 @@ accept_request_workflow:
         submit_intake_form --> assign_analyst
         assign_analyst --> submit_for_data_steward_approval
         submit_for_data_steward_approval --> data_steward_reviews_request
-        data_steward_reviews_request -->|approve| analyst_initiaties_report
-        data_steward_reviews_request -->|reject| requester_revises_request
+        data_steward_reviews_request --> analyst_initiaties_report
+        data_steward_reviews_request --> requester_revises_request
         requester_revises_request --> data_steward_reviews_request
-            create_or_revise_service_agreement --> requester_reviews_service_agreement
+        create_or_revise_service_agreement --> requester_reviews_service_agreement
     link_type: depended_on_by
 
 build_report_workflow:
@@ -123,7 +123,7 @@ report_string_formatter:
 assignment_workflow:
 - links:
     links: |
-        identify_type_of_request -->|imaging, power-users, RHLCC| edw_manager_submits_for_approval
+        identify_type_of_request --> edw_manager_submits_for_approval
 
 turn_on_pbi_refresh:
 - description: >

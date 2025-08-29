@@ -1,0 +1,80 @@
+can_deliver_nmedw_data_to_researchers:
+- description: >
+    The mission of the Research Analytics team is to deliver NMEDW data to
+    The FSM Research Analytics team is dedicated to supporint faculty, student, and
+    staff researchers by providing high quality, secure, HIPAA compliant data and
+    analysis to the overall Northwestern research community.
+- requirement: research_analytics_infrastructure
+- child: can_deliver_data_for_a_given_request
+- child: can_process_multiple_requests_in_parallel
+- child: can_analysts_fulfill_requests
+- child: can_audit_data_access_and_usage
+
+can_deliver_data_for_a_given_request:
+- requirement
+- child: can_accept_and_process_request
+- child: can_build_request_data_products
+- child: can_make_refreshed_request_data_products_available
+- child: can_control_request_data_product_access
+
+can_process_multiple_requests_in_parallel:
+- requirement
+
+can_analysts_fulfill_requests:
+- description: >
+    Those with an analyst role are responsible for fulfilling requests.
+    Analyst roles include both Research Analytics analysts and power users.
+- requirement
+
+can_audit_data_access_and_usage:
+- requirement
+- child: can_identify_patients_in_a_given_cohort_at_a_given_time
+- child: can_inspect_data_access_history
+
+can_communicate_data_request_fulfillment_methodology:
+- description: >
+    This is important for answering questions and for getting credit for work
+    (e.g. citations).
+- requirement
+
+can_accept_and_process_request:
+- description: >
+    We should be able to receive and assign a request, initiating the process.
+- requirement
+- task
+
+can_build_request_data_products:
+- requirement
+
+can_make_request_data_products_available:
+- description: >
+    After completing the request, viewers should be able to access the report
+    products at their preferred time.
+- requirement
+- task
+- status: new
+- child: can_make_onetime_request_data_products_available
+- child: can_make_refreshed_request_data_products_available
+
+can_control_request_data_product_access:
+- requirement
+
+can_make_onetime_request_data_products_available: 
+- requirement
+
+can_make_refreshed_request_data_products_available:
+- requirement
+
+can_transfer_data_products_to_sharepoint:
+- description: >
+    We should evaluate if we want to use an API to export directly to sharepoint or if
+    we want to use an existing path like the extracts framework.
+- requirement
+
+can_identify_patients_in_a_given_cohort_at_a_given_time:
+- requirement
+- parent: can_audit_data_access_and_usage
+
+can_inspect_data_access_history:
+- requirement
+- parent: can_audit_data_access_and_usage
