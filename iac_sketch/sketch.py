@@ -62,6 +62,7 @@ class Architect:
         ----------
         - status: in production
         - satisfies: can_execute_tests
+        - satisfies: validates_system_architecture
         - todo: >
             Point to the unit test for this, instead of checking the status listed in
             the docstring.

@@ -4,7 +4,9 @@ from iac_sketch import data
 
 
 def test_designed(
-    registry: data.Registry, allowed_infrastructure: list[str] = None
+    registry: data.Registry,
+    allowed_infrastructure: list[str] = None,
+    min_priority: float = 0.2,
 ) -> pd.DataFrame:
     """
     Parameters
@@ -24,7 +26,11 @@ def test_designed(
     """
 
     # We start with the requirements that are not implemented
-    reqs = test_implemented(registry, allowed_infrastructure=allowed_infrastructure)
+    reqs = test_implemented(
+        registry,
+        allowed_infrastructure=allowed_infrastructure,
+        min_priority=min_priority,
+    )
 
     # Then we just select those that don't even have a satisfies link yet
     reqs = reqs.query("`link.link_type`.isna()")
@@ -36,6 +42,7 @@ def test_implemented(
     registry: data.Registry,
     allowed_statuses: list[str] = ["in production"],
     allowed_infrastructure: list[str] = None,
+    min_priority: float = 0.3,
 ) -> pd.DataFrame:
     """
     Parameters
@@ -72,10 +79,16 @@ def test_implemented(
         how="left",
     )
 
-    # Drop the requirements that have children
-    reqs = reqs.query("`link.link_type` != 'parent'")
-    # Drop the requirements that have a valid status
-    reqs = reqs[~reqs["status.value"].isin(allowed_statuses)]
+    # Drop the requirements that meet one of the below conditions
+    # - that have children
+    # - have an allowed status
+    # - have a low priority
+    is_dropped = (
+        (reqs["link.link_type"] == "parent")
+        | (reqs["status.value"].isin(allowed_statuses))
+        | (reqs["priority"] < min_priority)
+    )
+    reqs = reqs.loc[~is_dropped]
 
     return reqs
 
