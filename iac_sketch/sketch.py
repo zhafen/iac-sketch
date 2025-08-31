@@ -20,6 +20,8 @@ class Architect:
         transform_sys: etl.TransformSystem = None,
     ):
         self.filename_patterns = filename_patterns
+        if root_dir is None:
+            root_dir = os.getcwd()
         self.root_dir = root_dir
         self.extract_sys = extract_sys if extract_sys else etl.ExtractSystem()
         self.transform_sys = transform_sys if transform_sys else etl.TransformSystem()
@@ -52,6 +54,7 @@ class Architect:
 
     def validate_registry(
         self,
+        min_priority: float = 0.3,
         show: bool = True,
         captured_exceptions=Exception,
         print_width: int = 80,
@@ -77,6 +80,9 @@ class Architect:
             Tests that are imported as Python code are currently run as if they were
             solitary scripts, and do not work if there's a relative import
             in the module. Fix this?
+        - todo:
+            value: Is this function suffering from trying to be too customizable?
+            priority: 0.2
         """
 
         # Prepare summary dataframe
@@ -100,6 +106,10 @@ class Architect:
             )
             .set_index("entity")
         )
+
+        # Drop low priority tests and include min_priority in the test kwargs
+        tests = tests.loc[tests["requirement.priority"] >= min_priority]
+        default_test_kwargs = {**{"min_priority": min_priority}, **default_test_kwargs}
 
         test_results = {}
         for entity, row in tests.iterrows():

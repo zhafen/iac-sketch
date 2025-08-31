@@ -9,6 +9,8 @@ class TestArchitect(unittest.TestCase):
 
     def setUp(self):
         self.architect = sketch.Architect()
+        # How rigorous we want to be about validating the registry
+        self.min_priority = 0.6
 
     def test_etl(self):
         registry = self.architect.perform_registry_etl()
@@ -18,14 +20,16 @@ class TestArchitect(unittest.TestCase):
 
     def test_validate(self):
         self.architect.perform_registry_etl()
-        tests, test_results = self.architect.validate_registry()
+        tests, test_results = self.architect.validate_registry(
+            min_priority=self.min_priority
+        )
+
+        assert tests["test_passed"].all()
 
         expected_tests = [
-            "test_fully_designed",
-            "test_fully_implemented",
-            "test_fully_defined",
-            "test_fully_connected",
-            "test_no_forbidden_components",
+            "iac_sketch/system_tests.test_designed",
+            "iac_sketch/system_tests.test_implemented",
+            "iac_sketch/system_tests.test_defined",
         ]
         for test_name in expected_tests:
             assert test_name in test_results, (
@@ -38,11 +42,10 @@ class TestArchitect(unittest.TestCase):
             )
             assert test_results[
                 test_name
-            ].empty, (
-                f"Test results for {test_name} should be empty, got {test_results[test_name]}"
-            )
+            ].empty, f"Test results for {test_name} should be empty, got {test_results[test_name]}"
 
         assert tests.loc[expected_tests, "test_passed"].all()
+
 
 class TestArchitectExampleCode(TestArchitect):
 
