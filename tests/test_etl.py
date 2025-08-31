@@ -42,6 +42,11 @@ class TestTransformSystem(unittest.TestCase):
         self.test_filename_pattern = "./public/components/*"
         self.extract_sys = etl.ExtractSystem()
         self.transform_sys = etl.TransformSystem()
+        self.cwd = os.getcwd()
+
+    def tearDown(self):
+        # Ensure we always go back to the original directory
+        os.chdir(self.cwd)
 
     def test_apply_transform(self):
         registry = data.Registry(
