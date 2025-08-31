@@ -66,6 +66,11 @@ def test_implemented(
     if allowed_infrastructure is not None:
         is_allowed = reqs["value"].isin(allowed_infrastructure) | reqs["value"].isna()
         reqs = reqs.loc[is_allowed]
+    # Rename columns for clarity
+    reqs = reqs.rename(
+        columns={col: f"requirement.{col}" for col in reqs.columns}
+    )
+
 
     # Get entities with [requirement] components and any entities linked with
     # a [satisfies]/[satisfied_by] or [parent]/[child] link.
@@ -87,7 +92,7 @@ def test_implemented(
     is_dropped = (
         (reqs["link.link_type"] == "parent")
         | (reqs["status.value"].isin(allowed_statuses))
-        | (reqs["priority"] < min_priority)
+        | (reqs["requirement.priority"] < min_priority)
         | (reqs["test.comp_key"].notna())
     )
     reqs = reqs.loc[~is_dropped]

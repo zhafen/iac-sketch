@@ -15,6 +15,11 @@ requirement:
     priority [float]:
         description: Value ranging from 0 (not a priority) to 1 (top priority).
         default: 0.5
+- todo:
+    value: >
+        I think it's pretty confusing to have requirement's value be that of the
+        infrastructure it's for.
+    priority: 0.2
 
 status:
 - description: Tracks implementation progress.

@@ -83,6 +83,10 @@ class Architect:
         - todo:
             value: Is this function suffering from trying to be too customizable?
             priority: 0.2
+        - todo: >
+            The errors are often mangled. For example, a KeyError wouldn't return
+            "KeyError: {key} not found", it would just return the key itself with
+            no message.
         """
 
         # Prepare summary dataframe
