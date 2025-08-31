@@ -65,6 +65,12 @@ uses_consistent_ecs_terminology:
 - requirement
 - parent: terminology_is_internally_consistent
 
+draws_on_widely_used_system_design_terminology:
+- description: E.g. the url(s) attached.
+- requirement
+- parent: terminology_is_externally_consistent
+- url: https://github.com/donnemartin/system-design-primer
+
 can_perform_registry_etl:
 - description: iac_sketch must perform ETL on the manifest, returning a registry.
 
