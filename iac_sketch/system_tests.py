@@ -71,7 +71,7 @@ def test_implemented(
     # a [satisfies]/[satisfied_by] or [parent]/[child] link.
     # Entities without either have nan values, which will be among those returned.
     reqs = reqs.reset_index().merge(
-        registry.view(["link", "status"]).query(
+        registry.view(["link", "status", "test"]).query(
             "`link.link_type` in ['satisfies', 'parent']"
         ),
         left_on="entity",
@@ -83,10 +83,12 @@ def test_implemented(
     # - that have children
     # - have an allowed status
     # - have a low priority
+    # - are satisfied by a test component (because the tests themselves check that)
     is_dropped = (
         (reqs["link.link_type"] == "parent")
         | (reqs["status.value"].isin(allowed_statuses))
         | (reqs["priority"] < min_priority)
+        | (reqs["test.comp_key"].notna())
     )
     reqs = reqs.loc[~is_dropped]
 

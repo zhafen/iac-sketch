@@ -79,7 +79,7 @@ class Architect:
 
         # Prepare summary dataframe
         tests = self.registry.view(["test", "code", "satisfies", "FunctionDef"])
-        tests["errors"] = pd.NA
+        tests["errors"] = ""
         tests["test_passed"] = pd.NA
 
         # Join requirements
@@ -122,7 +122,7 @@ class Architect:
                         [{"error": "No test code found."}]
                     )
                     tests.loc[entity, "test_passed"] = False
-                    tests.loc[entity, "errors"] = "ImportError: No test code found."
+                    tests.loc[entity, "errors"] += "ImportError: No test code found."
                     continue
 
                 # Call the test function
@@ -134,12 +134,11 @@ class Architect:
                 # Store results
                 test_results[entity] = test_result
                 tests.loc[entity, "test_passed"] = test_result.empty
-                tests.loc[entity, "errors"] = ""
 
             # A bare except is okay here because we're logging.
             except captured_exceptions as e:  # pylint: disable=W0718
                 tests.loc[entity, "test_passed"] = False
-                tests.loc[entity, "errors"] = e
+                tests.loc[entity, "errors"] += str(e)
 
             # Print results
             if show:
