@@ -1,4 +1,5 @@
 import importlib
+import inspect
 import os
 import sys
 import textwrap
@@ -51,10 +52,11 @@ class Architect:
 
     def validate_registry(
         self,
-        test_kwargs: dict[str, dict] = {},
         show: bool = True,
-        captured_exceptions = Exception,
+        captured_exceptions=Exception,
         print_width: int = 80,
+        test_kwargs: dict[str, dict] = {},
+        **default_test_kwargs,
     ) -> tuple[bool, dict[str, pd.DataFrame]]:
         """
 
@@ -125,11 +127,20 @@ class Architect:
                     tests.loc[entity, "errors"] += "ImportError: No test code found."
                     continue
 
-                # Call the test function
+                # Get the test function
                 module = importlib.import_module(module_path)
                 test_func = getattr(module, test_func_name)
-                test_args_i = test_kwargs.get(entity, {})
-                test_result: pd.DataFrame = test_func(self.registry, **test_args_i)
+
+                # Prepare the arguments
+                sig = inspect.signature(test_func)
+                kwargs_i = {
+                    k: v for k, v in default_test_kwargs.items() if k in sig.parameters
+                }
+                if entity in test_kwargs:
+                    kwargs_i = {**kwargs_i, **test_kwargs[entity]}
+
+                # Call the test function
+                test_result: pd.DataFrame = test_func(self.registry, **kwargs_i)
 
                 # Store results
                 test_results[entity] = test_result
@@ -150,7 +161,7 @@ class Architect:
                     textwrap.wrap(str(row["description.value"]), width=print_width - 4)
                 )
                 print(f"description:\n    {wrapped_desc}")
-                test_passed = tests.loc[entity, 'test_passed']
+                test_passed = tests.loc[entity, "test_passed"]
                 print(f"test_passed: {test_passed}")
                 if (error := tests.loc[entity, "errors"]) != "":
                     print(f"errors: {error}")
