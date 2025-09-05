@@ -4,30 +4,38 @@ can_deliver_nmedw_data_to_researchers:
     The FSM Research Analytics team is dedicated to supporint faculty, student, and
     staff researchers by providing high quality, secure, HIPAA compliant data and
     analysis to the overall Northwestern research community.
-- requirement: research_analytics_infrastructure
+- requirement:
+    value: research_analytics_infrastructure
+    priority: 1.0
 - child: can_deliver_data_for_a_given_request
 - child: can_process_multiple_requests_in_parallel
-- child: can_analysts_fulfill_requests
 - child: can_audit_data_access_and_usage
 
 can_deliver_data_for_a_given_request:
-- requirement
+- requirement:
+    priority: 1.0
 - child: can_accept_and_process_request
-- child: can_build_request_data_products
-- child: can_make_refreshed_request_data_products_available
+- child: can_build_reports
+- child: can_deliver_reports
 - child: can_control_request_data_product_access
 
 can_process_multiple_requests_in_parallel:
-- requirement
+- requirement:
+    priority: 1.0
 
-can_analysts_fulfill_requests:
+can_complete_requests_with_analysts:
 - description: >
     Those with an analyst role are responsible for fulfilling requests.
     Analyst roles include both Research Analytics analysts and power users.
-- requirement
+- requirement:
+    priority: 1.0
+- child: cloud_framework_is_usable
+- child: can_support_and_manage_analysts
+- satisfies: can_process_multiple_requests_in_parallel
 
 can_audit_data_access_and_usage:
-- requirement
+- requirement:
+    priority: 1.0
 - child: can_identify_patients_in_a_given_cohort_at_a_given_time
 - child: can_inspect_data_access_history
 
@@ -35,46 +43,73 @@ can_communicate_data_request_fulfillment_methodology:
 - description: >
     This is important for answering questions and for getting credit for work
     (e.g. citations).
-- requirement
+- requirement:
+    priority: 0.3
 
 can_accept_and_process_request:
 - description: >
     We should be able to receive and assign a request, initiating the process.
-- requirement
+- requirement:
+    priority: 1.0
 - task
 
-can_build_request_data_products:
-- requirement
+can_build_reports:
+- requirement:
+    priority: 1.0
 
-can_make_request_data_products_available:
+can_deliver_reports:
 - description: >
     After completing the request, viewers should be able to access the report
     products at their preferred time.
-- requirement
+- requirement:
+    priority: 1.0
 - task
 - status: new
-- child: can_make_onetime_request_data_products_available
-- child: can_make_refreshed_request_data_products_available
+- child: can_export_report_to_accessible_location
+- child: can_control_report_access
+- child: report_delivery_is_efficient
 
-can_control_request_data_product_access:
-- requirement
+can_export_report_to_accessible_location:
+- requirement:
+    priority: 1.0
 
-can_make_onetime_request_data_products_available: 
-- requirement
+can_control_report_access:
+- requirement:
+    priority: 1.0
 
-can_make_refreshed_request_data_products_available:
-- requirement
-
-can_transfer_data_products_to_sharepoint:
+report_delivery_is_efficient:
 - description: >
-    We should evaluate if we want to use an API to export directly to sharepoint or if
-    we want to use an existing path like the extracts framework.
-- requirement
+    There's the possibility that our framework could be inefficient if,
+    for example, all data_export required a PBI dashboard, even simple one-time
+    deliveries.
+- requirement:
+    priority 0.6
+- child: can_control_refresh_frequency
+
+can_control_refresh_frequency:
+- requirement:
+    priority: 0.6
 
 can_identify_patients_in_a_given_cohort_at_a_given_time:
-- requirement
+- description: >
+    A semi-routine occurence is for NM or NU compliance to request the list of patients
+    associated with a given study, e.g. to contact them. Also, no one else logs this.
+- requirement:
+    priority: 1.0
 - parent: can_audit_data_access_and_usage
 
+can_query_onprem_data:
+- requirement:
+    priority: 1.0
+
+can_call_llm:
+- requirement:
+    priority: 0.6
+
 can_inspect_data_access_history:
-- requirement
+- description: >
+    This would be good to have, but is already somewhat built in and there is not an
+    immediate use case.
+- requirement:
+    priority: 0.4
 - parent: can_audit_data_access_and_usage

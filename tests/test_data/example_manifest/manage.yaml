@@ -1,0 +1,38 @@
+management_framework:
+- description: >
+    A set of tools and procedures to enable us to manage our teams in the cloud.
+- satisfies: can_support_and_manage_analysts
+- status: new
+
+power_users_management_framework:
+- description: The version of the management framework used for power users.
+- satisfies: can_support_and_manage_all_analyst_types
+- status: new
+
+power_user_approval_process:
+- satisfies: can_approve_power_user
+- status: in development
+
+analyst_skills_assessment:
+- description: >
+    A test we'll use to appraise ability to effectively build reports.
+- satisfies: can_approve_analyst_role
+- status: new
+
+cost_auditing_procedure:
+- satisfies: have_a_cost_auditing_procedure
+- status: new
+
+training_process:
+- satisfies: can_train_analyst
+- status: new
+- child: logistical_training
+
+logistical_training:
+- description: >
+    The training needed for logistical parts of the job, such as entering hours,
+    submitting a ticket to IT, etc.
+
+    I'm not sure what logistical responsibilities power users need to be trained on.
+- satisfies: can_train_analyst_in_logistical_responsibilities
+- status: new

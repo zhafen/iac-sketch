@@ -1,0 +1,29 @@
+minimize_and_distribute_costs:
+- requirement:
+    value: research_analytics_infrastructure
+    priority: 0.9
+- child: have_a_cost_auditing_procedure
+- child: can_recoup_costs_from_power_users
+
+have_a_cost_auditing_procedure:
+- requirement:
+    priority: 0.9
+- satisfies: minimize_and_distribute_costs
+
+can_recoup_costs_from_power_users:
+- description: >
+    This is lower priority right now because we do not even know overall costs
+    currently.
+- requirement:
+    priority: 0.6
+- child: can_pair_charges_to_power_users
+- child: can_bill_power_users_for_charges
+- satisfies: minimize_and_distribute_costs
+
+can_pair_charges_to_power_users:
+- requirement:
+    priority: 0.6
+
+can_bill_power_users_for_charges:
+- requirement:
+    priority: 0.6

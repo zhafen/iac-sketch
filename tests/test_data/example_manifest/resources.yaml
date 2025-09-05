@@ -1,0 +1,24 @@
+cloud_framework_training_process:
+- satisfies: can_train_cloud_framework_users
+- status: new
+
+cloud_framework_documentation:
+- satisfies: cloud_framework_is_documented
+- child: ra_lib_docstrings
+- child: ra_lib_readme
+- child: ra_reports_readme
+- child: cloud_framework_wiki
+- status: in development
+
+cloud_framework_helper_utilities:
+- description: >
+    Scripts and templates aimed at making the experience better. Usage of these should
+    be evaluated carefully--often the infrastructure itself can just be made more
+    intuitive.
+- satisfies: cloud_framework_is_user_friendly
+- status: in development
+
+cloud_framework_user_experience_review_process:
+- description: We should come up with some form of review for the user experience.
+- satisfies: cloud_framework_is_user_friendly
+- status: new

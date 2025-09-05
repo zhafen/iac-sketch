@@ -1,7 +1,19 @@
+research_analytics_infrastructure:
+- description: >
+    The infrastructure to support Research Analytics operations, which is embedded
+    within the Northwestern Medicine Enterprise Data Warehouse.
+- infrastructure
+
 cloud_reporting_framework:
 - description: >
-    Term for the combined infrastructure that makes it possible for RA to deliver
+    Term for the combined framework that makes it possible for RA to deliver
     reports using cloud data and resources.
+- todo: >
+    What name should we use for the overall infrastructure of research analytics?
+    Currently the not-so-catchy name is Research Analytics Cloud Reporting Framework.
+    RA Cloud? Research Analytics Azure Reporting (RAAR)?
+- satisfies: can_deliver_nmedw_data_to_researchers
+- status: in development
 
 research_analytics_azdo_project:
 - description: Azure Dev Ops project used for FSM Research Analytics.
@@ -21,7 +33,7 @@ pu_reports:
 
 databricks_workspace_volume:
 - description: The location we can write files to, including unstructured data.
-- uri: databricks:/Volumes/edr/external_volumes/mnt_eda_adls_research
+- path: databricks:/Volumes/edr/external_volumes/mnt_eda_adls_research
 
 databricks_workspace:
 - description: Databricks wokspaces used to develop and deploy reports.
@@ -49,31 +61,31 @@ research_analytics_pbi_workspace:
 create_pa_account:
 - description: >
     All NM Azure users need PA accounts. The URL for one-off requests is attached.
-- url: https://nmhc.service-now.com/mynmi?id=sc_cat_item&sys_id=bd40d8d213d667007d59bd322244b017 
-- text: |
+
     This is a request for a PA account for an FSM Power User. FSM Power Users are
     selected researchers who work with Research Analytics and Data Stewards to export
     data from the Northwestern Medicine Enterprise Data Warehouse for use in approved
     studies. As part of the EDW cloud migration all users who need to continue
     accessing the EDW need to do so using the Azure portal and a PA account,
     which is the reason for this request.
+- url: https://nmhc.service-now.com/mynmi?id=sc_cat_item&sys_id=bd40d8d213d667007d59bd322244b017 
 - task
 
 check_study_status:
-- description: Get the status of a study, including if it's approved.
-- task
-- query: |
+- description: |
+    Get the status of a study, including if it's approved.
+
+    on-prem query
     SELECT TOP 10 *
     FROM FSM_Admin.fsm_eirb_dm.studies s
-    WHERE s.irb_study_id = 'STU00223585'
+    WHERE s.irb_study_id = 'STU00000000'
+- task
 
 nm_data_portal:
 - description: The main new portal to access NM data.
-- website
 
 edw_portal:
 - description: The old portal.
-- website
 
 export_pbi_to_excel:
 - description: >
@@ -93,8 +105,10 @@ export_pbi_to_excel:
     - Select the data you want to connect to.
 
 analyst_laptop:
-- description: Each analyst has an NM-provided laptop.
-- software:
-    - NM Enterprise Image
-    - Duo Desktop
-    - VS Code
+- description: |
+    Each analyst has an NM-provided laptop.
+
+    - software:
+        - NM Enterprise Image
+        - Duo Desktop
+        - VS Code

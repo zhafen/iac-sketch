@@ -1,0 +1,28 @@
+cloud_framework_is_usable:
+- requirement:
+    priority: 1.0
+- child: can_train_cloud_framework_users
+- child: can_upskill_cloud_framework_users
+- child: cloud_framework_is_documented
+- child: cloud_framework_is_user_friendly
+- satisfies: can_complete_requests_with_analysts
+
+can_train_cloud_framework_users:
+- requirement:
+    priority: 1.0
+- satisfies: cloud_framework_is_usable
+
+cloud_framework_is_documented:
+- requirement:
+    priority: 1.0
+- satisfies: cloud_framework_is_usable
+
+cloud_framework_is_user_friendly:
+- requirement:
+    priority: 0.9
+- satisfies: cloud_framework_is_usable
+
+can_upskill_users:
+- requirement:
+    priority: 0.6
+- satisfies: cloud_framework_is_usable

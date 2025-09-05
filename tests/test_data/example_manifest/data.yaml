@@ -1,11 +1,3 @@
-person:
-- description: Base component for people.
-- fields:
-    first_name [str]:
-    last_name [str]:
-    birthdate [date]:
-    email_address [str]:
-
 patient:
 - description: Central entity all care and analysis is centered around.
 - fields:
@@ -16,10 +8,21 @@ patient:
             - nm_bi.ir_id
             - clarity.pat_id
             - mock.mock_id
-    person [person]: The person component the patient ID is linked to.
 - primary_key: patient_id
 - primary_key: patient_id_type
 - time_dependent
+
+time_dependent:
+- description: Indicates the owner entity has some level of time dependence.
+- fields:
+    scd_type [str]:
+        description: Slowly changing dimension type.
+        categories:
+            - Type 0
+            - Type 1
+            - Type 2
+            - Type 3
+            - Type 4
 
 cohort:
 - description: A group of patients for a study.
@@ -27,10 +30,6 @@ cohort:
     report_id [str]: Unique ID for a cohort.
     patients [list[str]]: IDs of patients in the cohort.
     is_active [bool]: Cohorts become active after a specific time and de-activate later.
-- fields_size:
-    estimate: >
-        time_size * (2 + n_patients) * n_entities
-        ~ (365 * 5) * (2 + 1e6) * 2e3 ~ 1e12 ~ 1 TB
 
 cohort_patients:
 - description: >
@@ -68,6 +67,21 @@ cohort_patient_change:
 - time_dependent:
     scd_type: Type IV
 
+data_request:
+- fields:
+    snow_universal_request_number [str]: SNow number for the overall task.
+    snow_data_steward_approval_task_number [str]: SNow number for data steward approval.
+    snow_service_agreement_task_number [str]: SNow number for the service agreement.
+    requester_id [str]: This will either be an NU ID via B2B or an NM ID.
+    irb_number [str]: Unless this is for de-identified data.
+    request_details [str]: As provided by the requester.
+    azdo_id [str]:
+    assigned_to [str]:
+- foreign_keys:
+    requester_id: nm_compatible_identity.nm_id
+    azdo_id: azdo_work_item.id
+    assigned_to: nm_account.nm_id
+
 report:
 - description: >
     A report is a set of code, tables, etc. generated in response to a request.
@@ -86,33 +100,6 @@ report:
     data_steward_approval [bool]: Whether or not the data has been approved for release.
     description [str]: Description for the report.
 - primary_key: product_id
-- code_location_format:
-    repository: ra_reports
-    branch: reports/{irb_number}
-    parent_path: reports/{irb_number}_{human_readable_label}
-
-azdo_work_item:
-- fields:
-    id [int]: Number assigned to the work item by Azure Dev Ops.
-    assigned_to [str]: NM ID of the person the work is assigned to.
-    state [str]: State the work item is in.
-    tags [list[str]]: Tags associated with the work item.
-
-data_request_work_item:
-- description: AzDO work item with a "DataRequest" tag.
-- specification_of: azdo_work_item
-
-worklog:
-- description: 7pace timekeeping worklog.
-- fields:
-    worklog_id [int]:
-    azdo_id [int]:
-    user_id [str]:
-    timestamp [timestamp]:
-    duration [float]:
-- foreign_keys:
-    azdo_id: azdo_work_item
-    user_id: nm_account.nm_id
 
 report_configuration:
 - description: A specific configuration used when generating a report.
@@ -173,16 +160,48 @@ report_configuration:
 - primary_key: azdo_id
 - name: reports_config
 
+azdo_work_item:
+- fields:
+    id [int]: Number assigned to the work item by Azure Dev Ops.
+    assigned_to [str]: NM ID of the person the work is assigned to.
+    state [str]: State the work item is in.
+    tags [list[str]]: Tags associated with the work item.
+
+data_request_work_item:
+- component
+- description: AzDO work item with a "DataRequest" tag.
+- parent: azdo_work_item
+
+worklog:
+- description: 7pace timekeeping worklog.
+- fields:
+    worklog_id [int]:
+    azdo_id [int]:
+    user_id [str]:
+    timestamp [timestamp]:
+    duration [float]:
+- foreign_keys:
+    azdo_id: azdo_work_item.id
+    user_id: nm_account.nm_id
+
 report_code_product:
 - fields:
+    report_id [str]:
     filename [str]:
-    path [str]:
     notebook_type [categorical]:
         categories:
             - etl
             - cohort
             - report
     git_branch [str]:
+
+irb_report_code_product:
+- parent: report_code_product
+- path: "ra_reports_repo:reports/{domain}/{workspace}/{workspace_folder}/{report_id}{optional_study_label}/report{irb_rank}{optional_report_label}/{notebook_type}{optional_notebook_label}.py"
+
+noirb_report_code_product:
+- parent: report_code_product
+- path: "ra_reports_repo:reports/{domain}/{workspace}/{workspace_folder}/{report_id}{optional_report_label}/{notebook_type}{optional_notebook_label}.py"
 
 ra_lib_repo:
 - git_repo:
@@ -199,45 +218,36 @@ ra_reports_branch:
 - foreign_keys:
     azdo_id: data_request_work_item.id
 
-report_data_product:
-- description: Tabular data. Standard data product generated for a report.
+report_table:
+- description: Standard data product generated for a report.
 - fields:
     report_id [str]:
     label [str]:
-        description: Label for distinguishing different tables.
+        description: Label for distinguishing different tables of the same report.
         default: ""
+- path: "databricks_prd:research_dm.reports.{report_id}{table_label}"
+
+sharepoint_report_data_export:
+- fields:
+    report_id [str]:
+    label [str]:
+        description: Label for distinguishing different tables of the same report.
+        default: ""
+- path: "nmnu_teams:nmedw_exports_channel:{report_id}/{report_id}{table_label}.csv"
 
 pbi_report:
 - fields:
     report_id [str]:
     description [str]: This description will show up in the portal.
 
+irb_pbi_report:
+- parent: pbi_report
+- path: "{pbi_workspace}:{workspace_folder}/{report_id}{optional_study_label}/report{irb_rank}{optional_report_label}.pbix"
+
+noirb_pbi_report:
+- parent: pbi_report
+- path: "{pbi_workspace}:{workspace_folder}/{report_id}{optional_report_label}.pbix"
+
 pbi_app_homepage:
 - description: >
     Very helpful if this exists for each app for deployment purposes.
-
-data_request:
-- fields:
-    snow_universal_request_number [str]: SNow number for the overall task.
-    snow_data_steward_approval_task_number [str]: SNow number for data steward approval.
-    snow_service_agreement_task_number [str]: SNow number for the service agreement.
-    requester_id [str]: This will either be an NU ID via B2B or an NM ID.
-    irb_number [str]: Unless this is for de-identified data.
-    request_details [str]: As provided by the requester.
-    azdo_id [str]:
-    assigned_to [str]:
-- foreign_keys:
-    requester_id: nm_compatible_identity.nm_id
-    azdo_id: work.azdo_id
-    assigned_to: nm_account.nm_id
-
-work_item:
-- description: An Azure DevOps work item.
-- fields:
-    azdo_id [int]: The ID provided by AzDO.
-    assigned_to [str]: The analyst the ticket is assigned to.
-
-table_references:
-- references: >
-    report.report_id 1 -- 1..* request.product_id
-    report.report_id 0..1 -- 0..* work_item.report_id

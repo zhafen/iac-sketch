@@ -1,0 +1,48 @@
+request_workflow:
+- description: The overall workflow.
+- links:
+    links: |
+            intake_request --> build_report
+            build_report --> deliver_report
+    link_type: depended_on_by
+- satisfies: can_deliver_data_for_a_given_request
+- status: in development
+
+intake_request_workflow:
+- description: >
+    We should be able to receive and assign a request, initiating the process.
+- input:
+    requester [person]: The person seeking to submit a request.
+- output:
+    request [request]: The formalized request.
+    initialized_report [report]: Incomplete report.
+    analyst [person]: The analyst or power user working on the request
+- links: |
+    accept_intake_form --> assign_analyst
+    assign_analyst --> complete_service_agreement
+    assign_analyst --> complete_data_steward_approval
+    complete_service_agreement --> prepare_request_for_work
+    complete_data_steward_approval --> prepare_request_for_work
+- satisfies: can_accept_and_process_request
+- status: in development
+
+build_report_workflow:
+- description: The workflow for building a report
+- task
+- links: |
+    define_report --> set_up_environment
+    set_up_environment --> set_up_report
+    set_up_report --> work_on_report
+    work_on_report --> get_feedback_on_report
+    get_feedback_on_report --> work_on_report
+    get_feedback_on_report --> finalize_report
+- satisfies: can_build_reports
+- status: in development
+
+deliver_report_workflow:
+- task
+- links: |
+    deploy_report --> run_report
+    run_report --> share_report
+- satisfies: can_deliver_reports
+- status: in development

@@ -1,0 +1,99 @@
+deploy_report:
+- description: >
+    This is accomplished by an Azure DevOps pipeline that triggers upon PR merge.
+    The pipeline deploys a DAB to stg and prd that runs all reports, including
+    the most-recently added report.
+- task
+- status: in review
+- code:
+    repo: ra_reports
+    path: azure-pipelines.yaml
+
+run_report:
+- description: >
+    The databricks workflow specified here accomplishes the job of actually running all
+    the reports on a daily basis.
+- task
+- status: in review
+- code:
+    repo: ra_reports
+    path: workflow/main.yaml
+
+share_report:
+- task
+- child: share_pbi_dashboard
+- child: export_report_data_products
+
+turn_on_pbi_refresh:
+- description: >
+    Needs to be done as part of deployment. Currently only can be done by individuals
+    with the workspace member role, which is a bottleneck.
+- task
+
+export_report_data_products:
+- task
+- satisfies: can_export_report_to_accessible_location
+- status: in design
+
+write_report_to_catalog:
+- task
+- link:
+    source: prd_ra_reports_cluster
+    target: databricks_prd_catalog
+    link_type: flow
+
+write_report_to_volume:
+- task
+- link:
+    source: prd_ra_reports_cluster
+    target: databricks_prd_volume
+    link_type: flow
+
+write_report_to_sharepoint:
+- task
+- link:
+    source: prd_ra_reports_cluster
+    target: nunm_teams_sharepoint
+    link_type: flow
+
+export_report_to_pbi_workspace:
+- task
+- link:
+    source: databricks_prd_catalog
+    target: pbi_workspace
+    link_type: flow
+
+extracts_transfer_reports_to_teams:
+- task
+- link:
+    source: databricks_prd_catalog
+    target: nunm_teams_sharepoint
+    link_type: flow
+
+extracts_transfer_reports_to_fsmresfiles:
+- task
+- link:
+    source: databricks_prd_catalog
+    target: fsmresfiles
+    link_type: flow
+
+download_report_from_pbi_workspace:
+- task
+- link:
+    source: pbi_workspace
+    target: requester_computer
+    link_type: flow
+
+download_report_from_teams:
+- task
+- link:
+    source: nunm_teams_sharepoint
+    target: requester_computer
+    link_type: flow
+
+download_report_from_fsmresfiles:
+- task
+- link:
+    source: fsmresfiles
+    target: requester_computer
+    link_type: flow

@@ -66,6 +66,54 @@ pbi_workspace_role:
     workspace [workspace]: The PBI workspace in question.
     role [categorical]: The PBI role.
 
+grant_analyst_access:
+- task
+- satisfies: can_grant_access_to_analyst
+- child: grant_analyst_pa_account
+- child: grant_analyst_azdo_access
+- child: grant_analyst_databricks_access
+- child: grant_analyst_vm_access
+- status: in development
+
+grant_analyst_pa_account:
+- task
+- satisfies: can_grant_analyst_pa_account
+- status: in development
+
+grant_analyst_azdo_access:
+- task
+- satisfies: can_grant_analyst_azdo_access
+- status: in development
+
+grant_analyst_databricks_access:
+- task
+- satisfies: can_grant_analyst_databricks_access
+- status: in development
+
+grant_analyst_vm_access:
+- description: Only necessary for [power_user_role].
+- task
+- satisfies: can_grant_analyst_vm_access
+- status: in development
+
+set_report_access:
+- task
+- satisfies: can_control_report_access
+- child: create_and_sync_security_groups
+- child: apply_security_groups_to_reports
+- status: in development
+
+create_and_sync_security_groups:
+- description: >
+    Using the eIRB authorized personnel list as a base the IAM team can create a script
+    that creates one security group per study.
+- task
+
+apply_security_groups_to_reports:
+- task
+- child: apply_security_groups_to_pbi_reports
+- child: apply_security_groups_to_sharepoint_folders
+
 AzNPDResearchAnalyticsTeam:
 - description: Azure non-PRD security group for RA team members.
 - fields:

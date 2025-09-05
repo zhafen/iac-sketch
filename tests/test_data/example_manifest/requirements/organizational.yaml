@@ -1,0 +1,123 @@
+can_support_and_manage_analysts:
+- requirement:
+    priority: 0.6
+- child: can_support_and_manage_an_analyst
+- child: can_support_and_manage_analyst_teams
+- child: can_support_and_manage_all_analyst_types
+- satisfies: can_complete_requests_with_analysts
+
+can_support_and_manage_an_analyst:
+- requirement:
+    priority: 0.6
+- child: can_hire_or_approve_analyst
+- child: can_onboard_analyst
+- child: can_support_analyst
+- child: can_offboard_analyst
+- child: can_remove_analyst_access
+
+can_support_and_manage_analyst_teams:
+- requirement:
+    priority: 0.6
+
+can_support_and_manage_all_analyst_types:
+- description: >
+    There are two main types of analyst we work with: Research Analytics Analysts and
+    Power Users. Within Research Analytics Analysts there are Core analysts and
+    Specialty Analytics analysts. All support_and_manage_analysts requirements must be
+    satisfied for both groups, unless otherwise stated.
+- requirement:
+    priority: 0.9
+
+can_hire_or_approve_analyst:
+- requirement:
+    priority: 0.9
+- child: can_approve_analyst_role
+- child: can_hire_ra_analyst
+- child: can_approve_power_user
+
+can_approve_analyst_role:
+- description: >
+    Both RA Analysts and Power Users have an analyst role (albeit with different
+    permissions). This requirement is to check that we can approve capability to
+    fulfill that role.
+- requirement:
+    priority: 0.9
+- satisfies: can_hire_or_approve_analyst
+
+can_hire_ra_analyst:
+- requirement:
+    priority: 0.4
+- satisfies: can_hire_or_approve_analyst
+
+can_approve_power_user:
+- requirement:
+    priority: 0.9
+- satisfies: can_hire_or_approve_analyst
+
+can_onboard_analyst:
+- requirement:
+    priority: 0.9
+- child: can_grant_access_to_analyst
+- child: can_train_analyst
+
+can_grant_access_to_analyst:
+- requirement:
+    priority: 0.9
+- satisfies: can_onboard_analyst
+- child: can_grant_analyst_pa_account
+- child: can_grant_analyst_azdo_access
+- child: can_grant_analyst_databricks_access
+- child: can_grant_analyst_vm_access
+
+can_grant_analyst_pa_account:
+- requirement:
+    priority: 0.9
+
+can_grant_analyst_azdo_access:
+- requirement:
+    priority: 0.9
+
+can_grant_analyst_databricks_access:
+- requirement:
+    priority: 0.9
+
+can_grant_analyst_vm_access:
+- requirement:
+    priority: 0.9
+
+can_train_analyst:
+- satisfies: can_onboard_analyst
+- requirement:
+    priority: 0.9
+- child: can_train_cloud_framework_users_on_usage
+- child: can_train_analyst_in_logistical_responsibilities
+
+can_train_analyst_in_logistical_responsibilities:
+- requirement:
+    priority: 0.9
+
+can_support_analyst:
+- requirement:
+    priority: 0.6
+- child: can_support_analyst_in_primary_responsibilities
+- child: can_support_analyst_in_logistical_responsibilities
+
+can_support_analyst_in_primary_responsibilities:
+- requirement:
+    priority: 0.6
+
+can_support_analyst_in_logistical_responsibilities:
+- description: >
+    Support analysts in navigating human resource issues, paperwork issues, etc.
+- requirement:
+    priority: 0.6
+
+can_offboard_analyst:
+- requirement:
+    priority: 0.6
+- parent: support_and_manage_a_given_analyst
+
+can_remove_analyst_access:
+- requirement:
+    priority: 0.6
+- parent: offboard_analyst

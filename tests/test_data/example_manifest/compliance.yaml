@@ -1,10 +1,5 @@
-recruitment_compliance_constraints:
-- url: https://irb.northwestern.edu/resources-guidance/recruitment-materials-guidelines.html
+compliance_reports_suite:
+- description: A collection of reports used for compliance and auditing purposes.
+- satisfies: can_audit_data_access_and_usage
+- status: new
 
-cross_institution_data_delivery:
-- description: >
-    Requires a data use agreement (DUA).
-
-    It is encouraged not to send data directly to the external party from NMEDW
-    (instead this responsibility should lie with the stakeholder),
-    and it is encouraged for data to be de-identified.

@@ -1,0 +1,34 @@
+work_on_report:
+- description: The workflow for actually working on the report.
+- task
+- links: |
+    build_cohort --> build_report
+    build_report --> build_pbi_report
+
+get_feedback_on_report:
+- task
+- links: |
+    run_report_with_stg_workflow --> update_pbi_data_connections
+    update_pbi_data_connections --> publish_pbi_to_stg
+    publish_pbi_to_stg --> submit_pr
+    submit_pr --> get_feedback_from_first_reviewer
+    get_feedback_from_first_reviewer --> revise_pr
+    revise_pr --> get_feedback_from_first_reviewer
+    get_feedback_from_first_reviewer --> get_feedback_from_second_reviewer
+    get_feedback_from_second_reviewer --> revise_pr
+    revise_pr --> get_feedback_from_second_reviewer
+
+build_pbi_report:
+- task
+- links: |
+    retrieve_template_to_build_pbi_report_on --> build_pbi_report
+    build_pbi_report --> publish_pbi_report_to_stg
+    publish_pbi_report_to_stg --> get_feedback_on_pbi_report
+
+finalize_report:
+- task
+- links: |
+    publish_pbi_to_prd --> update_prd_pbi_with_prd_parameters
+    update_prd_pbi_with_prd_parameters --> validate_prd_report
+    merge_pr --> run_report_with_prd_workflow
+    run_report_with_prd_workflow --> validate_prd_report

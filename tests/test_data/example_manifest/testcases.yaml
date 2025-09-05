@@ -1,31 +1,27 @@
 basic_report_test:
 - description: Simplest possible request.
-- testcase
-- request:
-    requester_net_id: net001
+- data_request:
+    requester_id: net001@ads.northwestern.edu
     irb_number: STU00012345
 - status: new
 
 no_irb_test:
 - description: A request with no IRB number.
-- testcase
-- request:
-    requester_net_id: net002
+- data_request:
+    requester_id: net002@ads.northwestern.edu
     irb_number: 
 - status: new
 
 updated_report_test:
 - description: Update to the simplest possible request.
-- testcase
-- request:
-    requester_net_id: net001
+- data_request:
+    requester_id: net001@ads.northwestern.edu
     irb_number: STU00012345
 - status: new
 
 updated_report_new_analyst_test:
 - description: Update to the simplest possible request, but the original analyst left.
-- testcase
-- request:
-    requester_net_id: net001
+- data_request:
+    requester_id: net001@ads.northwestern.edu
     irb_number: STU00012345
 - status: new
