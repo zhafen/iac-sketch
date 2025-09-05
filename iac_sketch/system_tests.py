@@ -7,6 +7,7 @@ def test_designed(
     registry: data.Registry,
     allowed_infrastructure: list[str] = None,
     min_priority: float = 0.2,
+    link_types: list[str] = ["satisfies", "parent"],
 ) -> pd.DataFrame:
     """
     Parameters
@@ -30,6 +31,7 @@ def test_designed(
         registry,
         allowed_infrastructure=allowed_infrastructure,
         min_priority=min_priority,
+        link_types=link_types,
     )
 
     # Then we just select those that don't even have a satisfies link yet
@@ -43,6 +45,7 @@ def test_implemented(
     allowed_statuses: list[str] = ["in production"],
     allowed_infrastructure: list[str] = None,
     min_priority: float = 0.3,
+    link_types: list[str] = ["satisfies", "parent"],
 ) -> pd.DataFrame:
     """
     Parameters
@@ -71,14 +74,13 @@ def test_implemented(
         columns={col: f"requirement.{col}" for col in reqs.columns}
     )
 
-
     # Get entities with [requirement] components and any entities linked with
     # a [satisfies]/[satisfied_by] or [parent]/[child] link.
     # Entities without either have nan values, which will be among those returned.
     reqs = reqs.reset_index().merge(
-        registry.view(["link", "status", "test"]).query(
-            "`link.link_type` in ['satisfies', 'parent']"
-        ),
+        (links := registry.view(["link", "status", "test"])).loc[
+            links["link.link_type"].isin(link_types)
+        ],
         left_on="entity",
         right_on="link.target",
         how="left",
