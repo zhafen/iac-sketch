@@ -131,7 +131,7 @@ class TestPythonExtractor(unittest.TestCase):
             """
         )
         entities = self.extractor.extract_from_input(input_python)
-        assert len(entities) == 5
+        assert len(entities) == 4
 
         # Function component
         comp = entities[1]
@@ -152,12 +152,6 @@ class TestPythonExtractor(unittest.TestCase):
         assert comp["comp_key"] == "0"
         assert comp["component_type"] == "status"
         assert comp["component"]["value"] == "in production"
-
-        # Metadata from yaml component
-        comp = entities[4]
-        assert comp["entity"] == "direct_input.my_function"
-        assert comp["comp_key"] == "1"
-        assert comp["component_type"] == "metadata"
 
     def test_extract_import(self):
 

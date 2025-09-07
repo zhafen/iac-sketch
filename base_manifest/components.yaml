@@ -129,7 +129,9 @@ description:
     description [str]: The actual field containing the description.
 
 component_source:
-- description: Component detailing where compinsts are defined.
+- description: >
+    Component detailing where compinsts are defined. Created automatically during
+    extraction.
 - component
 - fields:
     source [str]: Name of the source, e.g. "system" or "user".

@@ -26,15 +26,10 @@ class TestYAMLExtractor(unittest.TestCase):
 
         entities = self.extractor.extract_from_input(yaml_content, source="test")
 
-        self.assertEqual(len(entities), 3)  # 2 components + 1 metadata
+        self.assertEqual(len(entities), 2) 
         self.assertEqual(entities[0]["entity"], "test_entity")
         self.assertEqual(entities[0]["component_type"], "component1")
         self.assertTrue(pd.isna(entities[0]["component"]))
-
-        # Check metadata component
-        metadata_entity = entities[-1]
-        self.assertEqual(metadata_entity["component"]["source"], "test")
-        self.assertEqual(metadata_entity["component"]["n_comps"], 3)
 
     def test_extract_yaml_with_values(self):
         """Test extraction of YAML with component values."""
@@ -50,7 +45,7 @@ class TestYAMLExtractor(unittest.TestCase):
 
         entities = self.extractor.extract_from_input(yaml_content, source="test")
 
-        self.assertEqual(len(entities), 3)  # 2 components + 1 metadata
+        self.assertEqual(len(entities), 2)
 
         # Check first component
         comp1 = entities[0]
@@ -113,15 +108,8 @@ class TestYAMLExtractor(unittest.TestCase):
 
         try:
             entities = self.extractor.extract(tmp_file_path, root_dir=os.getcwd())
-            self.assertEqual(len(entities), 3)  # 2 components + 1 metadata
+            self.assertEqual(len(entities), 2)
             self.assertEqual(entities[0]["entity"], "test_entity")
-
-            # Check that source is the filepath
-            metadata_entity = entities[-1]
-            self.assertEqual(
-                metadata_entity["component"]["source"],
-                os.path.relpath(tmp_file_path, os.getcwd())
-            )
         finally:
             os.unlink(tmp_file_path)
 
