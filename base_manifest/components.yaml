@@ -71,9 +71,11 @@ fields:
     define columns.
 - component:
     multiplicity: "0..1"
-- issue: >
-    Parsing fails if the user doesn't specify the dtype using the shortcut syntax.
-    The user should be able to use the full syntax instead.
+- issue:
+    value: >
+        Parsing fails if the user doesn't specify the dtype using the shortcut syntax.
+        The user should be able to use the full syntax instead.
+    priority: 0.6
 
 compdef:
 - description: >

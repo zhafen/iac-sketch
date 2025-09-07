@@ -147,7 +147,7 @@ def test_connected(registry: data.Registry) -> pd.DataFrame:
 
 def test_no_forbidden_components(
     registry: data.Registry,
-    forbidden_components: list[str] = ["todo", "error"],
+    forbidden_components: list[str] = ["todo", "issue"],
 ) -> pd.DataFrame:
     """
     Parameters

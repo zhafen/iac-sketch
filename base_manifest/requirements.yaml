@@ -45,6 +45,16 @@ todo:
         description: Value ranging from 0 (not a priority) to 1 (top priority).
         default: 0.5
 
+issue:
+- description: A todo that specifically refers to a problem in the code.
+- component
+- fields:
+    value [str]: A description of the thing to address.
+    priority [float]:
+        description: Value ranging from 0 (not a priority) to 1 (top priority).
+        default: 0.6
+- parent: todo
+
 satisfies:
 - description: The source (owner) entity satisfies the target entity.
 - component
