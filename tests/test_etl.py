@@ -23,7 +23,10 @@ class TestExtractSystem(unittest.TestCase):
         assert not registry["component"].index.has_duplicates
 
         # When no additional paths are specified we expect only system components
-        assert registry.view("component_source")["source"].unique().tolist() == [
+        # Note that the components are not normalized yet, so the source is in
+        # component.component
+        sources = registry.view("component_source")["component"].str["source"]
+        assert sources.unique().tolist() == [
             "system",
         ]
 
