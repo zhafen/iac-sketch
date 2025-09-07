@@ -66,6 +66,7 @@ class ExtractSystem:
 
         # Iterate over all filename patterns by source
         self.filenames = {}
+        entities = []
         for source, filename_patterns in filename_patterns_by_source.items():
             # Resolve paths relative to root
             filename_patterns = [
@@ -76,14 +77,12 @@ class ExtractSystem:
                 )
                 for pattern in filename_patterns
             ]
-            self.filenames[source] = filename_patterns
 
             # Iterate over the files
-            entities = []
             for pattern in filename_patterns:
                 filenames = glob.glob(pattern, recursive=True)
                 for filename in filenames:
-                    self.filenames[source].append(filename)
+                    self.filenames.setdefault(source, []).append(filename)
 
                     # Choose extractor based on file type
                     if filename.endswith((".yaml", ".yml")):
@@ -105,18 +104,32 @@ class ExtractSystem:
                             "component_type": "component_source",
                             "component": {
                                 "source": source,
+                                "pattern": pattern,
                                 "filename": filename,
                             },
                         }
                         for e in entities_i
                     ]
 
-
         # Add direct input YAML if provided
         if input_yaml is not None:
             entities_i = self.yaml_extractor.extract_from_input(
                 input_yaml, source="input"
             )
+            entities += entities_i
+
+            # Add the source components
+            entities += [
+                {
+                    "entity": e["entity"],
+                    "comp_key": pd.NA,
+                    "component_type": "component_source",
+                    "component": {
+                        "source": "input",
+                    },
+                }
+                for e in entities_i
+            ]
 
         entities = pd.DataFrame(entities)
 
