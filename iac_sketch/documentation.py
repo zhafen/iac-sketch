@@ -25,7 +25,12 @@ class DocumentationSystem:
 
         pass
 
-    def generate_component_markdown(self, comp: pd.Series, comp_type: str) -> str:
+    def generate_component_markdown(
+        self,
+        comp: pd.Series,
+        comp_type: str,
+        skipped_fields: list[str] = ["comp_key", "value"]
+    ) -> str:
 
         output = f"**{comp_type}:**"
 
@@ -36,10 +41,15 @@ class DocumentationSystem:
             output += "\n"
 
         # The other fields we list as bullet points
-        skipped_fields = ["comp_key", "value"]
+        n_bullets = 0
         for field, val in comp.items():
             if field in skipped_fields or pd.isna(val):
                 continue
             output += f"- {field}: {val}\n"
+            n_bullets += 1
+
+        # Revert to simpler output if there are no fields to list
+        if n_bullets == 0:
+            output = f"**{comp_type}**\n"
 
         return output
