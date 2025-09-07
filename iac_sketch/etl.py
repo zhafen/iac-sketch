@@ -24,69 +24,99 @@ class ExtractSystem:
 
     def extract_entities(
         self,
-        filename_patterns: str | List[str] = [],
+        filename_patterns: str | List[str] | Dict[str, List[str]] = [],
         root_dir: str = None,
         input_yaml: str = None,
+        system_filename_patterns: List[str] = [
+            "../base_manifest/*.yaml",
+            "../base_manifest/*.yml",
+            "./**/*.py",
+        ],
     ) -> data.Registry:
 
         if root_dir is None:
             root_dir = os.getcwd()
 
-        # Ensure we don't modify the original list
-        filename_patterns = copy.copy(filename_patterns)
-
-        if isinstance(filename_patterns, str):
-            filename_patterns = [filename_patterns]
-
         # Always include base manifest and source files
         source_dir = os.path.dirname(os.path.abspath(__file__))
         # Patterns relative to the source dir.
         system_filename_patterns = [
-            "../base_manifest/*.yaml",
-            "../base_manifest/*.yml",
-            "./**/*.py",
-        ]
-        filename_patterns += [
             os.path.abspath(f"{source_dir}/{pattern}")
             for pattern in system_filename_patterns
         ]
 
-        # Resolve paths relative to root
-        filename_patterns = [
-            (
-                pattern
-                if os.path.isabs(pattern)
-                else os.path.abspath(f"{root_dir}/{pattern}")
+        # Group the filename patterns by source
+        filename_patterns_by_source = {
+            "system": system_filename_patterns,
+        }
+
+        # Parse the filename patterns input,
+        # first copying ensure we don't modify the original list
+        filename_patterns = copy.deepcopy(filename_patterns)
+        if isinstance(filename_patterns, str):
+            filename_patterns_by_source["user"] = [filename_patterns]
+        elif isinstance(filename_patterns, list):
+            filename_patterns_by_source["user"] = filename_patterns
+        elif isinstance(filename_patterns, dict):
+            filename_patterns_by_source.update(filename_patterns)
+        else:
+            raise ValueError(
+                "filename_patterns must be a string, list of strings, or dict"
             )
-            for pattern in filename_patterns
-        ]
 
-        # Iterate over the files
-        entities = []
-        self.filenames = []
-        for pattern in filename_patterns:
-            filenames = glob.glob(pattern, recursive=True)
-            for filename in filenames:
-                self.filenames.append(filename)
+        # Iterate over all filename patterns by source
+        self.filenames = {}
+        for source, filename_patterns in filename_patterns_by_source.items():
+            # Resolve paths relative to root
+            filename_patterns = [
+                (
+                    pattern
+                    if os.path.isabs(pattern)
+                    else os.path.abspath(f"{root_dir}/{pattern}")
+                )
+                for pattern in filename_patterns
+            ]
+            self.filenames[source] = filename_patterns
 
-                # Choose extractor based on file type
-                if filename.endswith((".yaml", ".yml")):
-                    extractor = YAMLExtractor()
-                elif filename.endswith(".py"):
-                    extractor = PythonExtractor()
-                else:
-                    continue
+            # Iterate over the files
+            entities = []
+            for pattern in filename_patterns:
+                filenames = glob.glob(pattern, recursive=True)
+                for filename in filenames:
+                    self.filenames[source].append(filename)
 
-                # Perform extraction
-                entities_i = extractor.extract(filename, root_dir=root_dir)
-                entities += entities_i
+                    # Choose extractor based on file type
+                    if filename.endswith((".yaml", ".yml")):
+                        extractor = YAMLExtractor()
+                    elif filename.endswith(".py"):
+                        extractor = PythonExtractor()
+                    else:
+                        continue
+
+                    # Perform extraction
+                    entities_i = extractor.extract(filename, root_dir=root_dir)
+                    entities += entities_i
+
+                    # Add the source components
+                    entities += [
+                        {
+                            "entity": e["entity"],
+                            "comp_key": pd.NA,
+                            "component_type": "component_source",
+                            "component": {
+                                "source": source,
+                                "filename": filename,
+                            },
+                        }
+                        for e in entities_i
+                    ]
+
 
         # Add direct input YAML if provided
         if input_yaml is not None:
             entities_i = self.yaml_extractor.extract_from_input(
                 input_yaml, source="input"
             )
-            entities += entities_i
 
         entities = pd.DataFrame(entities)
 
