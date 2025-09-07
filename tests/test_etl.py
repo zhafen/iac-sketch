@@ -25,7 +25,7 @@ class TestExtractSystem(unittest.TestCase):
         # When no additional paths are specified we expect only system components
         # Note that the components are not normalized yet, so the source is in
         # component.component
-        sources = registry.view("component_source")["component"].str["source"]
+        sources = registry.view("entity_source")["component"].str["source"]
         assert sources.unique().tolist() == [
             "system",
         ]

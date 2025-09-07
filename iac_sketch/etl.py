@@ -102,7 +102,7 @@ class ExtractSystem:
                         {
                             "entity": e,
                             "comp_key": pd.NA,
-                            "component_type": "component_source",
+                            "component_type": "entity_source",
                             "component": {
                                 "source": source,
                                 "filename_pattern": pattern,
@@ -125,7 +125,7 @@ class ExtractSystem:
                 {
                     "entity": e,
                     "comp_key": pd.NA,
-                    "component_type": "component_source",
+                    "component_type": "entity_source",
                     "component": {
                         "source": "input",
                     },

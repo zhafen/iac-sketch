@@ -128,12 +128,12 @@ description:
 - fields:
     description [str]: The actual field containing the description.
 
-component_source:
+entity_source:
 - description: >
-    Component detailing where compinsts are defined. Created automatically during
+    Component detailing where entities are defined. Created automatically during
     extraction.
 - component
 - fields:
     source [str]: Name of the source, e.g. "system" or "user".
-    filename_pattern [str]: Pattern used to find the component.
-    filename [str]: Name of the actual file the component is in.
+    filename_pattern [str]: Pattern used to find the file containing the entity.
+    filename [str]: Name of the actual file the entity is in.
