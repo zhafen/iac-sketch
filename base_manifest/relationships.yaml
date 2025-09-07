@@ -79,13 +79,15 @@ depended_on_by:
 - fields:
     value [entity]: The entity the owner entity is depended on by.
 
-alternative_to:
-- description: The source entity is an alternative to the target entity.
+transformation_of:
+- description: >
+    The source entity is a transformation of the target entity, i.e. the underlying
+    data is the same to within the limitations of the representations.
 - component
 - link_type:
     directed: False
 - fields:
-    value [entity]: The entity the owner entity is an alternative to.
+    value [entity]: The entity the owner entity is a transformation of.
 
 child_component:
 - description:
