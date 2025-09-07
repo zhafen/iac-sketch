@@ -97,9 +97,10 @@ class ExtractSystem:
                     entities += entities_i
 
                     # Add the source components
+                    entity_names = pd.DataFrame(entities_i)["entity"].unique()
                     entities += [
                         {
-                            "entity": e["entity"],
+                            "entity": e,
                             "comp_key": pd.NA,
                             "component_type": "component_source",
                             "component": {
@@ -108,7 +109,7 @@ class ExtractSystem:
                                 "filename": filename,
                             },
                         }
-                        for e in entities_i
+                        for e in entity_names
                     ]
 
         # Add direct input YAML if provided
@@ -119,16 +120,17 @@ class ExtractSystem:
             entities += entities_i
 
             # Add the source components
+            entity_names = pd.DataFrame(entities_i)["entity"].unique()
             entities += [
                 {
-                    "entity": e["entity"],
+                    "entity": e,
                     "comp_key": pd.NA,
                     "component_type": "component_source",
                     "component": {
                         "source": "input",
                     },
                 }
-                for e in entities_i
+                for e in entity_names
             ]
 
         entities = pd.DataFrame(entities)
