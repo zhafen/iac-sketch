@@ -1,7 +1,8 @@
 primary_key:
 - description: >
-    A primary key is a unique identifier for each record in a database table, ensuring
-    that no two records have the same value in this field.
+    If owned, the owner entity must be a component definition, in which case the
+    primary key is the field that acts as the unique identifier for each instance of
+    that component.
 - component
 - fields:
     value [str]:
@@ -12,8 +13,9 @@ primary_key:
 
 foreign_key:
 - description: >
-    A foreign key is a field in a database table that creates a relationship between
-    two tables by referencing the primary key of another table.
+    If owned, the owner entity must be a component definition, in which case a
+    foreign key is a field that must also be a field in another component definition.
+    A foreign key connects instances of the different component definitions.
 - component
 - fields:
     value [str]:
@@ -43,3 +45,12 @@ path:
         A string with the following syntax: containing_entity:location_in_entity
     containing_entity [entity]: The entity the owner entity is located within.
     location_in_entity [str]: The location, with "/" or "." separators.
+
+name:
+- description:
+    A (often human readable) identifier. When used as part of a component definition
+    entity this is the name of the table that stores component instances.
+- component
+- fields:
+    value [str]: The identifier.
+
