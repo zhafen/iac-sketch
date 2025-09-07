@@ -12,16 +12,20 @@ from iac_sketch import data, etl, transform
 class TestExtractSystem(unittest.TestCase):
 
     def setUp(self):
-        self.test_filename_pattern = "./public/components/*.yaml"
         self.extract_sys = etl.ExtractSystem()
 
     def test_extract(self):
 
-        registry = self.extract_sys.extract_entities(self.test_filename_pattern)
+        registry = self.extract_sys.extract_entities()
 
         assert "component" in registry
         assert "component" in registry.keys()
         assert not registry["component"].index.has_duplicates
+
+        # When no additional paths are specified we expect only system components
+        assert registry.view("component_source")["source"].unique().tolist() == [
+            "system",
+        ]
 
     def test_extract_twice(self):
         """Running extract twice in a row should yield the same result.
