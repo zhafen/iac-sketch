@@ -128,12 +128,10 @@ description:
 - fields:
     description [str]: The actual field containing the description.
 
-metadata:
-- description: Component that describes metadata about an entity.
-- component:
-    multiplicity: "0..1"
+component_source:
+- description: Component detailing where compinsts are defined.
+- component
 - fields:
-    n_comps [int]: >
-        Number of components associated with an entity,
-        including the metadata component
-    source_file [str]: Path to the file containing the entity definition.
+    source [str]: Name of the source, e.g. "system" or "user".
+    filename_pattern [str]: Pattern used to find the component.
+    filename [str]: Name of the actual file the component is in.

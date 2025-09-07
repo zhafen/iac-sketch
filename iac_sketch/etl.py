@@ -104,7 +104,7 @@ class ExtractSystem:
                             "component_type": "component_source",
                             "component": {
                                 "source": source,
-                                "pattern": pattern,
+                                "filename_pattern": pattern,
                                 "filename": filename,
                             },
                         }

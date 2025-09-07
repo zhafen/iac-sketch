@@ -105,17 +105,4 @@ class YAMLExtractor:
                 "component": comp,
             }
             extracted_comps.append(row)
-        # Metadata component
-        extracted_comps.append(
-            {
-                "entity": entity,
-                "comp_key": str(len(extracted_comps)),
-                "component_type": "metadata",
-                "component": {
-                    "source": source,
-                    # Increase by one to account for the metadata component
-                    "n_comps": len(extracted_comps) + 1,
-                },
-            }
-        )
         return extracted_comps
