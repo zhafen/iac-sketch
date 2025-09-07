@@ -204,11 +204,11 @@ noirb_report_code_product:
 - path: "ra_reports_repo:reports/{domain}/{workspace}/{workspace_folder}/{report_id}{optional_report_label}/{notebook_type}{optional_notebook_label}.py"
 
 ra_lib_repo:
-- git_repo:
+- repo:
     url: https://NMHC@dev.azure.com/NMHC/FSM%20Research%20Analytics/_git/ra_lib
 
 ra_reports_repo:
-- git_repo:
+- repo:
     url: https://NMHC@dev.azure.com/NMHC/FSM%20Research%20Analytics/_git/ra_reports
 
 ra_reports_branch:

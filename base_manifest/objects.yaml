@@ -15,3 +15,9 @@ url:
 - component
 - fields:
     value [str]: The url.
+
+repo:
+- description: A code repository, usually git.
+- component
+- fields:
+    url [str]: The url of the git repo.
