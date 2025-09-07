@@ -16,6 +16,7 @@ class Architect:
         self,
         filename_patterns: str | list[str] = [],
         root_dir: str = None,
+        output_dir: str = None,
         extract_sys: etl.ExtractSystem = None,
         transform_sys: etl.TransformSystem = None,
     ):
@@ -23,6 +24,9 @@ class Architect:
         if root_dir is None:
             root_dir = os.getcwd()
         self.root_dir = root_dir
+        if output_dir is None:
+            output_dir = "./generated"
+        self.output_dir = os.path.abspath(f"{root_dir}/{output_dir}")
         self.extract_sys = extract_sys if extract_sys else etl.ExtractSystem()
         self.transform_sys = transform_sys if transform_sys else etl.TransformSystem()
 

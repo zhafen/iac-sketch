@@ -3,11 +3,12 @@ ETL workflow for registry processing, based on base_manifest/etl.yaml.
 """
 
 import copy
-import networkx as nx
-import pandas as pd
 from typing import List, Dict, Callable
 import glob
 import os
+
+import networkx as nx
+import pandas as pd
 
 from . import data
 from . import transform
