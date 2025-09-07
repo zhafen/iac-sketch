@@ -1,0 +1,36 @@
+primary_key:
+- description: >
+    A primary key is a unique identifier for each record in a database table, ensuring
+    that no two records have the same value in this field.
+- component
+- fields:
+    value [str]:
+        description: >
+            The name of the primary key column. It must be a field of the component.
+        required: True
+- depends_on: fields
+
+foreign_key:
+- description: >
+    A foreign key is a field in a database table that creates a relationship between
+    two tables by referencing the primary key of another table.
+- component
+- fields:
+    value [str]:
+        description: >
+            The name of the foreign key column. It must be a field of the component.
+        required: True
+    other_component [str]: Name of the type of the other component.
+    other_field [str]: Name of the field in the other component that is the foreign key. 
+- depends_on: fields
+
+foreign_keys:
+- description: A collection of multiple foreign_key components with condensed syntax.
+- fields:
+    value [dict[str, str]]: >
+        A dictionary following the syntax...
+            foreign_key_in_this_table: other_table.foreign_key_in_other_table
+- depends_on: fields
+- todo:
+    value: The logic to parse this is not yet implemented.
+    priority: 0.2
