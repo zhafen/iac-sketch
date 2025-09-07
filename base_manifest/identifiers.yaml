@@ -27,10 +27,19 @@ foreign_key:
 foreign_keys:
 - description: A collection of multiple foreign_key components with condensed syntax.
 - fields:
-    value [dict[str, str]]: >
-        A dictionary following the syntax...
+    value [dict[str, str]]: |
+        A dictionary with the following syntax:
             foreign_key_in_this_table: other_table.foreign_key_in_other_table
 - depends_on: fields
 - todo:
     value: The logic to parse this is not yet implemented.
     priority: 0.2
+
+path:
+- description: The location of the owner entity within another entity.
+- component
+- fields:
+    value [str]: |
+        A string with the following syntax: containing_entity:location_in_entity
+    containing_entity [entity]: The entity the owner entity is located within.
+    location_in_entity [str]: The location, with "/" or "." separators.
