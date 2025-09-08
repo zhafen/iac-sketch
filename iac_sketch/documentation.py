@@ -59,7 +59,7 @@ class DocumentationSystem:
         for entity_i in entities:
 
             # One header per entity
-            output += f"##### {entity_i}\n\n"
+            output += f"#### {entity_i}\n\n"
 
             # Component instances for this entity
             compinsts_i = compinsts.loc[entity_i].sort_values("component_type")
@@ -78,8 +78,7 @@ class DocumentationSystem:
 
                 # Generate the markdown representation
                 output += self.generate_component_markdown(
-                    comp_j,
-                    compinst_j["component_type"]
+                    comp_j, compinst_j["component_type"]
                 )
                 output += "\n"
             output += "\n"
@@ -95,7 +94,10 @@ class DocumentationSystem:
         output = f"**{comp_type}:**"
 
         # If there's a value, we put it right after the component type
-        if not pd.isna(comp["value"]):
+        # The "__iter__" check is to avoid treating lists/dicts as values
+        if ("value" in comp) and (
+            hasattr(comp["value"], "__iter__") or (not pd.isna(comp["value"]))
+        ):
             output += f" {comp['value']}\n"
         else:
             output += "\n"
@@ -103,8 +105,13 @@ class DocumentationSystem:
         # The other fields we list as bullet points
         n_bullets = 0
         for field, val in comp.items():
-            if field in skipped_fields or pd.isna(val):
+            if field in skipped_fields:
                 continue
+
+            # Skip null values
+            if not hasattr(val, "__iter__") and pd.isna(val):
+                continue
+
             output += f"- {field}: {val}\n"
             n_bullets += 1
 
