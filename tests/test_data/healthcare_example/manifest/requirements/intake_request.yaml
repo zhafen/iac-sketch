@@ -1,0 +1,13 @@
+can_get_data_steward_approval:
+- requirement
+
+can_get_approved_service_agreement:
+- description: >
+    The service agreement outlines the work to complete and the conditions under which
+    it will be completed. Before starting any work, a signed service agreement
+    is critical.
+- requirement
+
+can_estimate_report_expense:
+- description: This is critical for setting requester expectations.
+- requirement

@@ -1,0 +1,89 @@
+recruitment_compliance_constraints:
+- description: Researchers need to follow these guidelines when recruiting patients.
+- url: https://irb.northwestern.edu/resources-guidance/recruitment-materials-guidelines.html
+
+cross_institution_data_delivery:
+- description: >
+    A data delivery from NU to another university. Such exchanges require a data use
+    agreement (DUA).
+
+    It is encouraged not to send data directly to the external party from NMEDW.
+    Instead this responsibility should lie with the stakeholder.
+    It is also encouraged for data to be de-identified.
+
+variable_naming_conventions:
+- description: >
+    Snake case. Do not put the type in the name unless there's possible confusion.
+    Including a reference to the variable type in the name is optional;
+    if included the reference should be appended to the end of the name separated
+    by an underscore.
+    Variables should be referred to by their full name unless there is an instantly
+    recognizable letter that can be substituted. For example, time_observed can be
+    t_observed.
+    Variables that represent a boolean or list-like of booleans should start with "is",
+    "are", or "has".
+
+corporate_compliance_team:
+- description: >
+    Provides data steward approval. Currently a one-man team.
+
+northwestern_university_fsm_it:
+- description: |
+    Public reference information for NU as an employer.
+
+    name: Northwestern University - Feinberg School of Medicine
+    street_address: 541 N Fairbanks Ct, Suite 2800, Chicago, IL, 60611
+    employer_id_number: 36-2167817
+    number_of_fulltime_employees_in_us: 8800
+    north_american_industry_classification_system_code: 611310
+
+training_plan_for_stem_opt_students:
+- description: >
+    This is sent in once a year. We have boilerplate for this, which should be adapted
+    to the specific team member.
+
+    student_role:
+        This role is with the Northwestern Medicine Enterprise Data Warehouse (NMEDW). {team_member} will work with physicians, researchers, and other data consumers to define requirements, formulat queries, validate results, and generate reports using Microsoft SQL Server and the Microsoft Azure ecosystem. This role directly correlates to {team_member}'s STEM {degree_level} degree in {degree_field} (CIP {cip_code}).
+    goals_and_objectives:
+        1. Exceptional interpersonal skills including the ability to establish and maintain effective relationships with physicians, management, staff, and other customers.
+        2. Demonstrated customer service skills, including the ability to use appropriate judgement, independent thinking, and creativirty when resolving customer issues.
+        3. Develop analytical thinking by working on analysis projects using various data science tools such as Python and Databricks.
+        4. Develop advanced level SQL Skills.
+        All of the listed tasks are applications of {team_member}'s STEM degree.
+    employer_oversight:
+        The Manager of Research Analytics schedules weekly one-on-one review sessions with {team_member} to monitor progress and growth. {team_member} also goes through peer review discussions for a better understanding of the assignment, and gets feedback for better performance from Analysts, Data Architects, and Researchers. In addition, year end performance evaluations are conducted to ensure career goals and objectives are reviewed.
+    measures_and_assessments:
+        During the year end reviews, {team_member} is assess for {their} skills and growth in relation to {their} peers. Some of the competencies reviewed are as follows: Merges data from multiple sources in preparation for analysis, interprets results of analyses for reports and presentations, develops queries, quality metric, and reporting tools for the Northwestern Medicine Campus.
+
+power_user_office_hours:
+- description: Held weekly by an analyst.
+
+power_user_jira_project:
+- description: JIRA project used for managing power user tickets. Largely deprecated.
+
+power_user_sharepoint:
+- description: Sharepoint site for information Power Users can refer to.
+- url: https://nuwildcat.sharepoint.com/:u:/r/sites/FSM-FSMITResearchPowerUsers/SitePages/Home(1).aspx?csf=1&web=1&e=dncaUQ
+
+forgotten_ticket_incident:
+- description: >
+    Tickets ignored/de-prioritized for a while. One ticket got ignored for 9 months.
+    One of our analysts was assigned and it was de-prioritized.
+
+    Possible partial solution:
+    Prioritize assigning analysts to groups and domains they've worked on before.
+
+discrepant_data_incident:
+- description: >
+        Lots of stakeholders claim there's missing data or too much data.
+
+brownbag:
+- description: |
+    1. Every week we hold a "journal club". One team member will bring an article or other item to discuss. They will send the article out ahead of time and then lead any discussion of it during brownbag.
+        i. No slides are allowed, to prevent people from spending too much time preparing.
+        ii. By default, the discussion is expected to take ~10-15 minutes. If it's shorter or longer that works fine too.
+        iii. The article or other item should be loosely related to our work but does not need to be an exact match. For example, an article about a relevant technology, with no mention of healthcare or research, is perfectly fine.
+        iv. We will choose the team members pseudo-randomly. We will shuffle the pool of team members and paste the results in the brownbag loop. People who have presented frequently (Clayton, Steven, Quan, Parmeen, managers) will be removed from the pool of possible presenters at least for a while.
+    2. The time not used up by journal club will default to office hours. Some combination of Phil, Dan, Pras, or Zach will stick around for the remainder of the hour, and people can ask questions or leave as they prefer/need.
+    3. Brownbags dedicated to a particular topic or two can still be scheduled and take precedence over the journal club. They're just not the default.
+- url: https://nmhealth.sharepoint.com/:fl:/r/contentstorage/CSP_98ae79a0-6aa1-478d-9117-7c3cbafcb31c/Document%20Library/LoopAppData/Brownbag%20Planning.loop?d=wf08362cbe1474b6eb75f77af98163f39&csf=1&web=1&e=NNJerX&nav=cz0lMkZjb250ZW50c3RvcmFnZSUyRkNTUF85OGFlNzlhMC02YWExLTQ3OGQtOTExNy03YzNjYmFmY2IzMWMmZD1iJTIxb0htdW1LRnFqVWVSRjN3OHV2eXpIRTgyMnZJcFdneEtwMFdLQmZUOTRYZFZtUllLLUp0ZlM3YklDTG5VLWQyNCZmPTAxVUtNV0ozT0xNS0I3QVI3Qk5aRjNPWDNYVjZNQk1QWlomYz0lMkYmYT1Mb29wQXBwJnA9JTQwZmx1aWR4JTJGbG9vcC1wYWdlLWNvbnRhaW5lciZ4PSU3QiUyMnclMjIlM0ElMjJUMFJUVUh4dWJXaGxZV3gwYUM1emFHRnlaWEJ2YVc1MExtTnZiWHhpSVc5SWJYVnRTMFp4YWxWbFVrWXpkemgxZG5sNlNFVTRNakoyU1hCWFozaExjREJYUzBKbVZEazBXR1JXYlZKWlN5MUtkR1pUTjJKSlEweHVWUzFrTWpSOE1ERlZTMDFYU2pOS1VGWllSbHBKVTFCUFZVcEdTa05QVDA4elZGVkpWMVExTmclM0QlM0QlMjIlMkMlMjJpJTIyJTNBJTIyNjBiNjkwYzMtOTc3ZS00ZTk5LWFiMzMtMWNjMzI5MTBhZTg5JTIyJTdE

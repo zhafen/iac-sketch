@@ -1,0 +1,45 @@
+intake_request_workflow:
+- description: |
+    request = accept_intake_form(request_concept)
+    request = assign_analyst(request)
+    if request.irb_number is not NULL:
+        await has_ds_approval: bool = complete_data_steward_approval(request)
+    else:
+        has_ds_approval = True
+    await has_service_agreement: bool = complete_service_agreement(request)
+    if has_ds_approval and has_service_agreement:
+        return request
+    else:
+        request = close_request(request)
+        return request
+- satisfies: can_accept_and_process_request
+- status: in development
+
+accept_intake_form:
+- task
+- input:
+    requester [requester]:
+    study [study]:
+- output:
+    data_request [data_request]: The request, with details added by the intake form.
+
+assign_analyst:
+- task
+- input:
+    data_request [data_request]:
+- output:
+    data_request [data_request]:
+        - modified_fields:
+            has_data_steward_approval:
+            has_completed_service_agreement:
+
+complete_data_steward_approval:
+- links:
+    value: |
+      has_irb --> submit_for_data_steward_approval
+      has_irb --> return
+      submit_data_steward_approval --> wait_for_data_steward_approval
+      wait_for_data_steward_approval --> has_data_steward_approval
+      has_data_steward_approval --> return
+    link_type: proceeded_by
+
