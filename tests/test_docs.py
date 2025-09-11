@@ -3,12 +3,12 @@ import unittest
 
 import pandas as pd
 
-from iac_sketch import documentation
+from iac_sketch import docs
 
 class TestGenerateComponentMarkdown(unittest.TestCase):
     
     def setUp(self):
-        self.doc_sys = documentation.DocumentationSystem()
+        self.doc_sys = docs.DocSystem()
 
     def test_with_value(self):
 

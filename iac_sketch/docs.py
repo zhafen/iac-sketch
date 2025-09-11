@@ -1,13 +1,15 @@
 """Module for generating documentation from infrastructure-as-code manifests."""
 
+import os
+
 import pandas as pd
 
 from . import data
 
 
-class DocumentationSystem:
+class DocSystem:
 
-    def generate_documentation(
+    def generate_docs(
         self,
         output_dir: str,
         registry: data.Registry,
@@ -35,6 +37,7 @@ class DocumentationSystem:
         entity_sources = registry.reset_index(entity_sources.loc[~is_duplicated])
 
         # Write out one file per source
+        os.makedirs(output_dir, exist_ok=True)
         for source, entity_sources_i in entity_sources.groupby("source"):
             # Skip excluded sources, e.g. system
             if source in excluded_sources:
