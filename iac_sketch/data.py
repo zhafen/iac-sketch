@@ -225,9 +225,21 @@ class Registry:
         -------
         pd.DataFrame
             The DataFrame containing components of the specified type.
+
+        Metadata
+        --------
+        - todo:
+            value: >
+                We could return an empty DataFrame with a defined schema if the
+                component definition is valid. Right now we just return an empty
+                DataFrame if the component doesn't exist.
+            priority: 0.2
         """
 
         if key not in self.components:
+            if "compdef" in self.components:
+                if key in self.components["compdef"].index:
+                    return pd.DataFrame()
             raise KeyError(f"Component '{key}' not found in registry.")
 
         return self.components[key]

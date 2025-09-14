@@ -52,3 +52,12 @@ has_a_good_name:
     - manIaC
 - requirement
 - parent: is_marketable
+
+documentation:
+- description: A component describing documentation related to an entity.
+- component
+- fields:
+    value [str]: Location of the documentation.
+- todo: >
+    The value of documentation is a path, so it should re-use the path component
+    in some manner (as a parent? as the value for a field?).

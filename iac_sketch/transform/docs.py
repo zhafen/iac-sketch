@@ -1,50 +1,71 @@
-"""Module for generating documentation from infrastructure-as-code manifests."""
-
+from abc import abstractmethod
 import os
 
 import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
+from .. import data
 
-from . import data
+
+class DocsGeneratorPreparer(BaseEstimator, TransformerMixin):
+
+    def fit(self, _X, _y=None):
+        return self
+
+    def transform(
+        self, X: pd.DataFrame, registry: data.Registry = None
+    ) -> pd.DataFrame:
+
+        # Validate and get an index-less copy
+        if X.attrs["view_components"] != "documentation":
+            raise ValueError(
+                "The input component for preparing documents should be"
+                f"[documentation]. Got: {X.attrs['view_components']}"
+            )
+
+        # Add a documentation component for every entity,
+        # in addition to whatever already exists.
+        X_generated = pd.DataFrame(
+            {"entity": registry.entities, "comp_key": pd.NA, "value": pd.NA}
+        )
+        X_out = pd.concat([X, X_generated], ignore_index=True)
+
+        return X_out
 
 
-class DocSystem:
+class DocsGenerator(BaseEstimator, TransformerMixin):
 
-    def generate_docs(
+    def fit(self, _X, _y=None):
+        return self
+
+    def transform(
         self,
-        output_dir: str,
+        X: pd.DataFrame,
         registry: data.Registry,
+        output_dir: str,
         excluded_sources: list[str] = ["system"],
-    ) -> str:
-        """
-        Generates markdown documentation for the infrastructure-as-code manifests.
+    ) -> pd.DataFrame:
 
-        Parameters
-        ----------
-        registry : data.Registry
-            The registry containing the extracted entities.
-
-        Returns
-        -------
-        None
-        """
-
-        # Entities to document
-        entity_sources = registry.view("entity_source")
+        # Validate and get an index-less copy
+        if X.attrs["view_components"] != "documentation":
+            raise ValueError(
+                "The input component for generating documents should be"
+                f"[documentation]. Got: {X.attrs['view_components']}"
+            )
 
         # Drop duplicate entity/source pairs
-        entities = entity_sources.index.get_level_values("entity")
+        entities = X.index.get_level_values("entity")
         is_duplicated = entities.duplicated(keep="first")
-        entity_sources = registry.reset_index(entity_sources.loc[~is_duplicated])
+        X = registry.reset_index(X.loc[~is_duplicated])
 
         # Write out one file per source
         os.makedirs(output_dir, exist_ok=True)
-        for source, entity_sources_i in entity_sources.groupby("source"):
+        for source, entity_sources_i in X.groupby("source"):
             # Skip excluded sources, e.g. system
             if source in excluded_sources:
                 continue
 
             # Generate the markdown representation
-            entity_sources_repr = self.generate_markdown(
+            entity_sources_repr = self.generate_docs(
                 entity_sources_i["entity"],
                 registry,
             )
@@ -53,9 +74,16 @@ class DocSystem:
             with open(f"{output_dir}/{source}.md", "w", encoding="utf-8") as f:
                 f.write(entity_sources_repr)
 
-    def generate_markdown(self, entities: pd.Series, registry: data.Registry) -> str:
+    @abstractmethod
+    def generate_docs(self, entities: pd.Index, registry: data.Registry) -> str:
+        pass
 
-        compinsts = registry.view("compinst")
+
+class DefaultMarkdownGenerator(DocsGenerator):
+
+    def generate_docs(
+        self, entities: pd.Index, registry: data.Registry
+    ) -> pd.DataFrame:
 
         # Loop over all entities
         output = ""
