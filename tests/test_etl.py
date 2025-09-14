@@ -6,7 +6,9 @@ import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from iac_sketch import data, etl, transform
+from iac_sketch import data, etl
+
+from iac_sketch.transform import preprocess, system
 
 
 class TestExtractSystem(unittest.TestCase):
@@ -69,7 +71,7 @@ class TestTransformSystem(unittest.TestCase):
 
         new_registry = self.transform_sys.apply_transform(
             registry,
-            transform.LogPrepper(),
+            preprocess.LogPrepper(),
             components_mapping={
                 "component_a": data.View("component_a"),
                 "component_b": data.View("component_b"),
@@ -142,7 +144,7 @@ class TestPreprocessTransformers(unittest.TestCase):
         )
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.ComponentNormalizer(),
+            preprocess.ComponentNormalizer(),
             components_mapping={"description": data.View("description")},
         )
         expected = pd.DataFrame(
@@ -186,7 +188,7 @@ class TestPreprocessTransformers(unittest.TestCase):
         )
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.ComponentNormalizer(),
+            preprocess.ComponentNormalizer(),
             components_mapping={"timestamp": data.View("timestamp")},
         )
         actual = registry["timestamp"]
@@ -400,7 +402,7 @@ class TestPreprocessTransformers(unittest.TestCase):
         # we want to test the ComponentValidator directly for one definition.
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.ComponentValidator(),
+            preprocess.ComponentValidator(),
             components_mapping={
                 "my_component": data.View("my_component"),
             },
@@ -467,7 +469,7 @@ class TestSystemTransformers(unittest.TestCase):
 
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.LinksParser(),
+            system.LinksParser(),
             components_mapping={"link": data.View("links")},
             mode="upsert",
         )
@@ -544,13 +546,13 @@ class TestSystemTransformers(unittest.TestCase):
         registry = self.transform_sys.apply_preprocess_transforms(registry)
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.LinksParser(),
+            system.LinksParser(),
             components_mapping={"link": data.View("links")},
             mode="upsert",
         )
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.LinkCollector(),
+            system.LinkCollector(),
             components_mapping={"link": data.View("link")},
             mode="upsert",
         )
@@ -659,20 +661,20 @@ class TestSystemTransformers(unittest.TestCase):
         registry = self.transform_sys.apply_preprocess_transforms(registry)
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.LinksParser(),
+            system.LinksParser(),
             components_mapping={"link": data.View("links")},
             mode="upsert",
         )
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.LinkCollector(),
+            system.LinkCollector(),
             components_mapping={"link": data.View("link")},
             mode="upsert",
         )
         registry = self.transform_sys.build_graph_from_links(registry)
         registry = self.transform_sys.apply_transform(
             registry,
-            transform.RequirementAnalyzer(),
+            system.RequirementAnalyzer(),
             components_mapping={"requirement": data.View("requirement")},
             mode="overwrite",
         )

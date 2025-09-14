@@ -11,7 +11,7 @@ import networkx as nx
 import pandas as pd
 
 from . import data
-from . import transform
+from .transform import system, preprocess
 from .extract import YAMLExtractor, PythonExtractor
 
 
@@ -215,7 +215,7 @@ class TransformSystem:
 
         return self.apply_transform(
             registry,
-            transform.ComponentNormalizer(),
+            preprocess.ComponentNormalizer(),
             # The components are transformed individually, with a few exceptions.
             components_mapping={
                 comp: data.View(comp)
@@ -228,7 +228,7 @@ class TransformSystem:
 
         return self.apply_transform(
             registry,
-            transform.ComponentDefExtractor(),
+            preprocess.ComponentDefExtractor(),
             # We only transform a single component, "component",
             # and it receives a view that joins the "component" and "fields"
             # components.
@@ -245,13 +245,13 @@ class TransformSystem:
 
         registry = self.apply_transform(
             registry,
-            transform.ComponentValidator(),
+            preprocess.ComponentValidator(),
             components_mapping={"compdef": data.View("compdef")},
         )
 
         return self.apply_transform(
             registry,
-            transform.ComponentValidator(),
+            preprocess.ComponentValidator(),
             components_mapping={
                 comp: data.View(comp) for comp in registry.keys() if comp != "compdef"
             },
@@ -262,7 +262,7 @@ class TransformSystem:
         # Parse links components into link components
         registry = self.apply_transform(
             registry,
-            transform.LinksParser(),
+            system.LinksParser(),
             components_mapping={"link": data.View("links")},
             mode="upsert",
         )
@@ -270,7 +270,7 @@ class TransformSystem:
         # Collect components with link_type tags into the link component df
         registry = self.apply_transform(
             registry,
-            transform.LinkCollector(),
+            system.LinkCollector(),
             components_mapping={"link": data.View("link")},
             mode="upsert",
         )
@@ -280,7 +280,7 @@ class TransformSystem:
         # Analyze requirements
         registry = self.apply_transform(
             registry,
-            transform.RequirementAnalyzer(),
+            system.RequirementAnalyzer(),
             components_mapping={"requirement": data.View("requirement")},
             mode="overwrite",
         )
@@ -308,7 +308,7 @@ class TransformSystem:
         registry.graph.add_nodes_from(registry.entities)
         registry = self.apply_transform(
             registry,
-            transform.GraphAnalyzer(),
+            system.GraphAnalyzer(),
             components_mapping={"node": data.View("link")},
             mode="overwrite",
         )
