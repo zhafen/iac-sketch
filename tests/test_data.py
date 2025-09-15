@@ -265,6 +265,33 @@ class TestRegistry(unittest.TestCase):
         actual = registry.reset_index(comp_a.set_index(["entity"]))
         pd.testing.assert_frame_equal(actual, expected)
 
+    def test_get_parameter_set(self):
+        components = {
+            "parameter_set": pd.DataFrame(
+                {
+                    "entity": ["default_parameters", "default_parameters", "custom_parameters"],
+                    "comp_key": [0, 1, 0],
+                    "name": ["documentation", "other", "documentation", ],
+                    "value": [
+                        {"output_dir": "./docs", "excluded_sources": ["system"]},
+                        {"some_other_param": 123},
+                        {"output_dir": "./custom_docs", "excluded_sources": []},
+                    ],
+                }
+            ).set_index(["entity", "comp_key"]),
+        }
+        registry = data.Registry(components)
+
+        registry.set_parameter_entity("default_parameters")
+        actual_default = registry.get_parameter_set("documentation")
+        expected_default = {"output_dir": "./docs", "excluded_sources": ["system"]}
+        self.assertEqual(actual_default, expected_default)
+
+        registry.set_parameter_entity("custom_parameters")
+        actual_custom = registry.get_parameter_set("documentation")
+        expected_custom = {"output_dir": "./custom_docs", "excluded_sources": []}
+        self.assertEqual(actual_custom, expected_custom)
+
 
 class TestView(unittest.TestCase):
     def test_view(self):
