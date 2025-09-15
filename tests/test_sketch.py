@@ -18,6 +18,10 @@ class TestArchitect(unittest.TestCase):
         assert "link" in registry
         assert "link" in registry["compinst"].index.get_level_values("entity")
 
+        # Try getting out a parameter set
+        docs_parameters = registry.get_parameter_set("documentation")
+        assert docs_parameters["output_dir"] == "./docs/generated"
+
     def test_validate(self):
         self.architect.perform_registry_etl()
         tests, test_results = self.architect.validate_registry(

@@ -19,6 +19,7 @@ class Architect:
         output_dir: str = None,
         extract_sys: etl.ExtractSystem = None,
         transform_sys: etl.TransformSystem = None,
+        parameter_entity: str = "default_parameters",
     ):
         """Initialize the Architect.
 
@@ -38,6 +39,7 @@ class Architect:
         self.output_dir = os.path.abspath(f"{root_dir}/{output_dir}")
         self.extract_sys = extract_sys if extract_sys else etl.ExtractSystem()
         self.transform_sys = transform_sys if transform_sys else etl.TransformSystem()
+        self.parameter_entity = parameter_entity
 
     def perform_registry_etl(
         self,
@@ -54,15 +56,22 @@ class Architect:
             Point to the unit test for this, instead of checking the status listed in
             the docstring.
         """
+        # Extract entities from files
         filename_patterns = (
             filename_patterns if filename_patterns else self.filename_patterns
         )
         self.registry = self.extract_sys.extract_entities(
             filename_patterns, root_dir=self.root_dir
         )
+
+        # Set the parameter entity
+        self.registry.set_parameter_entity(self.parameter_entity)
+
+        # Apply transforms
         self.registry = self.transform_sys.apply_preprocess_transforms(self.registry)
         self.registry = self.transform_sys.apply_system_transforms(self.registry)
         self.registry = self.transform_sys.apply_postprocess_transforms(self.registry)
+
         return self.registry
 
     def validate_registry(

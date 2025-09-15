@@ -269,9 +269,17 @@ class TestRegistry(unittest.TestCase):
         components = {
             "parameter_set": pd.DataFrame(
                 {
-                    "entity": ["default_parameters", "default_parameters", "custom_parameters"],
+                    "entity": [
+                        "default_parameters",
+                        "default_parameters",
+                        "custom_parameters",
+                    ],
                     "comp_key": [0, 1, 0],
-                    "name": ["documentation", "other", "documentation", ],
+                    "name": [
+                        "documentation",
+                        "other",
+                        "documentation",
+                    ],
                     "value": [
                         {"output_dir": "./docs", "excluded_sources": ["system"]},
                         {"some_other_param": 123},
