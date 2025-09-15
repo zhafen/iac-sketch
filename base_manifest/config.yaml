@@ -1,4 +1,19 @@
+parameterization:
+- description: Indicates the owner entity can be parameterized.
+- fields:
+    value [dict]: The parameters, following the formatting of [fields].
+    name [str]: Name of the parameterization.
+
 parameter_set:
 - description: A dictionary containing a set of parameters.
 - fields:
     value [dict]: The dictionary.
+    name [str]: The [parameterization] the [parameter_set] is for.
+
+default_parameters:
+- parameter_set:
+    name: documentation
+    value:
+        output_dir: ./docs
+        excluded_sources: 
+            - system

@@ -301,6 +301,28 @@ class Registry:
     def entities(self) -> pd.Index:
         return self.view("compinst").index.get_level_values("entity").unique()
 
+    def set_parameter_entity(self, entity: str):
+        self.parameter_entity = entity
+
+    def get_parameter_set(self, name: str) -> Any:
+
+        if not hasattr(self, "parameter_entity"):
+            raise ValueError("Parameter entity not set. Use set_parameter_entity().")
+
+        try:
+            params = self.view("parameter_set").loc[self.parameter_entity]
+        except KeyError as exc:
+            raise KeyError(
+                "No [parameter_set] components found for "
+                f"parameter_entity '{self.parameter_entity}'."
+            ) from exc
+        param_set = params.loc[params["name"] == name, "value"]
+        if len(param_set) == 0:
+            raise KeyError(f"Parameter set '{name}' not found for entity.")
+        if len(param_set) > 1:
+            raise ValueError(f"Parameter set '{name}' is not unique for entity.")
+        return param_set.iloc[0]
+
     def update(self, other: "Registry", mode: str = "upsert"):
         """
         Update this registry with components from another registry.

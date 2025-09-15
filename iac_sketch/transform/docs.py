@@ -1,3 +1,15 @@
+"""
+Metadata
+--------
+- parameterization:
+    name: documentation
+    value:
+        output_dir [str]: >
+            Directory to output generated documentation files, relative to root_dir.
+        excluded_sources [list[str]]: >
+            List of sources to exclude from documentation generation. Default is
+            ["system"] to avoid generating documentation for system-added components.
+"""
 from abc import abstractmethod
 import os
 
@@ -41,8 +53,6 @@ class DocsGenerator(BaseEstimator, TransformerMixin):
         self,
         X: pd.DataFrame,
         registry: data.Registry,
-        output_dir: str,
-        excluded_sources: list[str] = ["system"],
     ) -> pd.DataFrame:
 
         # Validate and get an index-less copy
