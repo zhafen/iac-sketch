@@ -57,6 +57,11 @@ documents_system_architecture:
 - requirement
 - parent: is_a_useful_tool
 
+compatible_with_a_config:
+- description: Parameters for iac_sketch should be set in the provided manifest.
+- requirement
+- parent: is_a_useful_tool
+
 uses_consistent_ecs_terminology:
 - description: >
     Unfortunately, "system" and "component" are used in two different contexts
@@ -202,7 +207,7 @@ validate_compinsts:
 apply_transforms:
 - task
 - links: |
-            get_transform_order --> apply_transform
+    get_transform_order --> apply_transform
 
 get_transform_order:
 - task

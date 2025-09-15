@@ -1,0 +1,4 @@
+parameter_set:
+- description: A dictionary containing a set of parameters.
+- fields:
+    value [dict]: The dictionary.

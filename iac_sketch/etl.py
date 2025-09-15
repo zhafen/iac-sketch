@@ -11,7 +11,7 @@ import networkx as nx
 import pandas as pd
 
 from . import data
-from .transform import system, preprocess
+from .transform import system, preprocess, docs
 from .extract import YAMLExtractor, PythonExtractor
 
 
@@ -318,5 +318,25 @@ class TransformSystem:
     def apply_postprocess_transforms(self, registry: data.Registry) -> data.Registry:
 
         registry = self.validate_compdefs(registry)
+
+        return registry
+
+    def build_docs(self, registry: data.Registry) -> data.Registry:
+
+        # Prepare documents
+        registry = self.apply_transform(
+            registry,
+            docs.DocsGeneratorPreparer(),
+            components_mapping={"documentation": data.View("documentation")},
+            mode="upsert",
+        )
+
+        # Generate documents
+        registry = self.apply_transform(
+            registry,
+            docs.DocsGenerator(),
+            components_mapping={"documentation": data.View("documentation")},
+            mode="overwrite",
+        )
 
         return registry

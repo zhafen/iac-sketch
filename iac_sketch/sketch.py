@@ -20,6 +20,15 @@ class Architect:
         extract_sys: etl.ExtractSystem = None,
         transform_sys: etl.TransformSystem = None,
     ):
+        """Initialize the Architect.
+
+        Metadata
+        --------
+        - todo:
+            value: There should be no parameters that aren't in the manifest.
+            priority: 0.7
+        """
+
         self.filename_patterns = filename_patterns
         if root_dir is None:
             root_dir = os.getcwd()
