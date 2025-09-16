@@ -12,6 +12,12 @@ parameter_set:
 
 default_parameters:
 - parameter_set:
+    name: system
+    value:
+        skip_normalization:
+            - compinst
+            - fields
+- parameter_set:
     name: documentation
     value:
         output_dir: ./docs

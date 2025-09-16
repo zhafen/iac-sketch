@@ -206,8 +206,34 @@ class Registry:
 
     graph: nx.MultiDiGraph  # Optional graph attribute for relationships
 
-    def __init__(self, components: dict[str, pd.DataFrame] = None):
+    def __init__(
+        self,
+        components: dict[str, pd.DataFrame] = None,
+        parameter_entity: str = "default_parameters",
+    ):
+        """
+        Initialize the Registry.
+
+        Parameters
+        ----------
+        components : dict[str, pd.DataFrame], optional
+            Dictionary mapping component type names to their respective DataFrames.
+            If not provided, an empty registry is created.
+        parameter_entity : str, optional
+            The entity to use for parameter lookups. Defaults to "default_parameters".
+
+        Metadata
+        --------
+        - todo:
+            value: >
+                Something about initializing with a parameter_entity makes me uneasy.
+                It feels like I'm adding too many responsibilities to this class.
+                But it's very convenient to have the parameter entity already set
+                everytime we need a registry.
+            priority: 0.2
+        """
         self.components = {}
+        self.parameter_entity = parameter_entity
         if components:
             for key, value in components.items():
                 self.set(key, value)

@@ -213,6 +213,7 @@ class TransformSystem:
 
     def normalize_components(self, registry: data.Registry) -> data.Registry:
 
+        sys_params = registry.get_parameter_set("system")
         return self.apply_transform(
             registry,
             preprocess.ComponentNormalizer(),
@@ -220,7 +221,7 @@ class TransformSystem:
             components_mapping={
                 comp: data.View(comp)
                 for comp in registry.keys()
-                if comp not in ["compinst", "fields"]
+                if comp not in sys_params["skip_normalization"]
             },
         )
 
