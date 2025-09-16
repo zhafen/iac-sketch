@@ -33,6 +33,8 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, registry: data.Registry = None):
+        # TODO: Currently we rely on internal logic in json_normalize, but that
+        # does not work when max_level is set. We need to implement our own logic.
 
         # This transform operates on unindexed DataFrames.
         # They'll be reindexed when they're returned to the registry.

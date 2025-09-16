@@ -212,8 +212,28 @@ class TransformSystem:
         return registry
 
     def normalize_components(self, registry: data.Registry) -> data.Registry:
+        """Normalize component schemas in the registry.
 
-        sys_params = registry.get_parameter_set("system")
+        Parameters
+        ----------
+        registry : data.Registry
+            The registry containing the components to normalize.
+
+        Returns
+        -------
+        data.Registry
+            The registry with normalized components.
+
+        Metadata
+        --------
+        - todo:
+            value: >
+                Don't hardcode the skip_normalization list here. However, it's difficult
+                to put it as a parameter_set because this transform is called early in
+                the process, before parameter_sets are extracted.
+            priority: 0.1
+        """
+
         return self.apply_transform(
             registry,
             preprocess.ComponentNormalizer(),
@@ -221,7 +241,7 @@ class TransformSystem:
             components_mapping={
                 comp: data.View(comp)
                 for comp in registry.keys()
-                if comp not in sys_params["skip_normalization"]
+                if comp not in ["compinst", "fields"]
             },
         )
 
