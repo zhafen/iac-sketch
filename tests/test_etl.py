@@ -241,11 +241,13 @@ class TestPreprocessTransformers(unittest.TestCase):
                     "entity": "my_component",
                     "comp_key": 0,
                     "multiplicity": "1",
+                    "value": pd.NA,
                 },
                 {
                     "entity": "my_other_component",
                     "comp_key": 0,
                     "multiplicity": pd.NA,
+                    "value": pd.NA,
                 },
             ]
         ).set_index(["entity", "comp_key"])
