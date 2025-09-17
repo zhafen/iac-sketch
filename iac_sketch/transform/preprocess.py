@@ -33,45 +33,38 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X, registry: data.Registry = None):
-        # TODO: Currently we rely on internal logic in json_normalize, but that
-        # does not work when max_level is set. We need to implement our own logic.
+        """
+        Metadata
+        --------
+        - todo:
+            value: >
+                The way this is set up currently, no components can be a value of dict
+                type. No issue for now, but we may want to revisit this in the future.
+            priority: 0.3
+        """
 
         # This transform operates on unindexed DataFrames.
         # They'll be reindexed when they're returned to the registry.
         X = registry.reset_index(X)
 
-        # Start by unpacking the 'component' column
-        comp_data = pd.json_normalize(X["component"])
+        # Identify rows by type
+        is_dict = X["component"].apply(lambda v: isinstance(v, dict))
 
-        # If there was nothing to unpack, we just use the values in the column
-        if len(comp_data.columns) == 0:
-            # If there are any non-null values we rename the column to 'value'
-            if X["component"].isna().any():
-                X = X.rename(columns={"component": "value"})
-            # Otherwise, we just drop the column
-            else:
-                X = X.drop(columns=["component"])
+        # If the "component" column is a non-dict values (both null and not) then that
+        # is the value of the component, so we just rename it
+        X_values = X.loc[~is_dict].rename(columns={"component": "value"})
 
-        # If there was something to unpack, we need to handle it
-        else:
-            # Find rows that were not parsed
-            not_parsed = comp_data.isna().all(axis="columns")
-            # If we both have unparsed rows and non-null values in the same rows,
-            # we add them to a value column
-            if not_parsed.any() and X.loc[not_parsed, "component"].notna().any():
-                # Ensure there's a value column to hold unparsed components
-                if "value" not in comp_data.columns:
-                    comp_data["value"] = pd.NA
+        # We expand dictionary entries to get the different fields as columns
+        X_dict = X.loc[is_dict].copy()
+        # Only expand one level deep, so that nested dictionaries are preserved
+        X_expanded = pd.json_normalize(X_dict["component"], max_level=1)
+        # Connect back to the other columns--entity and comp_key
+        X_dict = X_dict.join(X_expanded).drop(columns=["component"])
 
-                # Move unparsed components to the 'value' column
-                comp_data.loc[not_parsed, "value"] = X.loc[not_parsed, "component"]
+        # Rejoin
+        X_out = pd.concat([X_dict, X_values])
 
-            # With everything unpacked, we can drop the original 'component' column
-            # and join the new columns
-            X = X.drop(columns=["component"])
-            X = X.join(comp_data)
-
-        return X
+        return X_out
 
 
 # Transformer to extract and validate component definitions (bottom of file)
