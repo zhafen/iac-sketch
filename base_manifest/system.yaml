@@ -2,6 +2,14 @@ iac_sketch_infrastructure:
 - description: The iac_sketch package code.
 - infrastructure
 
+iac_sketch_name:
+- description: >
+    The name the package goes by. Suggestions:
+    - iac_sketch or iacs (pronounced "yaks")
+    - IaCA or iaca (infrastructure as Code Architect)
+    - manIaC
+- satisfies: has_a_good_name
+
 is_a_useful_tool:
 - description: Fundamentally, iac_sketch must serve a purpose.
 - requirement: iac_sketch_infrastructure

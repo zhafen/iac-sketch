@@ -46,10 +46,7 @@ is_marketable:
 
 has_a_good_name:
 - description: |
-    A good name goes a long way. Suggestions:
-    - iac_sketch
-    - IaCA or iaca (infrastructure as Code Architect)
-    - manIaC
+    A good name goes a long way.
 - requirement
 - parent: is_marketable
 
