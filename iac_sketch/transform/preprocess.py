@@ -58,6 +58,7 @@ class ComponentNormalizer(BaseEstimator, TransformerMixin):
         X_dict = X.loc[is_dict].copy()
         # Only expand one level deep, so that nested dictionaries are preserved
         X_expanded = pd.json_normalize(X_dict["component"], max_level=1)
+        X_expanded = X_expanded.set_index(X_dict.index)
         # Connect back to the other columns--entity and comp_key
         X_dict = X_dict.join(X_expanded).drop(columns=["component"])
 

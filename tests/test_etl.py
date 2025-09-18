@@ -222,7 +222,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                             "entity": "my_component",
                             "comp_key": 0,
                             "component": {
-                                "multiplicity": "1",
+                                "multiplicity": "0..1",
                             },
                         },
                         {
@@ -240,7 +240,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                 {
                     "entity": "my_component",
                     "comp_key": 0,
-                    "multiplicity": "1",
+                    "multiplicity": "0..1",
                     "value": pd.NA,
                 },
                 {
@@ -260,7 +260,7 @@ class TestPreprocessTransformers(unittest.TestCase):
 
             my_other_component:
             - component:
-                multiplicity: "1"
+                multiplicity: "0..1"
             - fields:
                 my_field [int]: This is a test field.
                 my_other_field [bool]: This is another test field.
@@ -295,7 +295,7 @@ class TestPreprocessTransformers(unittest.TestCase):
                     },
                     "is_valid": True,
                     "errors": "",
-                    "multiplicity": "1",
+                    "multiplicity": "0..1",
                 },
                 {
                     "entity": "my_simple_component",
@@ -323,6 +323,13 @@ class TestPreprocessTransformers(unittest.TestCase):
         ).set_index(["entity", "comp_key"])
 
         actual = registry["compdef"].copy()
+
+        # Check that we have valid definitions for ones we expect to be valid.
+        valids = actual.loc[["compdef", "compinst", "component", "description"]]
+        n_invalid = (~valids["is_valid"]).sum()
+        assert n_invalid == 0, (
+            f"Expected all definitions to be valid, but got {n_invalid} invalid"
+        )
 
         # Check fields for my_other_component
         my_component_actual_fields = actual.loc["my_other_component", "fields"].iloc[0]

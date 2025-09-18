@@ -104,7 +104,7 @@ compinst:
     possible mapping between entities and components. This is very helpful as a catalog
     of what components exist, and is updated when modifying components.
 - component:
-    - multiplicity: "0..*"
+    multiplicity: "0..*"
 - fields:
     component_type [str]: The type of the component.
 
