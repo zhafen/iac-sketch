@@ -95,6 +95,24 @@ minimizes_structure_repetition:
     2. Use the structure in the yaml to define code execution order
 - requirement: iac_sketch_infrastructure
 
+can_build_delivery_plan:
+- description: >
+    Given a set of prioritized requirements, can build a delivery plan.
+- requirement: iac_sketch_infrastructure
+- child: can_calculate_the_most_efficient_paths
+- child: can_budget_for_preference_and_fit
+
+can_calculate_the_most_efficient_paths:
+- description: >
+    Given a set of prioritized requirements, can suggest which to do in what order.
+- requirement
+
+can_budget_for_preference_and_fit:
+- description: >
+    The most efficient path isn't necessarily realistic: people have preferences and
+    are better fits for some tasks than others.
+- requirement
+
 perform_registry_etl:
 - description: >
     How entities are defined and parsed.
