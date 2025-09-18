@@ -107,8 +107,18 @@ can_build_delivery_plan:
 - description: >
     Given a set of prioritized requirements, can build a delivery plan.
 - requirement: iac_sketch_infrastructure
+- child: can_build_requirements_map
 - child: can_calculate_the_most_efficient_paths
 - child: can_budget_for_preference_and_fit
+
+can_build_requirements_map:
+- description: >
+    A requirements map is a visual representation of requirements and the possible
+    routes to complete them. Before deciding on any sort of algorithm, putting the data
+    in a format for people to understand what needs to get done and how it relates
+    comes first.
+- requirement:
+    priority: 0.9
 
 can_calculate_the_most_efficient_paths:
 - description: >
