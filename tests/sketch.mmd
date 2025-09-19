@@ -1,0 +1,137 @@
+
+requirementDiagram
+
+requirement can_budget_for_preference_and_fit {
+    text: "The most efficient path isn't necessarily realistic: people have preferences and are better fits for some tasks than others. "
+}
+
+requirement can_build_delivery_plan {
+    text: "Given a set of prioritized requirements, can build a delivery plan. "
+}
+
+requirement can_build_requirements_map {
+    text: "A requirements map is a visual representation of requirements and the possible routes to complete them. Before deciding on any sort of algorithm, putting the data in a format for people to understand what needs to get done and how it relates comes first. "
+}
+
+requirement can_calculate_the_most_efficient_paths {
+    text: "Given a set of prioritized requirements, can suggest which to do in what order. "
+}
+
+requirement can_incorporate_poorly_formed_components {
+    text: "While gathering information it is common to come across a piece of information that is clearly important, but poorly defined. We need to record such information so it can be defined and incorporated when more is known. "
+}
+
+requirement compatible_with_a_config {
+    text: "Parameters for iac_sketch should be set in the provided manifest."
+}
+
+requirement documentation_coverage_is_high {
+    text: "Are most things documented?"
+}
+
+requirement documentation_quality_is_high {
+    text: "Who is the speaker? What are the technical terms used?"
+}
+
+requirement documentation_uses_consistent_perspective {
+    text: "First person? Third person?"
+}
+
+requirement documentation_uses_consistent_terminology {
+}
+
+requirement documents_system_architecture {
+    text: "At any given time the code that defines the system must be able to be compiled and turned into a digestable, clear, format. "
+}
+
+requirement draws_on_widely_used_system_design_terminology {
+    text: "E.g. the url(s) attached."
+}
+
+requirement enables_iterative_system_decomposition {
+    text: "The requirements and components of complicated systems are rarely known all at once, but are assembled over time in an iterative process. This process includes gathering functional requirements from the stakeholders, identifying technical requirements/constraints, trial and error, and more. One of the goals of iac_sketch is to provide a constant, living source of truth that can be used for both the formalized design and also components and requirements not yet incorporated. "
+}
+
+requirement facilitates_a_source_of_truth {
+}
+
+requirement facilitates_system_design {
+}
+
+requirement fully_defined {
+    text: "All [compdef] entities are defined and valid."
+}
+
+requirement fully_designed {
+    text: "Each [requirement] entity has at least one [satisfies] entity or one [child] entity. "
+}
+
+requirement fully_implemented {
+    text: "Meets the same criteria as 'fully_designed' and all [satisfies] entities either have a test that passes when executed or have a status of 'in production'. "
+}
+
+requirement has_a_good_name {
+    text: "A good name goes a long way. "
+}
+
+requirement has_good_documentation {
+}
+
+requirement is_a_useful_tool {
+    text: "Fundamentally, iac_sketch must serve a purpose."
+}
+
+requirement is_marketable {
+    text: "It doesn't matter how good the system is if you cannot convince anyone to use it. "
+}
+
+requirement minimizes_structure_repetition {
+    text: "iac_sketch should not require the user to go through code and transcribe the structure into yaml when it's already defined. Possible solutions: 1. Automatically retrieve structure from the code. 2. Use the structure in the yaml to define code execution order "
+}
+
+requirement no_forbidden_components {
+    text: "No [error], [todo], or other 'forbidden' components."
+}
+
+requirement records_system_architecture {
+}
+
+requirement terminology_is_externally_consistent {
+    text: "Are the terms used in iac_sketch consistent with community standards? For example, are the relationships for requirement diagrams sufficiently consistent? "
+}
+
+requirement terminology_is_internally_consistent {
+    text: "For terms defined inside iac_sketch, are they used consistently throughout? "
+}
+
+requirement uses_consistent_ecs_terminology {
+    text: "Unfortunately, 'system' and 'component' are used in two different contexts currently--as part of system design (where components are pieces of a system) and as part of entity-component-system (where components are data). "
+}
+
+requirement validates_system_architecture {
+    text: "iac_sketch must provide a series of automated tests that ensure the system architecture meets requirements. "
+}
+
+
+
+can_build_delivery_plan - derives -> can_build_requirements_map
+can_build_delivery_plan - derives -> can_calculate_the_most_efficient_paths
+can_build_delivery_plan - derives -> can_budget_for_preference_and_fit
+enables_iterative_system_decomposition - derives -> can_incorporate_poorly_formed_components
+is_a_useful_tool - derives -> compatible_with_a_config
+has_good_documentation - derives -> documentation_coverage_is_high
+has_good_documentation - derives -> documentation_quality_is_high
+documentation_quality_is_high - derives -> documentation_uses_consistent_perspective
+documentation_quality_is_high - derives -> documentation_uses_consistent_terminology
+is_a_useful_tool - derives -> documents_system_architecture
+terminology_is_externally_consistent - derives -> draws_on_widely_used_system_design_terminology
+facilitates_system_design - derives -> enables_iterative_system_decomposition
+enables_iterative_system_decomposition - derives -> facilitates_a_source_of_truth
+is_a_useful_tool - derives -> facilitates_system_design
+is_marketable - derives -> has_a_good_name
+is_a_useful_tool - derives -> is_marketable
+is_a_useful_tool - derives -> records_system_architecture
+documentation_uses_consistent_terminology - derives -> terminology_is_externally_consistent
+documentation_uses_consistent_terminology - derives -> terminology_is_internally_consistent
+terminology_is_internally_consistent - derives -> uses_consistent_ecs_terminology
+is_a_useful_tool - derives -> validates_system_architecture
