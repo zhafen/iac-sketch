@@ -4,6 +4,7 @@ quality_infrastructure:
     not essential for the functioning of the system.
 
 has_good_documentation:
+- description: A requirement ensuring that the system provides clear and comprehensive documentation.
 - requirement: quality_infrastructure
 - parent: is_not_confusing_to_use
 
@@ -13,11 +14,12 @@ documentation_quality_is_high:
 - parent: has_good_documentation
 
 documentation_uses_consistent_perspective:
-- description: First person? Third person?
+- description: A requirement ensuring documentation maintains a consistent narrative voice throughout.
 - requirement
 - parent: documentation_quality_is_high
 
 documentation_uses_consistent_terminology:
+- description: A requirement ensuring that technical terms are used consistently across all documentation.
 - requirement
 - parent: documentation_quality_is_high
 
@@ -35,7 +37,7 @@ terminology_is_externally_consistent:
 - parent: documentation_uses_consistent_terminology
 
 documentation_coverage_is_high:
-- description: Are most things documented?
+- description: A requirement ensuring that most system components and features are documented.
 - parent: has_good_documentation
 
 is_marketable:
