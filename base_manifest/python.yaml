@@ -14,7 +14,6 @@ ClassDef:
 Module:
 - description: A Python module representing the top-level container for all code in a Python file.
 - component
-- child_component
 - todo: >
     Reconcile the paths s.t. we can easily and accurately refer to them inside yaml
     files.

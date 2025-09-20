@@ -61,18 +61,27 @@ class LinkCollector(BaseEstimator, TransformerMixin):
             )
         X = X.reset_index()
 
-        # Set up parent-child links for all components with a "child_component" flag
-        child_compinsts = registry.reset_index(registry.view("compinst")).merge(
+        # Get entities that have parents by virtue of owning a component of a type
+        # defined with the "child_component" tag.
+        entities_with_parents = registry.reset_index(registry.view("compinst")).merge(
             registry.reset_index(registry.view("child_component")),
             left_on="component_type",
             right_on="entity",
             how="inner",
-            suffixes=("", "_child"),
+            suffixes=["", ".child_component"]
+        )["entity"]
+        # Assemble the links dataframe
+        links_childcomps = pd.DataFrame(
+            {
+                "entity": entities_with_parents,
+                "comp_key": pd.NA,
+                "source": entities_with_parents,
+                "target": entities_with_parents.str.rsplit(".", n=1, expand=True)[0],
+                "link_type": "parent",
+            },
         )
-        child_compinsts = child_compinsts.rename(
-            columns={"entity": "target", "comp_key": "source"}
-        )[["source", "target"]]
-        child_compinsts["link_type"] = "parent"
+        # Add to the original DataFrame
+        X = pd.concat([X, links_childcomps], ignore_index=True)
 
         # Check that link_types has the right index
         link_types = registry.view("link_type")
