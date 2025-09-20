@@ -342,3 +342,11 @@ get_transform_order:
 
 apply_transform:
 - task
+
+codemia:
+- description: A related product that advertises system design interview practice.
+- url: codemia.io
+
+figma:
+- description: A related design and prototyping tool used for creating user interfaces.
+- url: figma.com
