@@ -1,17 +1,17 @@
 code:
-- description: A piece of code.
+- description: A file or snippet containing executable source code.
 - component
 - fields:
     value [str]: Path to the code.
 
 docstring:
-- description: A documentation string that accompanies code.
+- description: An embedded documentation string that explains the purpose and usage of code elements.
 - component
 - fields:
     value [str]: Contents of the docstring.
 
 url:
-- description: A url used for reference.
+- description: A web address pointing to an online resource or documentation.
 - component
 - fields:
     value [str]: The url.
@@ -21,3 +21,9 @@ repo:
 - component
 - fields:
     url [str]: The url of the git repo.
+
+acronym:
+- description: An abbreviation formed from the initial letters of a phrase or compound term.
+- fields:
+    value [str]: The acronym itself.
+    expansion [str]: What the acronym represents.
