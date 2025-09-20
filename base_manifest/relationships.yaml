@@ -90,10 +90,9 @@ transformation_of:
     value [entity]: The entity the owner entity is a transformation of.
 
 child_component:
-- description:
-    If a component definition includes this tag then components of that type have
-    parent-child relationships with their entities. For example, this is the case
-    for Python components.
+- description: >
+    A tag indicating that components of this type have hierarchical parent-child
+    relationships with their entities. Python components are one such example.
 - todo: >
     Consider if we can roll this up into a more general solution. For example,
     we might include a "default_components" component for component definitions.
