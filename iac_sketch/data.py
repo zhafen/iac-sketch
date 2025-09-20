@@ -86,6 +86,7 @@ class Field(pa.Column):
         drop_invalid_rows=False,
         multiplicity: str = "0..*",
         categories: list[str] = None,
+        pattern: str = None,
         **kwargs,
     ):
 
@@ -121,6 +122,7 @@ class Field(pa.Column):
             **kwargs,
         )
         self.multiplicity = multiplicity
+        self.pattern = pattern
 
     @classmethod
     def get_backend(

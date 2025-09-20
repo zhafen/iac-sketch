@@ -36,7 +36,7 @@ cohort_patients:
     Normalized version of a cohort, in the form of a crosswalk between
     cohort and patient. This is technically Type II, but we routinely archive to keep
     the data size small.
-- representation_of: cohort
+- transformation_of: cohort
 - fields:
     report_id [str]:
     patient_id [str]:
@@ -54,7 +54,7 @@ cohort_patient_change:
     table: cohort_patients_history
 - description: >
     Only stores changes to cohort, which reduces the amount of data stored.
-- representation_of: cohort
+- transformation_of: cohort
 - fields:
     report_id [report_id]:
     patient_id [str]:
@@ -204,11 +204,11 @@ noirb_report_code_product:
 - path: "ra_reports_repo:reports/{domain}/{workspace}/{workspace_folder}/{report_id}{optional_report_label}/{notebook_type}{optional_notebook_label}.py"
 
 ra_lib_repo:
-- git_repo:
+- repo:
     url: https://NMHC@dev.azure.com/NMHC/FSM%20Research%20Analytics/_git/ra_lib
 
 ra_reports_repo:
-- git_repo:
+- repo:
     url: https://NMHC@dev.azure.com/NMHC/FSM%20Research%20Analytics/_git/ra_reports
 
 ra_reports_branch:

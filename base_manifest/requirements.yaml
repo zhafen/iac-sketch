@@ -71,14 +71,17 @@ satisfied_by:
 - fields:
     value [entity]: The [requirement] entity the owner entity is satisfied by.
 
-# TODO: Delete?
-# supports:
-# - description: The source (owner) entity supports the target entity.
-# - component
-# - link_type:
-#     reverse: supported_by
-# - fields:
-#     value [entity]: The entity the owner entity supports.
+benefit:
+- description: >
+    A component describing a benefit associated with an entity. Used to evaluate
+    possible solutions and implementations.
+- component
+
+drawback:
+- description: >
+    A component describing a drawback associated with an entity. Used to evaluate
+    possible solutions and implementations.
+- component
 
 task:
 - description: >

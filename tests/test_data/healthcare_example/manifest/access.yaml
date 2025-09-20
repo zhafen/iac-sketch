@@ -9,7 +9,6 @@ iam_team:
 - acronym:
     value: iam
     expansion: Identity and Access Management
-- team
 
 microsoft_entra:
 - description: >
