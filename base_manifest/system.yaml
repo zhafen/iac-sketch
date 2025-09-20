@@ -9,6 +9,7 @@ iac_sketch_pitch:
         1. Usually piecewise, scattered notes.
         2. Typically no source of truth, let alone a precise one.
         3. Limited means to assess the validity of a designed system.
+        4. Limited archival functionality.
 
         IaC is a promising approach with a number of benefits.
         1. Precise source-of-truth for infrastructure.
@@ -22,8 +23,7 @@ iac_sketch_pitch:
             - Abstract components, e.g. un-implemented tasks
         2. Poorly handles WIP. Incomplete manifests yield errors.
         3. Different systems, different syntaxes. (Terraform partially solves this.)
-        4. Not interpretable by laymen.
-        5. Limited archival functionality.
+        4. Not interpretable by laymen/not visual.
 
     Solution: A package for designing and documenting complicated systems from end to
     end. Users create a yaml manifest for the system they are planning to design, and
@@ -109,6 +109,50 @@ documents_system_architecture:
     turned into a digestable, clear, format.
 - requirement
 - parent: is_a_useful_tool
+- child: stores_manifest_data_in_a_useful_format
+
+stores_manifest_data_in_a_useful_format:
+- description: The format we store the data in facilitates different applications.
+- requirement
+
+manifest_in_relational_db:
+- description: >
+    Relational databases are the default format for ECS systems. This is because
+    each type of component is exactly equivalent to a table.
+- satisfies: stores_manifest_data_in_a_useful_format
+- benefit: >
+    Optimized for working with all component instances of a given component type.
+    This was likely one of the original motivations for ECS. By storing the data in
+    different tables for different component types, the data is fully prepared for
+    bulk calculations and analysis involving those components.
+- drawback: >
+    Suboptimal for working with individual entitites.
+    All the components for a given entity are scattered across different component
+    tables.
+- benefit: Familiar format for traditional data architects and engineers.
+- drawback: >
+    While relational databases are performance optimized, we're not working with large
+    volumes of data here.
+
+manifest_in_docstore_db:
+- description: >
+    Relational databases may be the default format for ECS systems, but
+    document-oriented databases are the default format for manifests.
+- satisfies: stores_manifest_data_in_a_useful_format
+- benefit: >
+    Optimized for working with individual entities. All the data for a given entity
+    is stored in one location.
+- drawback: >
+    Suboptimal for working with all component instances of a given component type.
+- benefit: Intuitive format for entity creation.
+
+manifest_in_rdf:
+- description: >
+    Relational data format (RDF) is a way to store arbitrary data, and plays a big role
+    in the development of the world wide web and the ongoing semantic web.
+- benefit: Built to describe arbitrary data.
+- drawback: >
+    Support for RDF has fallen dramatically, with little work done beyond the 2000's.
 
 compatible_with_a_config:
 - description: Parameters for iac_sketch should be set in the provided manifest.
