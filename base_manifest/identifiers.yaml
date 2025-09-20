@@ -47,9 +47,10 @@ path:
     location_in_entity [str]: The location, with "/" or "." separators.
 
 name:
-- description:
-    A (often human readable) identifier. When used as part of a component definition
-    entity this is the name of the table that stores component instances.
+- description: >
+    A human-readable identifier that serves as a label for an entity. When used as part
+    of a component definition entity this is the name of the table that stores
+    component instances.
 - component
 - fields:
     value [str]: The identifier.
