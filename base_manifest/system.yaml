@@ -4,13 +4,18 @@ iac_sketch_infrastructure:
 
 iac_sketch_pitch:
 - description: >
-    Context: IaC has a number of benefits.
-        1. Can be used to deploy code.
-        2. Precise source-of-truth for infrastructure.
+    Problem:
+        Existing design solutions have limitations.
+        1. Usually piecewise, scattered notes.
+        2. Typically no source of truth, let alone a precise one.
+        3. Limited means to assess the validity of a designed system.
+
+        IaC is a promising approach with a number of benefits.
+        1. Precise source-of-truth for infrastructure.
+        2. Can be used to deploy code.
         3. Works with version control.
 
-    Premise: IaC is powerful but has limitations.
-        Limitations:
+        However, IaC has significant limitations too.
         1. Components are limited to those defined by the system. Cannot handle...
             - Human-completed tasks, e.g. negotiating service agreements
             - Planning components, e.g. requirements
@@ -18,6 +23,7 @@ iac_sketch_pitch:
         2. Poorly handles WIP. Incomplete manifests yield errors.
         3. Different systems, different syntaxes. (Terraform partially solves this.)
         4. Not interpretable by laymen.
+        5. Limited archival functionality.
 
     Solution: A package for designing and documenting complicated systems from end to
     end. Users create a yaml manifest for the system they are planning to design, and
