@@ -2,6 +2,44 @@ iac_sketch_infrastructure:
 - description: The iac_sketch package code.
 - infrastructure
 
+iac_sketch_pitch:
+- description: >
+    Context: IaC has a number of benefits.
+        1. Can be used to deploy code.
+        2. Precise source-of-truth for infrastructure.
+        3. Works with version control.
+
+    Premise: IaC is powerful but has limitations.
+        Limitations:
+        1. Components are limited to those defined by the system. Cannot handle...
+            - Human-completed tasks, e.g. negotiating service agreements
+            - Planning components, e.g. requirements
+            - Abstract components, e.g. un-implemented tasks
+        2. Poorly handles WIP. Incomplete manifests yield errors.
+        3. Different systems, different syntaxes. (Terraform partially solves this.)
+        4. Not interpretable by laymen.
+
+    Solution: A package for designing and documenting complicated systems from end to
+    end. Users create a yaml manifest for the system they are planning to design, and
+    add requirements, solutions, policies, etc. to the manifest as they are identified.
+
+        Key features:
+            1. Enables the construction of manifests with arbitrary components,
+                including user-defined, incomplete, and pre-defined components.
+                - working
+            2. Analyzes manifests to evaluate the state of the infrastructure - working
+                Which requirements do not yet have proposed solutions?
+                Which requirements are not yet met?
+                Which components are not defined or have invalid definitions?
+                Which entities are not incorporated into the system?
+                Are all to-dos and errors addressed?
+            3. Compiles components into a relational database with well-defined
+                relationships. - working
+            4. Parses pre-existing Python (inc. docstrings) for components, avoiding
+                duplicate definitions. - working
+            5. Assists in the develop of delivery plans. - in progress
+            6. Generates documentation of the components. - in progress
+
 iac_sketch_name:
 - description: >
     The name the package goes by. Suggestions:
@@ -11,7 +49,8 @@ iac_sketch_name:
 - satisfies: has_a_good_name
 
 is_a_useful_tool:
-- description: Fundamentally, iac_sketch must serve a purpose.
+- description: >
+    Fundamentally, iac_sketch must serve a purpose.
 - requirement: iac_sketch_infrastructure
 
 records_system_architecture:
