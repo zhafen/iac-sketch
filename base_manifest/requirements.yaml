@@ -156,9 +156,9 @@ no_forbidden_components:
     priority: 0.5
 
 codemia:
-- description: A related product. Advertises system design interview practice.
+- description: A related product that advertises system design interview practice.
 - url: codemia.io
 
 figma:
-- description: A related product.
+- description: A related design and prototyping tool used for creating user interfaces.
 - url: figma.com
