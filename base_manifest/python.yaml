@@ -1,15 +1,18 @@
 FunctionDef:
+- description: A Python function definition including its name, parameters, and body.
 - component
 - child_component
 - url: https://docs.python.org/3/library/ast.html#ast.FunctionDef
 - todo: Allow components to be defined in the doc strings.
 
 ClassDef:
+- description: A Python class definition including its name, base classes, and body.
 - component
 - child_component
 - url: https://docs.python.org/3/library/ast.html#ast.ClassDef
 
 Module:
+- description: A Python module representing the top-level container for all code in a Python file.
 - component
 - child_component
 - todo: >
@@ -18,16 +21,19 @@ Module:
 - url: https://docs.python.org/3/library/ast.html#ast.Module
 
 Import:
+- description: A Python import statement that brings modules or packages into the current namespace.
 - component
 - child_component
 - url: https://docs.python.org/3/library/ast.html#ast.Import
 
 ImportFrom:
+- description: A Python from-import statement that imports specific names from a module.
 - component
 - child_component
 - url: https://docs.python.org/3/library/ast.html#ast.ImportFrom
 
 Call:
+- description: A Python function call expression including the function name and arguments.
 - component
 - child_component
 - url: https://docs.python.org/3/library/ast.html#ast.Call
