@@ -1,3 +1,10 @@
+set_up_report:
+- description: Prepare the report for work.
+- task
+- links: |
+    prepare_report_work_item --> validate_metadata
+    validate_metadata --> build_report_structure
+
 work_on_report:
 - description: The workflow for actually working on the report.
 - task
@@ -17,6 +24,7 @@ get_feedback_on_report:
     get_feedback_from_first_reviewer --> get_feedback_from_second_reviewer
     get_feedback_from_second_reviewer --> revise_pr
     revise_pr --> get_feedback_from_second_reviewer
+- todo: Do we want to establish a recommended timeline for peer review?
 
 build_pbi_report:
 - task

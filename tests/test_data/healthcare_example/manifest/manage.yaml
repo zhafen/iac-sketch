@@ -26,9 +26,10 @@ cost_auditing_procedure:
 training_process:
 - satisfies: can_train_analyst
 - status: new
-- child: logistical_training
+- child: logistical_training_process
+- child: cloud_framework_training_process
 
-logistical_training:
+logistical_training_process:
 - description: >
     The training needed for logistical parts of the job, such as entering hours,
     submitting a ticket to IT, etc.

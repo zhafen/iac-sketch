@@ -30,7 +30,6 @@ build_report_workflow:
 - description: The workflow for building a report
 - task
 - links: |
-    define_report --> set_up_environment
     set_up_environment --> set_up_report
     set_up_report --> work_on_report
     work_on_report --> get_feedback_on_report

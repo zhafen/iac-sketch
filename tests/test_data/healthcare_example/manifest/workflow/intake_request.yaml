@@ -36,10 +36,21 @@ assign_analyst:
 complete_data_steward_approval:
 - links:
     value: |
-      has_irb --> submit_for_data_steward_approval
-      has_irb --> return
-      submit_data_steward_approval --> wait_for_data_steward_approval
-      wait_for_data_steward_approval --> has_data_steward_approval
-      has_data_steward_approval --> return
+        has_irb --> submit_for_data_steward_approval
+        has_irb --> return
+        submit_data_steward_approval --> wait_for_data_steward_approval
+        wait_for_data_steward_approval --> has_data_steward_approval
+        has_data_steward_approval --> return
     link_type: proceeded_by
+
+submit_data_steward_approval:
+- links:
+    value: |
+        select_ds_task --> change_state_to_in_progress
+        change_state_to_in_progress --> request_eirb_docs
+        request_eirb_docs --> unlink_azdo
+        unlink_azdo --> assign_to_ds_approval_group
+        assign_to_ds_approval_group --> assign_to_ds_approver
+    link_type: proceeded_by
+
 

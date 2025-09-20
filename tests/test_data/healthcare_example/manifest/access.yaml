@@ -1,28 +1,60 @@
-entra_id:
-- description: NM uses Microsoft Entra to manage access.
-- fields:
-    id [str]: The actual ID.
+file:
+- description: Entities related to identity access and management.
 
-entra_group:
-- description: Entra can have security groups used to control access.
+iam_team:
+- description: >
+    Responsible for managing access at NM. There is limited written documentation on
+    how IAM works at NM, but the IAM team can help with any questions or related
+    tasks.
+- acronym:
+    value: iam
+    expansion: Identity and Access Management
+- team
+
+microsoft_entra:
+- description: >
+    The enterprise solution used by NM for identity access and management, including
+    for e.g. Databricks.
+
+user_principal_name:
+- description: >
+    The unique identity at the heart of access. At NM this is the [nm_id] (which is
+    generated first) + "@nm.org", i.e. the user email.
+- acronym:
+    value: UPN
+    expansion: User Principal Name
 - fields:
-    name [str]: The group name.
-- question: >
-    How does the NM ID relate to the Entra ID? Is the NM ID used to generate an Entra
-    ID, which is what is actually used for access?
-- question: >
-    B2B accounts just allow Entra IDs from different orgs to be used, right? Does B2B
-    only work between orgs both using Microsoft?
-- question: >
-    Cloud Ops manages cloud permissions, right? Does NM use Entra for Databricks too?
-- question: For stg and prd environments are there just two separate Entra groups?
-- question: How do job codes relate to entra groups?
-- question: How are regular and PA accounts linked?
-- question: >
-    Consider a well-defined human-intuitive group (e.g. power users). Are all
-    permissions for that group recorded in one location and then propagated to other
-    systems and environments?
-- question: Is there a primer on how IAM works at NM?
+    value [str]:
+        description: The actual user principal name.
+        pattern: NM\d6@nm\.org
+    nm_id [str]:
+- primary_key: value
+- foreign_keys:
+    nm_id: nm_role.nm_id
+
+nm_b2b_account:
+- description: >
+    An account defined by another organization but used for access in NM. A B2B account
+    has an entry in NM systems, though it's somewhat of a shell.
+- component
+
+security_group:
+- description: >
+    Created using Entra, security groups can be used for various purposes. The
+    security_groups table stores current relevant security groups.
+- fields:
+    value [str]: Key to refer to the security group by.
+    full_name [str]: Full name of the security group.
+    description [str]: Describes purpose and individuals associated.
+    url [str]: Link to a page in Entra where the group can be
+- path: ../data/security_groups.csv
+
+access_package:
+- description: >
+    Users can submit an access package to request a set of permissions for an
+    organization. Access packages are hosted by a multi-organization application that a
+    given Microsoft organization can use. Access package owners can make their
+    packages visible to organizations of their choice.
 
 nu_role:
 - fields:
@@ -31,8 +63,32 @@ nu_role:
 nm_role:
 - fields:
     nm_id [str]:
-    pa_id [str]: If the user has a privileged access account.
-    job_code [str]: Unique identifier for their job.
+        description: >
+            Main ID that shows up throughout NM. The [user_principal_name] is what's
+            actually used for access.
+        pattern: NM\d6
+    pa_id [str]:
+        description: >
+            If non-null, the user has a privileged access account, which uses the same
+            six digits as the NM ID.
+        pattern: PA\d6
+
+nm_job:
+- fields:
+    job_code [int]: 
+    title [str]:
+    security_groups [list[str]]: >
+        One can associate a job code with one or more security groups, and as part of
+        onboarding anyone with that job code they can be added to the security groups.
+- primary_key: job_code
+
+nm_job_role:
+- fields:
+    nm_id [str]:
+    job_code [int]: The code associated with the role.
+- foreign_keys:
+    nm_id: nm_role.nm_id
+    job_code: nm_job.job_code
 
 fsm_analyst_role:
 - description: Individuals who fulfill data requests.
@@ -56,7 +112,7 @@ power_user_role:
 - foreign_keys:
     nm_id: fsm_analyst_role.nm_id
 
-rhlcc_group:
+rhlcc_power_users:
 - fields:
     entra_id [str]:
 
@@ -139,39 +195,3 @@ apply_security_groups_to_reports:
 - task
 - child: apply_security_groups_to_pbi_reports
 - child: apply_security_groups_to_sharepoint_folders
-
-AzNPDResearchAnalyticsTeam:
-- description: Azure non-PRD security group for RA team members.
-- fields:
-    nm_id [str]:
-- foreign_keys:
-    nm_id: nm_compatible_role.nm_id
-
-AzPRDResearchAnalyticsTeam:
-- description: Azure PRD security group for RA team members.
-- fields:
-    nm_id [str]:
-- foreign_keys:
-    nm_id: nm_compatible_role.nm_id
-
-AzNPDFSMPowerUserTeam:
-- description: Azure non-PRD security group for power users.
-- fields:
-    nm_id [str]:
-- foreign_keys:
-    nm_id: nm_compatible_role.nm_id
-
-AzPRDFSMPowerUserTeam:
-- description: Azure PRD security group for power users.
-- fields:
-    nm_id [str]:
-- foreign_keys:
-    nm_id: nm_compatible_role.nm_id
-
-fsm_finance_nm_security_group:
-- name: NU FSM Finance Team - PBI Access
-- url: https://myaccount.microsoft.com/groups/ff883225-fd42-46dc-8e7c-2082a0ddb70c
-- fields:
-    nm_id [str]:
-- foreign_keys:
-    nm_id: nm_compatible_role.nm_id

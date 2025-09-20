@@ -97,3 +97,12 @@ download_report_from_fsmresfiles:
     source: fsmresfiles
     target: requester_computer
     link_type: flow
+
+access_pbi_report_via_data_portal:
+- description: >
+    To understand if this route is useful/necessary, we need to evaluate the
+    distribution of # of reports per requester, and number of workspaces spanned.
+- task
+
+access_pbi_report_using_direct_link:
+- task
