@@ -174,13 +174,16 @@ draws_on_widely_used_system_design_terminology:
 - url: https://github.com/donnemartin/system-design-primer
 
 can_perform_registry_etl:
-- description: iac_sketch must perform ETL on the manifest, returning a registry.
+- description: iac_sketch must perform extract-transform-load operations on manifests to create registries.
+- requirement
 
 can_execute_tests:
-- description: iac_sketch must run all tests that validate requirements.
+- description: iac_sketch must run all validation tests to verify system requirements are met.
+- requirement
 
 can_document_workflows:
-- description: iac_sketch must provide a method to document workflows.
+- description: iac_sketch must provide functionality to document system workflows and processes.
+- requirement
 
 minimizes_structure_repetition:
 - description: >
