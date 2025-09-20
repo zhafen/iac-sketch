@@ -109,6 +109,11 @@ class CohortSystem:
         time_observed: str | pd.Timestamp = None,
         drop_deleted: bool = True,
     ) -> DataFrame:
+        """
+        Metadata
+        --------
+        - satisfies: can_identify_patients_in_a_given_cohort_at_a_given_time
+        """
 
         # Get the full state at that time
         cohort_patients_df_at_time: DataFrame = self.utils_sys.query_history_dataframe(

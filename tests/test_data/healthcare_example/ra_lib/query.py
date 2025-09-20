@@ -17,6 +17,10 @@ class OnPremQuerySystem:
     That was done using sqlalchemy parameters, e.g.
     `connection.execute(sqlalchemy.text("SELECT * FROM my_table WHERE my_table.id in :ids"), {"ids": ids})`
     That functionality has been removed until we have a use case.
+
+    Metadata
+    --------
+    - satisfies: can_query_onprem_data
     """
 
     def __init__(
