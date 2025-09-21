@@ -1,0 +1,8 @@
+person:
+- description: >
+    A component with fields frequently or always present for a person.
+- component
+- fields:
+    first_name [str]: First name.
+    last_name [str]: Last name.
+    birthdate [date]: When the person was born.

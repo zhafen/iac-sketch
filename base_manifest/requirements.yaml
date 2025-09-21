@@ -56,7 +56,9 @@ issue:
 - parent: todo
 
 satisfies:
-- description: The source (owner) entity satisfies the target entity.
+- description: >
+    The source (owner) entity satisfies the target entity. There can be multiple
+    [satisfies] relationships for a given target entity.
 - component
 - link_type:
     reverse: satisfied_by

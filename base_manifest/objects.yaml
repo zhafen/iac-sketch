@@ -27,3 +27,15 @@ acronym:
 - fields:
     value [str]: The acronym itself.
     expansion [str]: What the acronym represents.
+
+equation:
+- description: A mathematical equation.
+- component
+- fields:
+    value [str]: An expression describing the equation, e.g. F = ma
+    parameters [fields]: |
+        A set of parameters used in the equation, e.g.
+        parameters:
+            F [N]: Force.
+            m [kg]: Mass.
+            a [m/s**2]: Acceleration.

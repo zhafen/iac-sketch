@@ -159,6 +159,19 @@ compatible_with_a_config:
 - requirement
 - parent: is_a_useful_tool
 
+has_good_syntax:
+- parent: records_system_architecture
+- requirement
+- child: syntax_is_brief
+- child: syntax_is_flexible
+
+syntax_is_brief:
+- requirement
+
+syntax_is_flexible:
+- description: Syntax can be used to describe nearly arbitrary data.
+- requirement
+
 uses_consistent_ecs_terminology:
 - description: >
     Unfortunately, "system" and "component" are used in two different contexts

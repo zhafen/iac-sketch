@@ -44,6 +44,23 @@ link_type:
     directed [bool] = True: Whether or not the link is directed.
     reverse [entity]: The link_type for the reverse direction.
 
+related:
+- description: >
+    The most general type of relationship. Nothing is known about the relationship,
+    just that there is one.
+- component
+- fields:
+    value [entity]: The related entity.
+
+
+child:
+- description: The target entity is the child of the source entity.
+- component
+- link_type:
+    reverse: parent
+- fields:
+    value [entity]: The child entity to the owner entity.
+
 parent:
 - description: The target entity is the parent of the source entity.
 - component
@@ -54,14 +71,6 @@ parent:
 - todo: >
     Reverse this with child, since that produces a graph with more-consistent
     terminology.
-
-child:
-- description: The target entity is the child of the source entity.
-- component
-- link_type:
-    reverse: parent
-- fields:
-    value [entity]: The child entity to the owner entity.
 
 depends_on:
 - description: The source entity depends on the target entity.
