@@ -15,11 +15,26 @@ requirement:
     priority [float]:
         description: Value ranging from 0 (not a priority) to 1 (top priority).
         default: 0.5
+- equation:
+    value: x_target, requirement_fn, domain_fn, infra_target = x, objective_fn, domain_fn, infra | objective_fn(infra, x) & domain_fn(x)
+    note: Same as objective, but now the objective_fn accepts an infrastructure.
 - todo:
     value: >
         I think it's pretty confusing to have requirement's value be that of the
         infrastructure it's for.
     priority: 0.2
+
+objective:
+- description: A single goal.
+- equation:
+    value: x_target, objective, domain_fn = x, objective_fn, domain_fn | objective_fn(x) or not domain_fn(x)
+    parameters:
+        objective_function [function]: The
+    note: >
+        The target state, objective function, and domain function s.t. the objective
+        function evaluates to true or the domain function evaluates to false given
+        the state.
+- child: requirement
 
 status:
 - description: Tracks implementation progress.
