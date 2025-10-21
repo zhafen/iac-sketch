@@ -1,6 +1,6 @@
 primary_key:
 - description: >
-    If owned, the owner entity must be a component definition, in which case the
+    The owner entity must be a component definition, in which case the
     primary key is the field that acts as the unique identifier for each instance of
     that component.
 - component
@@ -13,7 +13,7 @@ primary_key:
 
 foreign_key:
 - description: >
-    If owned, the owner entity must be a component definition, in which case a
+    The owner entity must be a component definition, in which case a
     foreign key is a field that must also be a field in another component definition.
     A foreign key connects instances of the different component definitions.
 - component

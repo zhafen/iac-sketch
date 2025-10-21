@@ -1,13 +1,13 @@
 infrastructure:
 - description: >
-    If owned, the owner is a set of technologies, functions, people, etc. defined by
+    The owner is a set of technologies, functions, people, etc. defined by
     a manifest and created to satisfy one or more requirements.
 - component:
     multiplicity: "0..1"
 
 requirement:
 - description: >
-    If owned, the owner is a condition an infrastructure is designed around fulfilling.
+    The owner is a condition an infrastructure is designed around fulfilling.
 - component:
     multiplicity: "0..1"
 - fields:
@@ -102,8 +102,8 @@ drawback:
 
 task:
 - description: >
-    If owned, the entity is a task to complete. Fully-implemented tasks can take a few
-    forms, including:
+    The entity is a task to complete. Fully-implemented tasks can take a few
+    forms:
         1. A function, likely in Python.
         2. A Directed Acyclic Graph (DAG).
         3. A written procedure.
@@ -114,7 +114,7 @@ task:
 
 test:
 - description: >
-    If owned, the entity is a test to perform on a registry. At this time it must
+    The entity is a test to perform on a registry. At this time it must
     be the path to a Python function that accepts a registry as an argument
     and returns a dataframe containing any invalid components.
 - component:
