@@ -43,7 +43,7 @@ iac_sketch_pitch:
                 relationships. - working
             4. Parses pre-existing Python (inc. docstrings) for components, avoiding
                 duplicate definitions. - working
-            5. Assists in the develop of delivery plans. - in progress
+            5. Assists in the development of delivery plans. - in progress
             6. Generates documentation of the components. - in progress
 
 iac_sketch_name:
@@ -111,6 +111,13 @@ documents_system_architecture:
 - parent: is_a_useful_tool
 - child: stores_manifest_data_in_a_useful_format
 
+compliments_existing_agile_approaches:
+- description: >
+    There's no way iac_sketch can compete with the level of features provided by
+    leading Agile software. We need to compliment them.
+- requirement
+- parent: is_a_useful_tool
+
 stores_manifest_data_in_a_useful_format:
 - description: The format we store the data in facilitates different applications.
 - requirement
@@ -121,10 +128,10 @@ manifest_in_relational_db:
     each type of component is exactly equivalent to a table.
 - satisfies: stores_manifest_data_in_a_useful_format
 - benefit: >
-    Optimized for working with all component instances of a given component type.
-    This was likely one of the original motivations for ECS. By storing the data in
-    different tables for different component types, the data is fully prepared for
-    bulk calculations and analysis involving those components.
+    Optimized for working with all component instances of a given component type,
+    aka "data-oriented design", one of the main original motivations for ECS.
+    By storing the data in different tables for different component types, the data is
+    fully prepared for bulk calculations and analysis involving those components.
 - drawback: >
     Suboptimal for working with individual entitites.
     All the components for a given entity are scattered across different component

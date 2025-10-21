@@ -103,13 +103,14 @@ drawback:
 task:
 - description: >
     If owned, the entity is a task to complete. Fully-implemented tasks can take a few
-    forms:
+    forms, including:
         1. A function, likely in Python.
         2. A Directed Acyclic Graph (DAG).
         3. A written procedure.
-    All above require an task executor.
+    All above require a task executor.
 - component:
     multiplicity: "0..1"
+- parent: component
 
 test:
 - description: >

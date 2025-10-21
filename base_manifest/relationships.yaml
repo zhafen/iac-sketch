@@ -46,12 +46,13 @@ link_type:
 
 related:
 - description: >
-    The most general type of relationship. Nothing is known about the relationship,
+    The most general type of relationship. This component type doesn't specify any
+    additional information about the details of the relationship,
     just that there is one.
 - component
 - fields:
     value [entity]: The related entity.
-
+    description [str]: A description of the relationship.
 
 child:
 - description: The target entity is the child of the source entity.
@@ -97,6 +98,18 @@ transformation_of:
     directed: False
 - fields:
     value [entity]: The entity the owner entity is a transformation of.
+
+affiliated:
+- description: >
+    The source entity and the target entity are part of the same group.
+- component
+- link_type:
+    directed: False
+- fields:
+    value [entity]: The entity the owner entity is affiliated with.
+    always [bool]: >
+        If True, the target entity is always affiliated with the source entity, even if
+        not explicitly stated.
 
 child_component:
 - description: >

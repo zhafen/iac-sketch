@@ -40,6 +40,15 @@ component:
             - "0..*"
             - "1..1"
             - "1..*"
+- affiliated:
+    value: affiliated
+    description: >
+        If an entity has both a [component] component and an [affiliated] component
+        then [affiliated.value] should point to a component_type that is often owned
+        by the same entity.
+- affiliated:
+    value: fields
+    description: Used to specify the data associated with a component.
 
 field:
 - description: A single attribute or column.
@@ -76,7 +85,12 @@ fields:
     priority: 0.6
 
 compdef:
-- description: A component containing the parsed definition and validation status of a component type.
+- description: |
+    A component containing the parsed definition and validation status of a specified
+    type of component.
+
+    Component definitions can inherit from other component definitions,
+    identified by a paired [parent] component.
 - component:
     multiplicity: "0..1"
 - fields:
