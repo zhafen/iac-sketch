@@ -112,6 +112,15 @@ task:
     multiplicity: "0..1"
 - parent: component
 
+task_execution:
+- description: The actual completion of a task
+- component
+- fields:
+    task [entity]: The task executed.
+    start [datetime]: When the task was started.
+    duration [timedelta]: How long it took to complete the task.
+    executor [entity]: What entity completed the task.
+
 test:
 - description: >
     The entity is a test to perform on a registry. At this time it must
