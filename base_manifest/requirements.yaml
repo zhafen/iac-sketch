@@ -116,10 +116,19 @@ task_execution:
 - description: The actual completion of a task
 - component
 - fields:
-    task [entity]: The task executed.
+    task [task]: The task executed.
     start [datetime]: When the task was started.
     duration [timedelta]: How long it took to complete the task.
     executor [entity]: What entity completed the task.
+    execution_status [categorical]:
+        description: >
+            This component also catalogs tasks not yet started or completed, as well
+            as failures.
+        categories:
+            - not_started
+            - in_progress
+            - done
+            - failed
 
 test:
 - description: >
