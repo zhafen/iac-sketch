@@ -62,10 +62,37 @@ is_a_useful_tool:
 records_system_architecture:
 - requirement
 - parent: is_a_useful_tool
+- child: accepts_nested_entities_as_children
+
+accepts_nested_entities_as_children:
+- description: >
+    The files are very hard to follow right now, in regards to parents and children.
+    Allowing nesting as code works should be both straightforward and greatly improve
+    readability.
+- requirement:
+    priority: 0.9
 
 facilitates_system_design:
 - requirement
 - parent: is_a_useful_tool
+
+implements_systems:
+- requirement
+- parent: is_a_useful_tool
+- child: works_with_llms_to_implement_systems
+
+works_with_llms_to_implement_systems:
+- description: >
+    Reflecting on this, this is low priority because it's already a very competitive
+    space. Setting up an mcp server is probably a good idea, but calling agents is
+    probably not helpful.
+- requirement
+- child: has_an_mcp_server
+- child: directly_calls_agents
+
+directly_calls_agents:
+- description: Probably want to use langchain for this.
+- requirement
 
 enables_iterative_system_decomposition:
 - description: >

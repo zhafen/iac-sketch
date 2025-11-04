@@ -43,6 +43,9 @@ link_type:
 - fields:
     directed [bool] = True: Whether or not the link is directed.
     reverse [entity]: The link_type for the reverse direction.
+- todo:
+    value: Maybe we should just mark link_types by classes that inherit from link.
+    priority: 0.1
 
 related:
 - description: >
