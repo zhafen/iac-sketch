@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from iac_sketch import sketch
+from iaca import sketch
 
 
 class TestArchitect(unittest.TestCase):
@@ -31,9 +31,9 @@ class TestArchitect(unittest.TestCase):
         assert tests["test_passed"].all()
 
         expected_tests = [
-            "iac_sketch/system_tests.test_designed",
-            "iac_sketch/system_tests.test_implemented",
-            "iac_sketch/system_tests.test_defined",
+            "iaca/system_tests.test_designed",
+            "iaca/system_tests.test_implemented",
+            "iaca/system_tests.test_defined",
         ]
         for test_name in expected_tests:
             assert test_name in test_results, (

@@ -4,7 +4,7 @@ import unittest
 
 import pandas as pd
 
-from iac_sketch.extract import extract_python
+from iaca.extract import extract_python
 
 
 class TestPythonExtractor(unittest.TestCase):

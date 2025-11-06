@@ -1,8 +1,8 @@
-iac_sketch_infrastructure:
-- description: The iac_sketch package code.
+iaca_infrastructure:
+- description: The iaca package code.
 - infrastructure
 
-iac_sketch_pitch:
+iaca_pitch:
 - description: >
     Problem:
         Existing design solutions have limitations.
@@ -46,18 +46,18 @@ iac_sketch_pitch:
             5. Assists in the development of delivery plans. - in progress
             6. Generates documentation of the components. - in progress
 
-iac_sketch_name:
+iaca_name:
 - description: >
     The name the package goes by. Suggestions:
-    - iac_sketch or iacs (pronounced "yaks")
+    - iaca or iacs (pronounced "yaks")
     - IaCA or iaca (infrastructure as Code Architect)
     - manIaC
 - satisfies: has_a_good_name
 
 is_a_useful_tool:
 - description: >
-    Fundamentally, iac_sketch must serve a purpose.
-- requirement: iac_sketch_infrastructure
+    Fundamentally, iaca must serve a purpose.
+- requirement: iaca_infrastructure
 
 records_system_architecture:
 - requirement
@@ -100,7 +100,7 @@ enables_iterative_system_decomposition:
     once, but are assembled over time in an iterative process. This process includes
     gathering functional requirements from the stakeholders, identifying technical
     requirements/constraints, trial and error, and more. One of the goals of
-    iac_sketch is to provide a constant, living source of truth that can be used for
+    iaca is to provide a constant, living source of truth that can be used for
     both the formalized design and also components and requirements not yet
     incorporated.
 - requirement
@@ -125,7 +125,7 @@ test_can_incorporate_poorly_formed_components:
 
 validates_system_architecture:
 - description: >
-    iac_sketch must provide a series of automated tests that ensure the system
+    iaca must provide a series of automated tests that ensure the system
     architecture meets requirements.
 - requirement
 - parent: is_a_useful_tool
@@ -140,7 +140,7 @@ documents_system_architecture:
 
 compliments_existing_agile_approaches:
 - description: >
-    There's no way iac_sketch can compete with the level of features provided by
+    There's no way iaca can compete with the level of features provided by
     leading Agile software. We need to compliment them.
 - requirement
 - parent: is_a_useful_tool
@@ -189,7 +189,7 @@ manifest_in_rdf:
     Support for RDF has fallen dramatically, with little work done beyond the 2000's.
 
 compatible_with_a_config:
-- description: Parameters for iac_sketch should be set in the provided manifest.
+- description: Parameters for iaca should be set in the provided manifest.
 - requirement
 - parent: is_a_useful_tool
 
@@ -221,31 +221,31 @@ draws_on_widely_used_system_design_terminology:
 - url: https://github.com/donnemartin/system-design-primer
 
 can_perform_registry_etl:
-- description: iac_sketch must perform extract-transform-load operations on manifests to create registries.
+- description: iaca must perform extract-transform-load operations on manifests to create registries.
 - requirement
 
 can_execute_tests:
-- description: iac_sketch must run all validation tests to verify system requirements are met.
+- description: iaca must run all validation tests to verify system requirements are met.
 - requirement
 
 can_document_workflows:
-- description: iac_sketch must provide functionality to document system workflows and processes.
+- description: iaca must provide functionality to document system workflows and processes.
 - requirement
 
 minimizes_structure_repetition:
 - description: >
-    iac_sketch should not require the user to go through code and transcribe the
+    iaca should not require the user to go through code and transcribe the
     structure into yaml when it's already defined.
 
     Possible solutions:
     1. Automatically retrieve structure from the code.
     2. Use the structure in the yaml to define code execution order
-- requirement: iac_sketch_infrastructure
+- requirement: iaca_infrastructure
 
 can_build_delivery_plan:
 - description: >
     Given a set of prioritized requirements, can build a delivery plan.
-- requirement: iac_sketch_infrastructure
+- requirement: iaca_infrastructure
 - child: can_build_requirements_map
 - child: can_calculate_the_most_efficient_paths
 - child: can_budget_for_preference_and_fit
@@ -307,7 +307,7 @@ extract_entities_from_yaml:
 - output:
     registry [registry]: 
 - child: parse_components_list
-- code: iac_sketch.etl.ExtractSystem.extract_entities_from_yaml
+- code: iaca.etl.ExtractSystem.extract_entities_from_yaml
 
 parse_components_list:
 - description: Convert a dictionary containing components into a list of components.
@@ -318,7 +318,7 @@ parse_components_list:
     source [str]: Optional label of where the yaml came from.
 - output:
     extracted_comps [list[dict]]: Parsed version of the components.
-- code: iac_sketch.etl.ExtractSystem.parse_components_list
+- code: iaca.etl.ExtractSystem.parse_components_list
 
 load_entities_to_registry:
 - task

@@ -3,7 +3,7 @@ import unittest
 
 import pandas as pd
 
-from iac_sketch import docs
+from iaca import docs
 
 class TestGenerateComponentMarkdown(unittest.TestCase):
     

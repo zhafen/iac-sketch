@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 
 [project]
-name = "iac_sketch"
+name = "iaca"
 version = "0.1.0"
 description = "A sketch for infrastructure as code."
 authors = [

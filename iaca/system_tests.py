@@ -1,6 +1,6 @@
 import pandas as pd
 
-from iac_sketch import data
+from iaca import data
 
 
 def test_designed(

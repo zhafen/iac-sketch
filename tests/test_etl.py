@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from iac_sketch import data, etl
+from iaca import data, etl
 
-from iac_sketch.transform import preprocess, system
+from iaca.transform import preprocess, system
 
 
 class TestExtractSystem(unittest.TestCase):

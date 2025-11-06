@@ -5,7 +5,7 @@ from textwrap import dedent
 
 import pandas as pd
 
-from iac_sketch.extract import YAMLExtractor
+from iaca.extract import YAMLExtractor
 
 
 class TestYAMLExtractor(unittest.TestCase):

@@ -5,7 +5,7 @@ import pandas as pd
 from pandera import dtypes
 from pandera.engines import pandas_engine
 
-from iac_sketch import data
+from iaca import data
 
 
 class TestField(unittest.TestCase):
