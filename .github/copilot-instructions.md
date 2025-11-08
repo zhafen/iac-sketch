@@ -104,6 +104,16 @@ value = registry.get_parameter_set('param_name')
 
 ## Project-Specific Conventions
 
+### Code Style
+
+**Docstrings**: Use **NumPy-style docstrings** for all Python code. Include Parameters, Returns, and other sections as appropriate.
+
+**Verbosity**: Prefer concise, direct implementations. Avoid unnecessary verbosity in:
+- Code comments (only when adding clarity)
+- Variable names (descriptive but brief)
+- Function implementations (favor clarity over exhaustive documentation)
+- Explanations (get to the point)
+
 ### Docstring Metadata
 Python docstrings can contain YAML-formatted metadata blocks parsed as components:
 ```python
