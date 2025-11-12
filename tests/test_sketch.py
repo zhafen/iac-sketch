@@ -20,7 +20,7 @@ class TestArchitect(unittest.TestCase):
 
         # Try getting out a parameter set
         docs_parameters = registry.get_parameter_set("documentation")
-        assert docs_parameters["output_dir"] == "./docs/generated"
+        assert docs_parameters["output_dir"] == "./docs"
 
     def test_validate(self):
         self.architect.perform_registry_etl()

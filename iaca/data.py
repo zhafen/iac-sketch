@@ -344,12 +344,27 @@ class Registry:
                 "No [parameter_set] components found for "
                 f"parameter_entity '{self.parameter_entity}'."
             ) from exc
-        param_set = params.loc[params["name"] == name, "value"]
+        param_set = params.loc[params["name"] == name]
         if len(param_set) == 0:
             raise KeyError(f"Parameter set '{name}' not found for entity.")
         if len(param_set) > 1:
             raise ValueError(f"Parameter set '{name}' is not unique for entity.")
-        return param_set.iloc[0]
+        
+        # Get the row
+        row = param_set.iloc[0]
+        
+        # If value column exists and is not NaN, return it directly
+        if "value" in row.index and pd.notna(row["value"]):
+            return row["value"]
+        
+        # Otherwise, reconstruct the dict from flattened columns (e.g., value.key)
+        result = {}
+        for col in row.index:
+            if col.startswith("value.") and pd.notna(row[col]):
+                key = col[6:]  # Remove "value." prefix
+                result[key] = row[col]
+        
+        return result if result else row["value"]
 
     def update(self, other: "Registry", mode: str = "upsert"):
         """
