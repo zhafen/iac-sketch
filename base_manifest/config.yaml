@@ -17,9 +17,10 @@ default_parameters:
         skip_normalization:
             - compinst
             - fields
+            - parameter_set
 - parameter_set:
     name: documentation
     value:
-        output_dir: ./docs
+        output_dir: ./docs/generated
         excluded_sources: 
             - system
