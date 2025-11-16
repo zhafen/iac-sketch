@@ -59,7 +59,7 @@ class TestYAMLExtractor(unittest.TestCase):
         self.assertEqual(comp2["component"]["extra_field"], "extra_value")
 
     def test_extract_nested_yaml(self):
-        """Test extraction of nested YAML structures."""
+        """Test extraction of nested YAML structures with multiple levels."""
         yaml_content = dedent(
             """
             test_entity:
@@ -67,27 +67,45 @@ class TestYAMLExtractor(unittest.TestCase):
                 - children:
                     child_test_entity:
                         - component1: value2
+                        - children:
+                            grandchild_test_entity:
+                                - component1: value3
             """
         )
 
         entities = self.extractor.extract_from_input(yaml_content, source="test")
 
-        self.assertEqual(len(entities), 3)
+        self.assertEqual(len(entities), 5)
 
-        # Check first component
+        # Check first component (parent)
         comp1 = entities[0]
+        self.assertEqual(comp1["entity"], "test_entity")
         self.assertEqual(comp1["component_type"], "component1")
         self.assertEqual(comp1["component"]["value"], "value1")
 
-        # Check second component
+        # Check second component (child)
         comp2 = entities[1]
+        self.assertEqual(comp2["entity"], "child_test_entity")
         self.assertEqual(comp2["component_type"], "component1")
         self.assertEqual(comp2["component"]["value"], "value2")
 
-        # Check parent-child relationship
+        # Check third component (grandchild)
         comp3 = entities[2]
-        self.assertEqual(comp3["component_type"], "child")
-        self.assertEqual(comp3["component"]["value"], "child_test_entity")
+        self.assertEqual(comp3["entity"], "grandchild_test_entity")
+        self.assertEqual(comp3["component_type"], "component1")
+        self.assertEqual(comp3["component"]["value"], "value3")
+
+        # Check child-grandchild relationship
+        comp4 = entities[3]
+        self.assertEqual(comp4["entity"], "child_test_entity")
+        self.assertEqual(comp4["component_type"], "child")
+        self.assertEqual(comp4["component"]["value"], "grandchild_test_entity")
+
+        # Check parent-child relationship
+        comp5 = entities[4]
+        self.assertEqual(comp5["entity"], "test_entity")
+        self.assertEqual(comp5["component_type"], "child")
+        self.assertEqual(comp5["component"]["value"], "child_test_entity")
 
 
     def test_extract_yaml_with_entity_key(self):
