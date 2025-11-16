@@ -234,6 +234,26 @@ class TransformSystem:
             priority: 0.1
         """
 
+        # Determine which components should not be normalized
+        skip_normalization = ["compinst", "fields"]  # Always skip these
+        
+        # Check raw component definitions for normalize=False
+        if "component" in registry:
+            for entity in registry["component"].index.get_level_values("entity").unique():
+                try:
+                    comp_rows = registry["component"].loc[entity]
+                    # Handle both single row and multiple rows
+                    if isinstance(comp_rows, pd.Series):
+                        comp_rows = pd.DataFrame([comp_rows])
+                    
+                    for _, row in comp_rows.iterrows():
+                        comp_data = row["component"]
+                        if isinstance(comp_data, dict) and comp_data.get("normalize") is False:
+                            skip_normalization.append(entity)
+                            break
+                except (KeyError, AttributeError):
+                    pass
+
         return self.apply_transform(
             registry,
             preprocess.ComponentNormalizer(),
@@ -241,7 +261,7 @@ class TransformSystem:
             components_mapping={
                 comp: data.View(comp)
                 for comp in registry.keys()
-                if comp not in ["compinst", "fields"]
+                if comp not in skip_normalization
             },
         )
 

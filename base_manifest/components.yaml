@@ -108,6 +108,9 @@ compdef:
             - "0..*"
             - "1..1"
             - "1..*"
+    normalize [bool]:
+        description: Whether the component should be normalized during ETL preprocessing.
+        default: True
 
 compinst:
 - description: >

@@ -6,18 +6,13 @@ parameterization:
 
 parameter_set:
 - description: A dictionary containing a set of parameters.
+- component:
+    normalize: False
 - fields:
     value [dict]: The dictionary.
     name [str]: The [parameterization] the [parameter_set] is for.
 
 default_parameters:
-- parameter_set:
-    name: system
-    value:
-        skip_normalization:
-            - compinst
-            - fields
-            - parameter_set
 - parameter_set:
     name: documentation
     value:

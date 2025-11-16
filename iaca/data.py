@@ -344,6 +344,16 @@ class Registry:
                 "No [parameter_set] components found for "
                 f"parameter_entity '{self.parameter_entity}'."
             ) from exc
+        
+        # Handle unnormalized format (component column with dict)
+        if "component" in params.columns:
+            for _, row in params.iterrows():
+                comp = row["component"]
+                if isinstance(comp, dict) and comp.get("name") == name:
+                    return comp.get("value")
+            raise KeyError(f"Parameter set '{name}' not found for entity.")
+        
+        # Handle normalized format (name and value columns)
         param_set = params.loc[params["name"] == name, "value"]
         if len(param_set) == 0:
             raise KeyError(f"Parameter set '{name}' not found for entity.")
