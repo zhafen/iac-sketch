@@ -81,6 +81,26 @@ class YAMLExtractor:
                     raise format_error
                 comp_entity, comp = list(entry.items())[0]
 
+                # Handle nested entities (children)
+                if comp_entity == "children" and isinstance(comp, dict):
+                    # Process each child entity
+                    for child_entity, child_comps in comp.items():
+                        # Recursively parse child components
+                        child_extracted = self.parse_components_list(
+                            child_entity, child_comps, source=source
+                        )
+                        extracted_comps.extend(child_extracted)
+                        
+                        # Add child relationship component
+                        child_row = {
+                            "entity": entity,
+                            "comp_key": str(i),
+                            "component_type": "child",
+                            "component": {"value": child_entity},
+                        }
+                        extracted_comps.append(child_row)
+                    continue
+
                 # Format the component itself
                 # If comp is just a value, wrap it in a dictionary
                 if not isinstance(comp, dict):
