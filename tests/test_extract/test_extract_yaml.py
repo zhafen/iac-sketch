@@ -58,6 +58,38 @@ class TestYAMLExtractor(unittest.TestCase):
         self.assertEqual(comp2["component"]["value"], "value2")
         self.assertEqual(comp2["component"]["extra_field"], "extra_value")
 
+    def test_extract_nested_yaml(self):
+        """Test extraction of nested YAML structures."""
+        yaml_content = dedent(
+            """
+            test_entity:
+                - component1: value1
+                - children:
+                    child_test_entity:
+                        - component1: value2
+            """
+        )
+
+        entities = self.extractor.extract_from_input(yaml_content, source="test")
+
+        self.assertEqual(len(entities), 3)
+
+        # Check first component
+        comp1 = entities[0]
+        self.assertEqual(comp1["component_type"], "component1")
+        self.assertEqual(comp1["component"]["value"], "value1")
+
+        # Check second component
+        comp2 = entities[1]
+        self.assertEqual(comp2["component_type"], "component1")
+        self.assertEqual(comp2["component"]["value"], "value2")
+
+        # Check parent-child relationship
+        comp3 = entities[2]
+        self.assertEqual(comp3["component_type"], "child")
+        self.assertEqual(comp3["component"]["value"], "child_test_entity")
+
+
     def test_extract_yaml_with_entity_key(self):
         """Test extraction where component has key matching entity name."""
         yaml_content = dedent(
