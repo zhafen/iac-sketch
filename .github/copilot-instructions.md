@@ -48,11 +48,11 @@ The main workflow is **Extract → Load → Transform** via `Architect.perform_r
 
 ### Running Tests
 ```bash
-# Run all tests from project root
-pytest
+# Run all tests from project root using uv
+uv run pytest
 
 # Run specific test file
-pytest tests/test_etl.py
+uv run pytest tests/test_etl.py
 
 # Tests use unittest.TestCase, not pytest fixtures
 ```
@@ -158,6 +158,11 @@ All transforms inherit from `BaseEstimator, TransformerMixin` (scikit-learn styl
 
 ## Dependencies & Environment
 
+- **Package Manager**: This project uses **`uv`** for Python package management. Always use `uv` commands instead of `pip` or plain `python`:
+  - Run tests: `uv run pytest` (not `python -m pytest` or `pytest`)
+  - Run Python scripts: `uv run python script.py`
+  - Install packages: `uv add package-name`
+  - Sync dependencies: `uv sync`
 - Python 3.13+ required
 - Core: pandas, pandera, networkx, pyyaml
 - Testing: pytest (but tests use unittest.TestCase)
