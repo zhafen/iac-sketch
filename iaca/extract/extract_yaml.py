@@ -64,6 +64,10 @@ class YAMLExtractor:
             
         Returns:
             List of component dictionaries
+
+        Metadata
+        --------
+        - satisfies: accepts_nested_entities_as_children
         """
         extracted_comps = []
         for i, entry in enumerate(comps):

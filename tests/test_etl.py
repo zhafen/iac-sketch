@@ -1,4 +1,5 @@
 import os
+import tempfile
 import unittest
 
 import networkx as nx
@@ -6,7 +7,8 @@ import numpy as np
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
-from iaca import data, etl
+from iaca import data, etl, sketch
+from iaca.write import YAMLWriter
 
 from iaca.transform import preprocess, system
 
@@ -710,3 +712,72 @@ class TestSystemTransformers(unittest.TestCase):
             ]
         ).set_index("entity")
         assert_frame_equal(actual.loc[expected.index, expected.columns], expected)
+
+
+class TestYAMLWriter(unittest.TestCase):
+
+    def setUp(self):
+        self.writer = YAMLWriter()
+
+    def test_write_registry_healthcare_example(self):
+        """Test writing a registry loaded from healthcare_example to YAML.
+        
+        This test verifies that we can write user entities (not system metadata)
+        and reload them successfully.
+        """
+        # Load the healthcare example
+        architect = sketch.Architect(
+            "./tests/test_data/healthcare_example/manifest/**/*.yaml"
+        )
+        registry = architect.perform_registry_etl()
+
+        # @Copilot, this filtering should be part of the writing process, not the test.
+        # Get only user-defined entities (filter out system entities)
+        if "entity_source" in registry:
+            entity_sources = registry["entity_source"]
+            user_entities = entity_sources[
+                entity_sources["source"] == "user"
+            ].index.get_level_values("entity").unique()
+        else:
+            user_entities = []
+
+        # Write to a temporary directory
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = os.path.join(tmpdir, "healthcare_example_yaml")
+            
+            # Create a filtered registry with only user entities
+            # This is more realistic - we don't write system metadata
+            user_compinst = registry["compinst"][
+                registry["compinst"].index.get_level_values("entity").isin(user_entities)
+            ]
+            
+            # Create a minimal registry for writing
+            filtered_registry = registry.copy()
+            filtered_registry["compinst"] = user_compinst
+            
+            self.writer.write_registry(
+                filtered_registry, output_dir, organize_by_file=False
+            )
+
+            # Verify files were created
+            assert os.path.exists(output_dir)
+            yaml_files = []
+            for root, dirs, files in os.walk(output_dir):
+                for file in files:
+                    if file.endswith(".yaml"):
+                        yaml_files.append(file)
+            
+            assert len(yaml_files) > 0, "No YAML files were created"
+
+            # Verify the YAML is valid by loading it
+            with open(os.path.join(output_dir, "manifest.yaml"), "r") as f:
+                import yaml
+                content = yaml.safe_load(f)
+                assert isinstance(content, dict)
+                assert len(content) > 0, "YAML file is empty"
+                
+                # Check that we have some expected entities
+                assert "patient" in content or len(content) > 10, (
+                    f"Expected patient or many entities, got: {list(content.keys())[:10]}"
+                )
+
