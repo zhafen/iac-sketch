@@ -731,32 +731,13 @@ class TestYAMLWriter(unittest.TestCase):
         )
         registry = architect.perform_registry_etl()
 
-        # @Copilot, this filtering should be part of the writing process, not the test.
-        # Get only user-defined entities (filter out system entities)
-        if "entity_source" in registry:
-            entity_sources = registry["entity_source"]
-            user_entities = entity_sources[
-                entity_sources["source"] == "user"
-            ].index.get_level_values("entity").unique()
-        else:
-            user_entities = []
-
         # Write to a temporary directory
         with tempfile.TemporaryDirectory() as tmpdir:
             output_dir = os.path.join(tmpdir, "healthcare_example_yaml")
             
-            # Create a filtered registry with only user entities
-            # This is more realistic - we don't write system metadata
-            user_compinst = registry["compinst"][
-                registry["compinst"].index.get_level_values("entity").isin(user_entities)
-            ]
-            
-            # Create a minimal registry for writing
-            filtered_registry = registry.copy()
-            filtered_registry["compinst"] = user_compinst
-            
+            # Write with system entity filtering enabled (default)
             self.writer.write_registry(
-                filtered_registry, output_dir, organize_by_file=False
+                registry, output_dir, organize_by_file=False
             )
 
             # Verify files were created

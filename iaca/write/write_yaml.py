@@ -16,7 +16,11 @@ class YAMLWriter:
         pass
 
     def write_registry(
-        self, registry, output_dir: str, organize_by_file: bool = True
+        self,
+        registry,
+        output_dir: str,
+        organize_by_file: bool = True,
+        filter_system_entities: bool = True,
     ) -> None:
         """Write registry components to YAML files.
         
@@ -29,15 +33,33 @@ class YAMLWriter:
         organize_by_file : bool
             If True, organize entities by their source filename.
             If False, write all entities to a single file.
+        filter_system_entities : bool
+            If True, only write user-defined entities (not system metadata).
+            System entities include generated metadata like compdef, node, etc.
         """
-        # Get entity source information if available
-        if "entity_source" in registry:
+        # Filter to user entities if requested
+        if filter_system_entities and "entity_source" in registry:
             entity_sources = registry["entity_source"]
+            user_entities = entity_sources[
+                entity_sources["source"] == "user"
+            ].index.get_level_values("entity").unique()
+            
+            # Filter compinst to only user entities
+            compinst = registry["compinst"][
+                registry["compinst"].index.get_level_values("entity").isin(
+                    user_entities
+                )
+            ]
+            entity_sources = entity_sources.loc[user_entities]
         else:
-            entity_sources = None
-
-        # Get compinst to understand the structure
-        compinst = registry["compinst"]
+            # Get entity source information if available
+            if "entity_source" in registry:
+                entity_sources = registry["entity_source"]
+            else:
+                entity_sources = None
+            
+            # Get compinst to understand the structure
+            compinst = registry["compinst"]
 
         # Group entities by their source file or create single output
         if organize_by_file and entity_sources is not None:
