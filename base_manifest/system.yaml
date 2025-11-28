@@ -80,6 +80,27 @@ implements_systems:
 - requirement
 - parent: is_a_useful_tool
 - child: works_with_llms_to_implement_systems
+- children:
+    reconciles_user_components:
+        - description: >
+            Users should be able to easily reconcile (de-duplicate and match formatting)
+            between components they define on the fly and components that already exist,
+            either theirs or in the system.
+        - requirement:
+            priority: 0.9
+        - children:
+            supports_easy_lookup:
+                - description: >
+                    When designing a system in yaml it's essential that it's easy to
+                    find components that may fit. Auto-complete in yaml would be good.
+                - requirement
+            enables_reconciliation_via_postprocessing:
+                - description: >
+                    After the user defines their yaml, having the system postprocess
+                    to reconcile and then rewrite would be very helpful.
+                - requirement:
+                    priority: 0.7
+
 
 works_with_llms_to_implement_systems:
 - description: >
@@ -378,6 +399,9 @@ validate_compinsts:
     registry [registry]: Registry containing unconstrained compinsts.
 - output:
     registry [registry]: Registry containing compinsts with compdefs applied.
+- todo:
+    value: Update to use pydantic.
+    priority: 0.4
 
 apply_transforms:
 - task
@@ -397,3 +421,4 @@ codemia:
 figma:
 - description: A related design and prototyping tool used for creating user interfaces.
 - url: figma.com
+
