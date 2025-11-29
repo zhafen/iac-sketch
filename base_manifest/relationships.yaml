@@ -8,6 +8,16 @@ link:
     target [entity]: The target entity.
     link_type [entity]: The type of link.
 
+semantic_triplet:
+- description: >
+    Another way to describe links, consisting of
+    subject (source) -> predicate (link_type) -> object (target), e.g.
+    function_a -> depends_on -> function_b
+- fields:
+    subject [entity]: The subject (source) entity.
+    predicate [entity]: The predicate (link_type) entity.
+    object [entity]: The object (target) entity.
+
 node:
 - description: A component describing an entity in the context of the entity as a node.
 - component:
