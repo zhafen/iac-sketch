@@ -53,9 +53,7 @@ link_type:
 - fields:
     directed [bool] = True: Whether or not the link is directed.
     reverse [entity]: The link_type for the reverse direction.
-- todo:
-    value: Maybe we should just mark link_types by classes that inherit from link.
-    priority: 0.1
+    plural [str]: The term used for multiple of the link type.
 - todo:
     value: Get rid of reverse relations and just use the primary one.
     priority: 0.1
@@ -84,6 +82,22 @@ child:
         between those two use cases and how to work with them in the system should
         be reconciled.
     priority: 0.1
+- specifications:
+    specification:
+        - description: >
+            The target entity is a specification of the source entity, i.e. the target
+            inherits from the source.
+        - link_type:
+            reverse: specification_of
+            plural: specifications
+    subset:
+        - description: >
+            The target entity is a subset of the source entity, i.e. the target is one
+            piece of what makes the source entity whole. This relationship
+            is closely related to [component]s.
+        - link_type:
+            reverse: subset_of
+            plural: subsets
 
 parent:
 - description: The target entity is the parent of the source entity.

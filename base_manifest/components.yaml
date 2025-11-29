@@ -49,6 +49,15 @@ component:
 - affiliated:
     value: fields
     description: Used to specify the data associated with a component.
+- todo:
+    value: Can we condense the formatting for multiple components of the same type?
+    priority: 0.5
+- todo:
+    value: >
+        Can we allow entities to be defined inside other entities beyond the current
+        usage of "children"? When that's done we can probably simplify link_type to
+        remove the plural field.
+    priority: 0.6
 
 field:
 - description: A single attribute or column.
