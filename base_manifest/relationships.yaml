@@ -56,6 +56,9 @@ link_type:
 - todo:
     value: Maybe we should just mark link_types by classes that inherit from link.
     priority: 0.1
+- todo:
+    value: Get rid of reverse relations and just use the primary one.
+    priority: 0.1
 
 related:
 - description: >
@@ -74,6 +77,13 @@ child:
     reverse: parent
 - fields:
     value [entity]: The child entity to the owner entity.
+- todo:
+    value: >
+        Currently child links are used for both specifications of the parent (i.e. 
+        inheritance) and pieces of the parent (i.e. components). The relationship
+        between those two use cases and how to work with them in the system should
+        be reconciled.
+    priority: 0.1
 
 parent:
 - description: The target entity is the parent of the source entity.
