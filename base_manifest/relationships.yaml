@@ -155,4 +155,5 @@ child_component:
     - todo: >
           Consider if we can roll this up into a more general solution. For example,
           we might include a "default_components" component for component definitions.
+          In fact, this is degenerate with [specification].
     - component
